@@ -3,9 +3,7 @@ Type: Package
 Title: "Import Data from <www.data.go.kr> using API"
 Version: 0.1.0
 Date: 2019-04-11
-Author@R: c(person("Hansol", "Seo", 
-                   email = "power1sky@gmail.com", 
-                   role = c("aut", 'cre')))
+Author@R: c(person("Hansol", "Seo", email = "power1sky@gmail.com", role = c("aut", 'cre')))
 Description: This package is built for data importing from <www.data.go.kr>
     which offering various public data from korean goverment.
     Almost all functions in package need a API key as a parameter so user should 

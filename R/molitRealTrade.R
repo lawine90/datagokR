@@ -26,7 +26,7 @@ molitRealTrade <- function(key, year, month = NULL, locale, houseType, tradeType
   ### 1. parameter checking.
   if(is.null(key)){ stop("Invalid key. Please issue API key first and insert it to \"key\" param.") }
   if(!is.numeric(year) & nchar(year) != 4){ stop("Invalid year. Please insert right \"year\" param(ex: 2018)") }
-  if(nchar(locale) > 5){
+  if(mean(nchar(locale)) > 5){
     warning("Five numeric value is recommended for \"locale\" param.")
     locale <- substr(locale, 1, 5) %>% as.numeric
   }

@@ -64,30 +64,30 @@ molitRealTrade <- function(key, year, month = NULL, locale, houseType, tradeType
   cnt <- 0
 
   ## xml data parsing as list form.
-  if(tradeType == "trade"){
-    for(i in 1:length(datelst)){
-      for(j in 1:length(locale)){
-        tmp.xml <- GET(urls[[i]][j]) %>% content(., as = "parsed", encoding = 'UTF-8')
-        Count <- tmp.xml$response$body$totalCount
+  for(i in 1:length(datelst)){
+    for(j in 1:length(locale)){
+      tmp.xml <- GET(urls[[i]][j]) %>% content(., as = "parsed", encoding = 'UTF-8')
+      Count <- tmp.xml$response$body$totalCount
 
-        if(slow){
-          Sys.sleep(runif(1, 0, 1.5))
-        }
+      if(slow){
+        Sys.sleep(runif(1, 0, 1.5))
+      }
 
-        # if the number of trade is 0, skip.
-        # set location object differently according to the number of trade(1 or over.)
-        if(Count == 0){
+      # if the number of trade is 0, skip.
+      # set location object differently according to the number of trade(1 or over.)
+      if(Count == 0){
 
-          cnt <- cnt + 1
-          setTxtProgressBar(pb, value = cnt)
+        cnt <- cnt + 1
+        setTxtProgressBar(pb, value = cnt)
 
-          next
-        }else if(Count == 1){
-          location <- tmp.xml$response$body$items
-        }else{
-          location <- tmp.xml$response$body$items$item
-        } # end of if statement.
+        next
+      }else if(Count == 1){
+        location <- tmp.xml$response$body$items
+      }else{
+        location <- tmp.xml$response$body$items$item
+      } # end of if statement.
 
+      if(tradeType == "trade"){
         if(houseType == 'apart'){
           tmp.data <- data.frame(
             Code = character(Count), Add_Code = character(Count), Dong = character(Count),
@@ -160,41 +160,7 @@ molitRealTrade <- function(key, year, month = NULL, locale, houseType, tradeType
               ifelse(is.null(.), NA, .) %>% as.numeric
           } # end of loop k.
         } # end of if statement.
-
-        if(is.null(all.data[[i]])){
-          all.data[[i]] <- tmp.data
-        }else{
-          all.data[[i]] <- bind_rows(all.data[[i]], tmp.data)
-        } # end of if statement.
-
-        cnt <- cnt + 1
-        setTxtProgressBar(pb, value = cnt)
-      } # end of loop j.
-    } # end of loop i.
-  }else{
-    for(i in 1:length(datelst)){
-      for(j in 1:length(locale)){
-        tmp.xml <- GET(all.urls[[i]][j]) %>% content(., as = "parsed", encoding = 'UTF-8')
-        Count <- tmp.xml$response$body$totalCount
-
-        if(slow){
-          Sys.sleep(runif(1, 0, 1.5))
-        }
-
-        # if the number of trade is 0, skip.
-        # set location object differently according to the number of trade(1 or over.)
-        if(Count == 0){
-
-          cnt <- cnt + 1
-          setTxtProgressBar(pb, value = cnt)
-
-          next
-        }else if(Count == 1){
-          location <- tmp.xml$response$body$items
-        }else{
-          location <- tmp.xml$response$body$items$item
-        } # end of if statement.
-
+      }else{
         if(houseType == 'apart'){
           tmp.data <- data.frame(
             Code = character(Count), Add_Code = character(Count), Dong = character(Count),
@@ -270,18 +236,18 @@ molitRealTrade <- function(key, year, month = NULL, locale, houseType, tradeType
               ifelse(is.null(.), NA, .) %>% as.numeric
           } # end of loop k.
         } # end of if statement.
+      }
 
-        if(is.null(all.data[[i]])){
-          all.data[[i]] <- tmp.data
-        }else{
-          all.data[[i]] <- bind_rows(all.data[[i]], tmp.data)
-        } # end of if statement.
+      if(is.null(all.data[[i]])){
+        all.data[[i]] <- tmp.data
+      }else{
+        all.data[[i]] <- bind_rows(all.data[[i]], tmp.data)
+      } # end of if statement.
 
-        cnt <- cnt + 1
-        setTxtProgressBar(pb, value = cnt)
-      } # end of loop j.
-    } # end of loop i.
-  } # end of if.
+      cnt <- cnt + 1
+      setTxtProgressBar(pb, value = cnt)
+    } # end of loop j.
+  } # end of loop i.
 
   merging <- bind_rows(all.data) %>% as.tbl
   return(merging)

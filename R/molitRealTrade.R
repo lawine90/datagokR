@@ -16,7 +16,7 @@
 #'
 #' @examples
 #'  data <- molitRealTrade(key = "my_key", year = 2018, month = 1, locale = 11110,
-#'                         houseType = "apart", tradeType = "realtrade", slow = T)
+#'                         houseType = "apart", tradeType = "trade", slow = T)
 #' @export
 molitRealTrade <- function(key, year, month = NULL, locale, houseType, tradeType, slow = F){
   suppressWarnings(suppressMessages(library(dplyr)))

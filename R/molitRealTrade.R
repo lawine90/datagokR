@@ -1,27 +1,29 @@
-#' Ministry of Land Infrastructure and Transport actual transition the information
+#' Ministry of Land Infrastructure and Transport, real estate transaction data.
 #'
-#' molitRealTrade function import the actual transition data of house on the law. The function also provide simple visualization using plotly.
+#' molitRealTrade function import the actual transition data of house. The function also provide simple visualization using plotly.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>
 #' @param year numeric value. the year of real trade
 #' @param month numeric value. the month of real trade. default is NULL
-#' @param localeCode numeric value. SiGunGu code which means legal area. one of localeCode or localeName should be inserted.
-#' @param localeName character value. SiGunGu name wich means legal area. one of localeCode or localeName should be inserted.
+#' @param localeCode numeric value. SiGunGu code which means legal area.
+#' @param localeName character value. SiGunGu name wich means legal area.
 #' @param houseType character value. decide the type of house. it should be one of "apart", "multi", or "detached".
 #' @param tradeType character value. decide the type of trade. it should be one of "trade" or "rent".
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is FALSE
-#' @param viz logical value. if TRUE, provide simple visualization result. x: date, y: mean price.
+#' @param viz logical value. if TRUE, provide simple 3d visualization result. x: date, y: price, z: the number of contract.
 #'
 #' @return data.frame and visualization.
 #'
-#' @details If month value is NULL, all data of the year will imported. The locale parameter recommended five numeric value.
+#' @details If month value is NULL, all data of the year will imported.
+#'    Between localeCode and localeName, one of these parameters should be inserted. The localeCode parameter recommended five numeric value.
+#'    houseType parameter means the type of house. "apart" means Apartment(아파트), "multi" means Multiplex house(연립다세대), and "detached" means detached house(단독주택)
 #'
 #' @examples
-#'  # example 1
+#'  # example 1 searching by localeCode.
 #'  data <- molitRealTrade(key = "my_key", year = 2018, month = 1, localeCode = 11110,
 #'                         houseType = "apart", tradeType = "trade", slow = T, viz = F)
 #'
-#'  # example 2
+#'  # example 2 searching by localeName
 #'  data <- molitRealTrade(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
 #'                         houseType = "apart", tradeType = "rent", slow = F, viz = T)
 #' @export
@@ -29,7 +31,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
                            houseType, tradeType, slow = F, viz = F){
   suppressWarnings(suppressMessages(library(dplyr)))
   suppressWarnings(suppressMessages(library(bindrcpp)))
-  suppressWarnings(suppressMessages(library(httr))) # god bless GET and content function TT
+  suppressWarnings(suppressMessages(library(httr)))
 
   ### 1. parameter checking.
   if(is.null(key)){ stop("Invalid key. Please issue API key first and insert it to \"key\" param.") }

@@ -2,10 +2,10 @@
 % Please edit documentation in R/molitRealTrade.R
 \name{molitRealTrade}
 \alias{molitRealTrade}
-\title{Ministry of Land Infrastructure and Transport actual transition the information}
+\title{Ministry of Land Infrastructure and Transport, real estate transaction data.}
 \usage{
-molitRealTrade(key, year, month = NULL, locale, houseType, tradeType,
-  slow = F)
+molitRealTrade(key, year, month = NULL, localeCode = NULL,
+  localeName = NULL, houseType, tradeType, slow = F, viz = F)
 }
 \arguments{
 \item{key}{character value. API key issued from <www.data.go.kr>}
@@ -14,24 +14,35 @@ molitRealTrade(key, year, month = NULL, locale, houseType, tradeType,
 
 \item{month}{numeric value. the month of real trade. default is NULL}
 
-\item{locale}{numeric value. SiGunGu code which means legal area.}
+\item{localeCode}{numeric value. SiGunGu code which means legal area.}
+
+\item{localeName}{character value. SiGunGu name wich means legal area.}
 
 \item{houseType}{character value. decide the type of house. it should be one of "apart", "multi", or "detached".}
 
 \item{tradeType}{character value. decide the type of trade. it should be one of "trade" or "rent".}
 
-\item{slow}{logical value. if TURE, give sleep inbetween importing. default is FALSE}
+\item{slow}{logical value. if TRUE, give sleep inbetween importing. default is FALSE}
+
+\item{viz}{logical value. if TRUE, provide simple 3d visualization result. x: date, y: price, z: the number of contract.}
 }
 \value{
-data.frame
+data.frame and visualization.
 }
 \description{
-molitRealTrade function import the actual transition data of house on the law.
+molitRealTrade function import the actual transition data of house. The function also provide simple visualization using plotly.
 }
 \details{
-If month value is NULL, all data of the year will imported. The locale parameter recommended five numeric value.
+If month value is NULL, all data of the year will imported.
+   Between localeCode and localeName, one of these parameters should be inserted. The localeCode parameter recommended five numeric value.
+   houseType parameter means the type of house. "apart" means Apartment(아파트), "multi" means Multiplex house(연립다세대), and "detached" means detached house(단독주택)
 }
 \examples{
- data <- molitRealTrade(key = "my_key", year = 2018, month = 1, locale = 11110,
-                        houseType = "apart", tradeType = "realtrade", slow = T)
+ # example 1 searching by localeCode.
+ data <- molitRealTrade(key = "my_key", year = 2018, month = 1, localeCode = 11110,
+                        houseType = "apart", tradeType = "trade", slow = T, viz = F)
+
+ # example 2 searching by localeName
+ data <- molitRealTrade(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
+                        houseType = "apart", tradeType = "rent", slow = F, viz = T)
 }

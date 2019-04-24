@@ -14,8 +14,8 @@
 #'
 #'  @docType data
 #'  @keywords datasets
-#'  @name maps
-#'  @usage data("maps")
+#'  @name data_maps
+#'  @usage data("data_maps")
 #'  @format A tbl_df type data frame with 669339 rows and 7 columns. A tbl_df type data frame with 592095 rows and 7 columns.
 #'  @source unknown
 NULL

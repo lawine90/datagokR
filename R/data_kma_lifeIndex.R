@@ -15,8 +15,8 @@
 #'
 #'  @docType data
 #'  @keywords datasets
-#'  @name kma_lifeIndex
-#'  @usage data("kma_lifeIndex")
+#'  @name data_kma_lifeIndex
+#'  @usage data("data_kma_lifeIndex")
 #'  @format A tbl_df type data frame with 3772 rows and 4 columns. A 8 by 12 matrix. A 8 length vector.
 #'  @source https://www.data.go.kr/dataset/15000232/openapi.do?mypageFlag=Y
 NULL

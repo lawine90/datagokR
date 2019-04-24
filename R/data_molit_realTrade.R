@@ -12,8 +12,8 @@
 #'
 #'  @docType data
 #'  @keywords datasets
-#'  @name molit_realTrade
-#'  @usage data("molit_realTrade")
+#'  @name data_molit_realTrade
+#'  @usage data("data_molit_realTrade")
 #'  @format A tbl_df type data frame with 461 rows and 3 columns
 #'  @source https://www.code.go.kr/index.do
 NULL

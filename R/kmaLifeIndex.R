@@ -69,7 +69,8 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   }
 
   ## type
-  # data("data_kma_lifeIndex"); month <- as.numeric(strsplit(as.character(Sys.Date()), "-") %>% unlist)[2]
+  # data("data_kma_lifeIndex")
+  month <- as.numeric(strsplit(as.character(Sys.Date()), "-") %>% unlist)[2]
   if(!(type %in% c(rownames(kma_lifeIndex_type_check), "possible")) ){
     stop('Invalid type. \n \"type\" param should be one of ',
          rownames(kma_lifeIndex_type_check) %>% paste('"', ., '"', sep = "", collapse = ", "), ' or "possible"')

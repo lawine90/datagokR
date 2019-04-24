@@ -13,16 +13,16 @@
 #' @return data.frame and visualization.
 #'
 #' @details kmaLifeIndex function import eight index value which calculated by Korea Meteorological Administration and related to public's life.
-#'  Explanation about "type" as follow.
-#'  "fp" = Food poison index. It is povided from Jan to Dec.
-#'  "st" = Sensory temperature index. It is povided from Nov to Mar.
-#'  "hi" = Heat index. It is povided from Jun to Sep.
-#'  "di" = Discomport index. It is povided from Jun to Sep.
-#'  "ui" = Ultraviolet index. It is povided from Mar to Nov.
-#'  "fb" = Freezing burst index. It is povided from Dec to Feb.
-#'  "ap" = Atmospheric dispersion index. It is povided from Nov to May.
-#'  "sh" = Sensory heat index. It is povided from May to Sep.
-#'  "possible" = All index which affordable now.
+#'  Explanation about "type" as follow.\cr
+#'  "fp" = Food poison index. It is povided from Jan to Dec.\cr
+#'  "st" = Sensory temperature index. It is povided from Nov to Mar.\cr
+#'  "hi" = Heat index. It is povided from Jun to Sep.\cr
+#'  "di" = Discomport index. It is povided from Jun to Sep.\cr
+#'  "ui" = Ultraviolet index. It is povided from Mar to Nov.\cr
+#'  "fb" = Freezing burst index. It is povided from Dec to Feb.\cr
+#'  "ap" = Atmospheric dispersion index. It is povided from Nov to May.\cr
+#'  "sh" = Sensory heat index. It is povided from May to Sep.\cr
+#'  "possible" = All index which affordable now.\cr
 #'  See more details about each index from <http://www.weather.go.kr/weather/lifenindustry/life_jisu.jsp#>
 #'
 #' @examples

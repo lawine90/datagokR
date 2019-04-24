@@ -29,20 +29,32 @@
 #'  data <- molitRealTrade(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
 #'                         houseType = "apart", tradeType = "rent", slow = F, viz = T)
 #'
-#' @import dplyr
-#' @import bindrcpp
-#' @import httr
-#' @import plotly
-#' @import utils
-#' @import stats
+#' @importFrom dplyr %>%
+#' @importFrom dplyr as.tbl
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr filter
+#' @importFrom dplyr group_by
+#' @importFrom dplyr inner_join
+#' @importFrom dplyr left_join
+#' @importFrom dplyr right_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr n
+#' @importFrom dplyr select
+#' @importFrom dplyr summarise
+#' @importFrom dplyr ungroup
+#' @importFrom httr GET
+#' @importFrom httr content
+#' @importFrom utils txtProgressBar
+#' @importFrom utils setTxtProgressBar
+#' @importFrom utils data
+#' @importFrom stats runif
+#'
+#' @importFrom plotly plot_ly
+#' @importFrom graphics layout
 #'
 #' @export
 molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeName = NULL,
                            houseType, tradeType, slow = F, viz = F){
-  suppressWarnings(suppressMessages(requireNamespace("dplyr")))
-  suppressWarnings(suppressMessages(requireNamespace("bindrcpp")))
-  suppressWarnings(suppressMessages(requireNamespace("httr")))
-
   ### 1. parameter checking.
   if(is.null(key)){ stop("Invalid key. Please issue API key first and insert it to \"key\" param.") }
   if(!is.numeric(year) & nchar(year) != 4){ stop("Invalid year. Please insert right \"year\" param(ex: 2018)") }
@@ -76,7 +88,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
   ## locale
   if(is.null(localeCode) & !is.null(localeName)){
-    data("molit_realTrade") # should be updated regularly.
+    data("data_molit_realTrade.rda") # should be updated regularly.
     localeName <- gsub("시\\b|도\\b", "", localeName) %>% paste(., collapse = "|")
     localeCode <- molit_locale_code[grepl(localeName, molit_locale_code$name),] %>%
       filter(exist == "존재") %>% select(code) %>% unlist %>% as.numeric

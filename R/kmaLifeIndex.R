@@ -34,20 +34,28 @@
 #'  data <- kmaLifeIndex(key, time = seq(0, 21, 3),
 #'                       localeName = c("수원"), type = "possible", slow = T)
 #'
-#' @import dplyr
-#' @import bindrcpp
-#' @import magrittr
-#' @import XML
-#' @import utils
-#' @import stats
+#' @importFrom dplyr %>%
+#' @importFrom dplyr as.tbl
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr filter
+#' @importFrom dplyr group_by
+#' @importFrom dplyr inner_join
+#' @importFrom dplyr left_join
+#' @importFrom dplyr right_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr n
+#' @importFrom dplyr select
+#' @importFrom dplyr summarise
+#' @importFrom dplyr ungroup
+#' @importFrom utils txtProgressBar
+#' @importFrom utils setTxtProgressBar
+#' @importFrom utils data
+#' @importFrom magrittr set_colnames
+#' @importFrom stats runif
+#' @importFrom XML xmlToList
 #'
 #' @export
 kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
-  suppressWarnings(suppressMessages(requireNamespace("dplyr")))
-  suppressWarnings(suppressMessages(requireNamespace("magrittr")))
-  suppressWarnings(suppressMessages(requireNamespace("bindrcpp")))
-  suppressWarnings(suppressMessages(requireNamespace("XML")))
-
   ### 1. parameter checking and processing.
   ## key
   if(is.null(key)){ stop("Invalid key. \n Please issue API key first and insert it to \"key\" param.") }
@@ -61,7 +69,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   }
 
   ## type
-  data("kma_lifeIndex"); month <- as.numeric(strsplit(as.character(Sys.Date()), "-") %>% unlist)[2]
+  data("data_kma_lifeIndex"); month <- as.numeric(strsplit(as.character(Sys.Date()), "-") %>% unlist)[2]
   if(!(type %in% c(rownames(kma_lifeIndex_type_check), "possible")) ){
     stop('Invalid type. \n \"type\" param should be one of ',
          rownames(kma_lifeIndex_type_check) %>% paste('"', ., '"', sep = "", collapse = ", "), ' or "possible"')

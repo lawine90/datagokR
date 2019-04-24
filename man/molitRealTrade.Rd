@@ -33,9 +33,11 @@ data.frame and visualization.
 molitRealTrade function import the actual transition data of house. The function also provide simple visualization using plotly.
 }
 \details{
-If month value is NULL, all data of the year will imported.
-   Between localeCode and localeName, one of these parameters should be inserted. The localeCode parameter recommended five numeric value.
-   houseType parameter means the type of house. "apart" means Apartment, "multi" means Multiplex house, and "detached" means detached house.
+If month value is NULL, all data of the year will imported.\cr
+   Between localeCode and localeName, one of these parameters should be inserted. \cr
+   The localeCode parameter recommended five numeric value.
+   houseType parameter means the type of house. \cr
+   "apart" means Apartment, "multi" means Multiplex house, and "detached" means detached house.
 }
 \examples{
  # example 1 searching by localeCode.

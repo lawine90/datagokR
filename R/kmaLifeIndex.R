@@ -203,64 +203,53 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
 
     data[[i]] <- data[[i]][!duplicated(data[[i]]),]
 
-    if(unique(data[[i]]$type) == "Fsn"){ # 1. Food Poison.
+    if(unique(data[[i]]$type) == "Fsn"){
 
-      data[[i]]$level <- ifelse(data[[i]]$d0 >= 95, "danger",
-                                ifelse(data[[i]]$d0 >= 70, "warn",
-                                       ifelse(data[[i]]$d0 >= 35, "care", "safe"))) %>%
-        factor(levels = c("safe", "care", "warn", "danger"), ordered = T)
+      # 1. Food Poison.
+      data[[i]]$level <- cut(data[[i]]$d0, breaks = c(0, 35, 70, 95, Inf), right = F,
+                             labels = c("safe", "care", "warn", "danger"), ordered_result = T)
 
-    }else if(unique(data[[i]]$type) == "Sensorytem"){ # 2. Sensory temporature.
+    }else if(unique(data[[i]]$type) == "Sensorytem"){
 
-      data[[i]]$level <- ifelse(data[[i]]$h3 < -45, "danger",
-                                ifelse(data[[i]]$h3 < -25, "warn",
-                                       ifelse(data[[i]]$h3 < -10, "care", "safe"))) %>%
-        factor(levels = c("safe", "care", "warn", "danger"), ordered = T)
+      # 2. Sensory temporature.
+      data[[i]]$level <- cut(data[[i]]$h3*(-1), breaks = c(-Inf, 10, 25, 45, Inf),
+                             labels = c("safe", "care", "warn", "danger"), ordered_result = T)
 
-    }else if(unique(data[[i]]$type) == "Heat"){ # 3. Heat index.
+    }else if(unique(data[[i]]$type) == "Heat"){
 
-      data[[i]]$level <- ifelse(data[[i]]$h3 >= 66, "danger",
-                                ifelse(data[[i]]$h3 >= 54, "very high",
-                                       ifelse(data[[i]]$h3 >= 41, "high",
-                                              ifelse(data[[i]]$h3 >= 32, "normal", "low")))) %>%
-        factor(levels = c("low", "normal", "high", "very high", "danger"), ordered = T)
+      # 3. Heat index.
+      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(-Inf, 32, 41, 54, 65, Inf), right = F,
+                             labels = c("low", "normal", "high", "very high", "danger"), ordered_result = T)
 
-    }else if(unique(data[[i]]$type) == "Dspl"){ # 4. Discomport index.
+    }else if(unique(data[[i]]$type) == "Dspl"){
 
-      data[[i]]$level <- ifelse(data[[i]]$h3 >= 80, "very high",
-                                ifelse(data[[i]]$h3 >= 75, "high",
-                                       ifelse(data[[i]]$h3 >= 68, "normal", "low"))) %>%
-        factor(levels = c("low", "normal", "high", "very high"), ordered = T)
+      # 4. Discomport index.
+      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(-Inf, 68, 75, 80, Inf), right = F,
+                             labels = c("low", "normal", "high", "very high"), ordered_result = T)
 
-    }else if(unique(data[[i]]$type) == "Ultrv"){ # 5. Ultra-violet index.
+    }else if(unique(data[[i]]$type) == "Ultrv"){
 
-      data[[i]]$level <- ifelse(data[[i]]$d0 >= 11, "danger",
-                                ifelse(data[[i]]$d0 >= 8, "very high",
-                                       ifelse(data[[i]]$d0 >= 6, "high",
-                                              ifelse(data[[i]]$d0 >= 3, "normal", "low")))) %>%
-        factor(levels = c("low", "normal", "high", "very high", "danger"), ordered = T)
+      # 5. Ultra-violet index.
+      data[[i]]$level <- cut(data[[i]]$d0, breaks = c(0, 3, 6, 8, 11, Inf), right = F,
+                             labels = c("low", "normal", "high", "very high", "danger"), ordered_result = T)
 
-    }else if(unique(data[[i]]$type) == "Winter"){ # 6. Freezing-burst index.
+    }else if(unique(data[[i]]$type) == "Winter"){
 
-      data[[i]]$level <- ifelse(data[[i]]$h3 == 100, "very high",
-                                ifelse(data[[i]]$h3 == 75, "high",
-                                       ifelse(data[[i]]$h3 == 50, "normal", "low"))) %>%
-        factor(levels = c("low", "normal", "high", "very high"), ordered = T)
+      # 6. Freezing-burst index.
+      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(0, 26, 51, 76, 101), right = F,
+                             labels = c("low", "normal", "high", "very high"), ordered_result = T)
 
-    }else if(unique(data[[i]]$type) == "Airpollution"){ # 7. Atmospheric dispersion index.
+    }else if(unique(data[[i]]$type) == "Airpollution"){
 
-      data[[i]]$level <- ifelse(data[[i]]$h3 == 100, "low",
-                                ifelse(data[[i]]$h3 == 75, "mornaml",
-                                       ifelse(data[[i]]$h3 == 50, "high", "very high"))) %>%
-        factor(levels = c("low", "normal", "high", "very high"), ordered = T)
+      # 7. Atmospheric dispersion index.
+      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(0, 26, 51, 76, 101), right = F,
+                             labels = c("very high", "high", "normal", "low"), ordered_result = T)
 
-    }else{ # 8. Sensory heat.
+    }else{
 
-      data[[i]]$level <- ifelse(data[[i]]$h3 >= 31, "very danger",
-                                ifelse(data[[i]]$h3 >= 28, "danger",
-                                       ifelse(data[[i]]$h3 >= 25, "warn",
-                                              ifelse(data[[i]]$h3 >= 21, "care", "safe")))) %>%
-        factor(levels = c("safe", "care", "warn", "danger", "very danger"), ordered = T)
+      # 8. Sensory heat.
+      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(-Inf, 21, 25, 28, 31, Inf), right = F,
+                             labels = c("safe", "care", "warn", "danger", "very danger"), ordered_result = T)
     }
 
   }; names(data) <- type

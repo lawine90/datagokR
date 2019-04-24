@@ -16,7 +16,7 @@ molitRealTrade(key, year, month = NULL, localeCode = NULL,
 
 \item{localeCode}{numeric value. SiGunGu code which means legal area.}
 
-\item{localeName}{character value. SiGunGu name wich means legal area.}
+\item{localeName}{character value. SiGunGu name wich means legal area. It should be Korean.}
 
 \item{houseType}{character value. decide the type of house. it should be one of "apart", "multi", or "detached".}
 
@@ -35,7 +35,7 @@ molitRealTrade function import the actual transition data of house. The function
 \details{
 If month value is NULL, all data of the year will imported.
    Between localeCode and localeName, one of these parameters should be inserted. The localeCode parameter recommended five numeric value.
-   houseType parameter means the type of house. "apart" means Apartment(아파트), "multi" means Multiplex house(연립다세대), and "detached" means detached house(단독주택)
+   houseType parameter means the type of house. "apart" means Apartment, "multi" means Multiplex house, and "detached" means detached house.
 }
 \examples{
  # example 1 searching by localeCode.
@@ -45,4 +45,5 @@ If month value is NULL, all data of the year will imported.
  # example 2 searching by localeName
  data <- molitRealTrade(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
                         houseType = "apart", tradeType = "rent", slow = F, viz = T)
+
 }

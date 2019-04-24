@@ -20,5 +20,8 @@ Imports:
   httr (>= 1.4.0),
   XML (>= 3.98-1.19),
   ggplot2 (>= 3.1.1),
-  plotly (>= 4.9.0)
+  plotly (>= 4.9.0),
+  graphics (>= 3.4.3),
+  stats (>= 3.4.3),
+  utils (>= 3.4.3)
   

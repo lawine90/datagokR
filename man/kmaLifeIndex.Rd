@@ -5,14 +5,16 @@
 \title{Korea Meteorological Administration, The life weather index.}
 \usage{
 kmaLifeIndex(key, time = seq(0, 21, 3), localeCode = NULL,
-  localeName = NULL, type, slow = T, viz = T)
+  localeName = NULL, type, slow = T, viz = F)
 }
 \arguments{
 \item{key}{character value. API key issued from <www.data.go.kr>. no default.}
 
+\item{time}{numeric value. The time when the data is generated.}
+
 \item{localeCode}{numeric value. SiGunGu code which means legal area. one of localeCode or localeName should be inserted.}
 
-\item{localeName}{character value. SiGunGu name wich means legal area. one of localeCode or localeName should be inserted.}
+\item{localeName}{character value. SiGunGu name wich means legal area. one of localeCode or localeName should be inserted. It should be Korean.}
 
 \item{type}{character value. decide the type of index. it should be one of "fp", "st", "hi", "di", "ui", "fb", "ap", "sh" or "possible". see details.}
 
@@ -42,10 +44,11 @@ kmaLifeIndex function import eight index value which calculated by Korea Meteoro
 }
 \examples{
  # example 1 searching by localeCode.
- data <- molitRealTrade(key = "my_key", year = 2018, month = 1, localeCode = 11110,
-                        houseType = "apart", tradeType = "trade", slow = T, viz = F)
+ data <- kmaLifeIndex(key, time = seq(0, 21, 3), localeCode = c(4111100000, 4111156600),
+                      type = "fp", slow = T)
 
  # example 2 searching by localeName
- data <- molitRealTrade(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
-                        houseType = "apart", tradeType = "rent", slow = F, viz = T)
+ data <- kmaLifeIndex(key, time = seq(0, 21, 3),
+                      localeName = c("수원"), type = "possible", slow = T)
+
 }

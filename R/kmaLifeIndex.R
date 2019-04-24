@@ -3,8 +3,9 @@
 #' kmaLifeIndex function import the life weather index data last 2 days. The function also provide simple visualization using plotly.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>. no default.
+#' @param time numeric value. The time when the data is generated.
 #' @param localeCode numeric value. SiGunGu code which means legal area. one of localeCode or localeName should be inserted.
-#' @param localeName character value. SiGunGu name wich means legal area. one of localeCode or localeName should be inserted.
+#' @param localeName character value. SiGunGu name wich means legal area. one of localeCode or localeName should be inserted. It should be Korean.
 #' @param type character value. decide the type of index. it should be one of "fp", "st", "hi", "di", "ui", "fb", "ap", "sh" or "possible". see details.
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is TRUE.
 #' @param viz logical value. if TRUE, provide simple 2d visualization result. x: date, y: mean index.
@@ -26,18 +27,26 @@
 #'
 #' @examples
 #'  # example 1 searching by localeCode.
-#'  data <- molitRealTrade(key = "my_key", year = 2018, month = 1, localeCode = 11110,
-#'                         houseType = "apart", tradeType = "trade", slow = T, viz = F)
+#'  data <- kmaLifeIndex(key, time = seq(0, 21, 3), localeCode = c(4111100000, 4111156600),
+#'                       type = "fp", slow = T)
 #'
 #'  # example 2 searching by localeName
-#'  data <- molitRealTrade(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
-#'                         houseType = "apart", tradeType = "rent", slow = F, viz = T)
+#'  data <- kmaLifeIndex(key, time = seq(0, 21, 3),
+#'                       localeName = c("수원"), type = "possible", slow = T)
+#'
+#' @import dplyr
+#' @import bindrcpp
+#' @import magrittr
+#' @import XML
+#' @import utils
+#' @import stats
+#'
 #' @export
-kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeName = NULL, type, slow = T, viz = T){
-  suppressWarnings(suppressMessages(library(dplyr)))
-  suppressWarnings(suppressMessages(library(magrittr)))
-  suppressWarnings(suppressMessages(library(bindrcpp)))
-  suppressWarnings(suppressMessages(library(XML)))
+kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
+  suppressWarnings(suppressMessages(requireNamespace("dplyr")))
+  suppressWarnings(suppressMessages(requireNamespace("magrittr")))
+  suppressWarnings(suppressMessages(requireNamespace("bindrcpp")))
+  suppressWarnings(suppressMessages(requireNamespace("XML")))
 
   ### 1. parameter checking and processing.
   ## key

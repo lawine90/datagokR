@@ -6,7 +6,7 @@
 #' @param year numeric value. the year of real trade
 #' @param month numeric value. the month of real trade. default is NULL
 #' @param localeCode numeric value. SiGunGu code which means legal area.
-#' @param localeName character value. SiGunGu name wich means legal area.
+#' @param localeName character value. SiGunGu name wich means legal area. It should be Korean.
 #' @param houseType character value. decide the type of house. it should be one of "apart", "multi", or "detached".
 #' @param tradeType character value. decide the type of trade. it should be one of "trade" or "rent".
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is FALSE
@@ -16,7 +16,7 @@
 #'
 #' @details If month value is NULL, all data of the year will imported.
 #'    Between localeCode and localeName, one of these parameters should be inserted. The localeCode parameter recommended five numeric value.
-#'    houseType parameter means the type of house. "apart" means Apartment(아파트), "multi" means Multiplex house(연립다세대), and "detached" means detached house(단독주택)
+#'    houseType parameter means the type of house. "apart" means Apartment, "multi" means Multiplex house, and "detached" means detached house.
 #'
 #' @examples
 #'  # example 1 searching by localeCode.
@@ -26,12 +26,20 @@
 #'  # example 2 searching by localeName
 #'  data <- molitRealTrade(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
 #'                         houseType = "apart", tradeType = "rent", slow = F, viz = T)
+#'
+#' @import dplyr
+#' @import bindrcpp
+#' @import httr
+#' @import plotly
+#' @import utils
+#' @import stats
+#'
 #' @export
 molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeName = NULL,
                            houseType, tradeType, slow = F, viz = F){
-  suppressWarnings(suppressMessages(library(dplyr)))
-  suppressWarnings(suppressMessages(library(bindrcpp)))
-  suppressWarnings(suppressMessages(library(httr)))
+  suppressWarnings(suppressMessages(requireNamespace("dplyr")))
+  suppressWarnings(suppressMessages(requireNamespace("bindrcpp")))
+  suppressWarnings(suppressMessages(requireNamespace("httr")))
 
   ### 1. parameter checking.
   if(is.null(key)){ stop("Invalid key. Please issue API key first and insert it to \"key\" param.") }
@@ -266,7 +274,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
   )
 
   if(viz == T){
-    library(plotly)
+    requireNamespace("plotly")
 
     tmp.m <- result$data[,grepl("name|Dong|Price|Trade", colnames(result$data))]
     tmp.m <- tmp.m %>% mutate(Date = Trade_day %>% strsplit(., "~") %>%

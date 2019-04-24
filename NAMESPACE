@@ -2,3 +2,9 @@
 
 export(kmaLifeIndex)
 export(molitRealTrade)
+import(XML)
+import(bindrcpp)
+import(dplyr)
+import(httr)
+import(magrittr)
+import(plotly)

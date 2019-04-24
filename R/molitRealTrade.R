@@ -284,7 +284,8 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
   result <- list(
     data = bind_rows(all.data) %>% as.tbl %>% mutate(Code = as.integer(Code)) %>%
-      left_join(., molit_locale_code[,c('code', 'name')], by = c("Code" = "code"))
+      left_join(., molit_locale_code[,c('code', 'name')], by = c("Code" = "code")),
+    plot = NULL
   )
 
   if(viz == T){
@@ -300,21 +301,24 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     if(tradeType == "trade"){
       tmp.m.g <- tmp.m %>% group_by(Location, Date) %>% summarise(Price = mean(Price)*10000, Contract = n())
 
-      result$Price <- plot_ly(data = tmp.m.g, x = ~Date, y = ~Price, z = ~Contract, color = ~Location, size = ~Price,
-                   #mode = "markers", type = "scatter",
-                   text = ~paste("Address: ", Location, "<br>Price: ", round(Price), "<br>Count: ", Contract)) %>%
-        layout(title = paste(year, "molit Trade Data(from data.go.kr)"))
+      result$plot <- list(
+        price = plot_ly(data = tmp.m.g, x = ~Date, y = ~Price, z = ~Contract, color = ~Location, size = ~Price,
+                        #mode = "markers", type = "scatter",
+                        text = ~paste("Address: ", Location, "<br>Price: ", round(Price), "<br>Count: ", Contract)) %>%
+          layout(title = paste(year, "molit Trade Data(from data.go.kr)"))
+      )
     }else{
       tmp.m.g <- tmp.m %>% group_by(Location, Date) %>%
         summarise(rentPrice = mean(rentPrice)*10000, depoPrice = mean(depoPrice)*10000, Contract = n())
 
-      result$Price = plot_ly(data = tmp.m.g, x = ~Date, y = ~rentPrice, z = ~Contract, color = ~Location, size = ~rentPrice,
-                      text = ~paste("Address: ", Location, "<br>Rental Price: ", round(rentPrice), "<br>Count: ", Contract)) %>%
-        layout(title = paste(year, "molit Rental Price Data(from data.go.kr)"))
-
-      result$Deposit = plot_ly(data = tmp.m.g, x = ~Date, y = ~depoPrice, z = ~Contract, color = ~Location, size = ~depoPrice,
-                               text = ~paste("Address: ", Location, "<br>Deposit: ", round(depoPrice), "<br>Count: ", Contract)) %>%
-        layout(title = paste(year, "molit Deposit Data(from data.go.kr)"))
+      result$plot <- list(
+        price = plot_ly(data = tmp.m.g, x = ~Date, y = ~rentPrice, z = ~Contract, color = ~Location, size = ~rentPrice,
+                        text = ~paste("Address: ", Location, "<br>Rental Price: ", round(rentPrice), "<br>Count: ", Contract)) %>%
+          layout(title = paste(year, "molit Rental Price Data(from data.go.kr)")),
+        deposit = plot_ly(data = tmp.m.g, x = ~Date, y = ~depoPrice, z = ~Contract, color = ~Location, size = ~depoPrice,
+                          text = ~paste("Address: ", Location, "<br>Deposit: ", round(depoPrice), "<br>Count: ", Contract)) %>%
+          layout(title = paste(year, "molit Deposit Data(from data.go.kr)"))
+      )
     }
   }
   return(result)

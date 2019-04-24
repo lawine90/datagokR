@@ -88,7 +88,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
   ## locale
   if(is.null(localeCode) & !is.null(localeName)){
-    data("data_molit_realTrade") # should be updated regularly.
+    # data("data_molit_realTrade") # should be updated regularly.
     localeName <- gsub("시\\b|도\\b", "", localeName) %>% paste(., collapse = "|")
     localeCode <- molit_locale_code[grepl(localeName, molit_locale_code$name),] %>%
       filter(exist == "존재") %>% select(code) %>% unlist %>% as.numeric

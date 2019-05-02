@@ -103,7 +103,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
 
   ### 2. REST url
   ## End Point.
-  url <- paste("http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/get", kma_lifeIndex_urlType[type], "LifeList?", sep = "")
+  url <- paste("http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/get", datagokR::kma_lifeIndex_urlType[type], "LifeList?", sep = "")
 
   ## date time(only last 2 days...).
   datelst <- c(Sys.Date() - 1, Sys.Date()) %>% gsub("-", "", .) %>%
@@ -115,15 +115,15 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   ## locale
   if(is.null(localeCode) & !is.null(localeName)){
     localeName <- gsub("시\\b|도\\b|구\\b", "", localeName) %>% paste(., collapse = "|")
-    localeCode <- kma_lifeIndex_locale_code[grepl(localeName, paste(kma_lifeIndex_locale_code$name1,
-                                                                    kma_lifeIndex_locale_code$name2, sep = " ")),] %>%
+    localeCode <- datagokR::kma_lifeIndex_locale_code[grepl(localeName, paste(datagokR::kma_lifeIndex_locale_code$name1,
+                                                                              datagokR::kma_lifeIndex_locale_code$name2, sep = " ")),] %>%
       select(code) %>% unlist %>% as.numeric
   }
 
   ## generate list of urls(fxxking so many limitations...).
   # 1st, url + key + datelst. datelst by type condition.
   # 2nd, (url + key + datelst) + localeCode.
-  urls <- lapply(url, function(x) if(grepl(kma_lifeIndex_urlType[c("fp", "ui", "sh")] %>% paste(collapse = "|"), x)){
+  urls <- lapply(url, function(x) if(grepl(datagokR::kma_lifeIndex_urlType[c("fp", "ui", "sh")] %>% paste(collapse = "|"), x)){
     paste(x, "serviceKey=", key, "&time=", datelst[substr(datelst, 9, 10) %in% c("06", "18")], "&areaNo=", sep = "")
   } else{
     paste(x, "serviceKey=", key, "&time=", datelst, "&areaNo=", sep = "")
@@ -168,7 +168,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
     }else if(suc[i] =="Y"){
       location <- tmp.xml$Body$IndexModel
 
-      if(gsub(".*get(.*)LifeList.*", "\\1", urls[i]) %in% kma_lifeIndex_urlType[c("fp", "ui")]){
+      if(gsub(".*get(.*)LifeList.*", "\\1", urls[i]) %in% datagokR::kma_lifeIndex_urlType[c("fp", "ui")]){
         all.data[[i]] <- data.frame(
           idxCode = location$code,
           type = gsub(".*get(.*)LifeList.*", "\\1", urls[i]),
@@ -219,7 +219,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   data <- list(); length(data) <- length(type)
   for(i in 1:length(data)){
     data[[i]] <- bind_rows(all.data[lapply(all.data, function(x)
-      x$type == kma_lifeIndex_urlType[type][i]) %>% unlist %>% which]) %>% as.tbl %>%
+      x$type == datagokR::kma_lifeIndex_urlType[type][i]) %>% unlist %>% which]) %>% as.tbl %>%
       mutate(time = strptime(time, format='%Y%m%d%H') %>% as.character,
              locale = as.numeric(locale))
 

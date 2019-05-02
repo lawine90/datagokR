@@ -49,12 +49,15 @@
 #' @importFrom dplyr ungroup
 #' @importFrom utils txtProgressBar
 #' @importFrom utils setTxtProgressBar
+#' @importFrom utils globalVariables
 #' @importFrom utils data
 #' @importFrom magrittr set_colnames
 #' @importFrom stats runif
 #' @importFrom XML xmlToList
 #'
 #' @export
+utils::globalVariables(c(".", "code", "kma_lifeIndex_locale_code", "kma_lifeIndex_type_check",
+                         "kma_lifeIndex_urlType", "locale"), add = F)
 kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
   ### 1. parameter checking and processing.
   ## key
@@ -71,16 +74,17 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   ## type
   # data("data_kma_lifeIndex")
   month <- as.numeric(strsplit(as.character(Sys.Date()), "-") %>% unlist)[2]
-  if(!(type %in% c(rownames(kma_lifeIndex_type_check), "possible")) ){
+  if(!(type %in% c(rownames(datagokR::kma_lifeIndex_type_check), "possible")) ){
     stop('Invalid type. \n \"type\" param should be one of ',
-         rownames(kma_lifeIndex_type_check) %>% paste('"', ., '"', sep = "", collapse = ", "), ' or "possible"')
+         rownames(datagokR::kma_lifeIndex_type_check) %>%
+           paste('"', ., '"', sep = "", collapse = ", "), ' or "possible"')
   }
   if(type == "possible"){
-    type <- kma_lifeIndex_type_check[,month] %>% which %>% names
+    type <- datagokR::kma_lifeIndex_type_check[,month] %>% which %>% names
   }
-  if(kma_lifeIndex_type_check[type, month] %>% any == F){
+  if(datagokR::kma_lifeIndex_type_check[type, month] %>% any == F){
     stop("Inappropriate type. you can't import ", type, "-type data at ", month.name[month],
-         "\n it can be imported at ", paste(month.name[kma_lifeIndex_type_check[type,]], collapse = ", "), " only.")
+         "\n it can be imported at ", paste(month.name[datagokR::kma_lifeIndex_type_check[type,]], collapse = ", "), " only.")
   }
 
   ## time

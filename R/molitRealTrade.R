@@ -46,13 +46,16 @@
 #' @importFrom httr content
 #' @importFrom utils txtProgressBar
 #' @importFrom utils setTxtProgressBar
+#' @importFrom utils globalVariables
 #' @importFrom utils data
 #' @importFrom stats runif
+#' @importFrom rlang .data
 #'
 #' @importFrom plotly plot_ly
 #' @importFrom plotly layout
 #'
 #' @export
+utils::globalVariables(c("molit_locale_code", ".data"), add = F)
 molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeName = NULL,
                            houseType, tradeType, slow = F, viz = F){
   ### 1. parameter checking.
@@ -79,8 +82,11 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
   )
 
   ## date
-  datelst <- seq.Date(from = as.Date(paste(year, '-01-01', sep = "")), to = as.Date(paste(year, '-12-01', sep = "")), by = 'month') %>%
-    as.character %>% gsub("-", "", .) %>% substr(., 1, 6)
+  datelst <- seq.Date(from = as.Date(paste(year, '-01-01', sep = "")),
+                      to = as.Date(paste(year, '-12-01', sep = "")),
+                      by = 'month')
+  datelst <- as.character(datelst)
+  datelst <- gsub("-", "", datelst) %>% substr(start = 1, stop = 6)
 
   if(!is.null(month)){
     datelst <- datelst[gsub(year, "", datelst) %in% sprintf("%02d", month)]
@@ -88,15 +94,14 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
   ## locale
   if(is.null(localeCode) & !is.null(localeName)){
-    # data("data_molit_realTrade") # should be updated regularly.
-    localeName <- gsub("시\\b|도\\b", "", localeName) %>% paste(., collapse = "|")
-    localeCode <- molit_locale_code[grepl(localeName, molit_locale_code$name),] %>%
-      filter(exist == "존재") %>% select(code) %>% unlist %>% as.numeric
+    localeName <- gsub("시\\b|도\\b", "", localeName) %>% paste(collapse = "|")
+    localeCode <- datagokR::molit_locale_code[grepl(localeName, datagokR::molit_locale_code$name),]
+    localeCode <- localeCode[localeCode$exist == "존재",] %>% select("code") %>% unlist %>% as.numeric
   }
 
   ## generate list of urls.
   urls <- lapply(datelst, function(x) paste(url, "serviceKey=", key, "&DEAL_YMD=", x, sep = "")) %>%
-    lapply(., function(x) paste(x, "&LAWD_CD=", localeCode, sep = "")) %>% unlist
+    lapply(function(x) paste(x, "&LAWD_CD=", localeCode, sep = "")) %>% unlist
 
   ### 3. urls's xml parsing.
   all.data <- list(); length(all.data) <- length(urls)
@@ -104,7 +109,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
-    tmp.xml <- GET(urls[[i]]) %>% content(., as = "parsed", encoding = 'UTF-8')
+    tmp.xml <- GET(urls[[i]]) %>% content(as = "parsed", encoding = 'UTF-8')
     Count <- tmp.xml$response$body$totalCount
 
     if(slow){
@@ -133,19 +138,19 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
         )
 
         for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.), NA, .) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,4] <- location[[k]]$`아파트` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,6] <- location[[k]]$`건축년도` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,7] <- location[[k]]$`전용면적` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`층` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`년` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`월` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,11] <- location[[k]]$`일` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
+          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
+          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,4] <- location[[k]]$`아파트` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,6] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,7] <- location[[k]]$`전용면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,8] <- location[[k]]$`층` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,9] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,10] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,11] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
 
-          tmp.data[k,5] <- location[[k]]$`거래금액` %>% trimws %>% gsub(',', '', .) %>%
-            ifelse(is.null(.), NA, .) %>% as.numeric
+          tmp.data[k,5] <- location[[k]]$`거래금액` %>% trimws %>% gsub(',', '', .data) %>%
+            ifelse(is.null(.data), NA, .data) %>% as.numeric
         } # end of loop k.
       }else if(houseType == 'multi'){
         tmp.data <- data.frame(
@@ -157,20 +162,20 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
         )
 
         for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.), NA, .) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,4] <- location[[k]]$`연립다세대` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,6] <- location[[k]]$`건축년도` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,7] <- location[[k]]$`전용면적` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`대지권면적` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`층` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`년` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,11] <- location[[k]]$`월` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,12] <- location[[k]]$`일` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
+          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
+          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,4] <- location[[k]]$`연립다세대` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,6] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,7] <- location[[k]]$`전용면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,8] <- location[[k]]$`대지권면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,9] <- location[[k]]$`층` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,10] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,11] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,12] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
 
-          tmp.data[k,5] <- location[[k]]$`거래금액` %>% trimws %>% gsub(',', '', .) %>%
-            ifelse(is.null(.), NA, .) %>% as.numeric
+          tmp.data[k,5] <- location[[k]]$`거래금액` %>% trimws %>% gsub(',', '', .data) %>%
+            ifelse(is.null(.data), NA, .data) %>% as.numeric
         } # end of loop k.
       }else if(houseType == 'detached'){
         tmp.data <- data.frame(
@@ -181,18 +186,18 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
         )
 
         for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.), NA, .) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`법정동` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`주택유형` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,5] <- location[[k]]$`건축년도` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,6] <- location[[k]]$`연면적` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,7] <- location[[k]]$`대지면적` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`년` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`월` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`일` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
+          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
+          tmp.data[k,2] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,3] <- location[[k]]$`주택유형` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,5] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,6] <- location[[k]]$`연면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,7] <- location[[k]]$`대지면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,8] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,9] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,10] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
 
-          tmp.data[k,4] <- location[[k]]$`거래금액` %>% trimws %>% gsub(',', '', .) %>%
-            ifelse(is.null(.), NA, .) %>% as.numeric
+          tmp.data[k,4] <- location[[k]]$`거래금액` %>% trimws %>% gsub(',', '', .data) %>%
+            ifelse(is.null(.data), NA, .data) %>% as.numeric
         } # end of loop k.
       } # end of if statement.
     }else{
@@ -206,21 +211,21 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
         )
 
         for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.), NA, .) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,4] <- location[[k]]$`아파트` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,7] <- location[[k]]$`건축년도` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`전용면적` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`층` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`년` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,11] <- location[[k]]$`월` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,12] <- location[[k]]$`일` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
+          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
+          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,4] <- location[[k]]$`아파트` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,7] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,8] <- location[[k]]$`전용면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,9] <- location[[k]]$`층` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,10] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,11] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,12] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
 
-          tmp.data[k,5] <- location[[k]]$`월세금액` %>% trimws %>% gsub(',', '', .) %>%
-            ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,6] <- location[[k]]$`보증금액` %>% trimws %>% gsub(',', '', .) %>%
-            ifelse(is.null(.), NA, .) %>% as.numeric
+          tmp.data[k,5] <- location[[k]]$`월세금액` %>% trimws %>% gsub(',', '', .data) %>%
+            ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,6] <- location[[k]]$`보증금액` %>% trimws %>% gsub(',', '', .data) %>%
+            ifelse(is.null(.data), NA, .data) %>% as.numeric
         } # end of loop k.
       }else if(houseType == 'multi'){
         tmp.data <- data.frame(
@@ -232,21 +237,21 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
         )
 
         for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.), NA, .) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,4] <- location[[k]]$`연립다세대` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,7] <- location[[k]]$`건축년도` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`전용면적` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`층` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`년` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,11] <- location[[k]]$`월` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,12] <- location[[k]]$`일` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
+          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
+          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,4] <- location[[k]]$`연립다세대` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,7] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,8] <- location[[k]]$`전용면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,9] <- location[[k]]$`층` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,10] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,11] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,12] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
 
-          tmp.data[k,5] <- location[[k]]$`월세금액` %>% trimws %>% gsub(',', '', .) %>%
-            ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,6] <- location[[k]]$`보증금액` %>% trimws %>% gsub(',', '', .) %>%
-            ifelse(is.null(.), NA, .) %>% as.numeric
+          tmp.data[k,5] <- location[[k]]$`월세금액` %>% trimws %>% gsub(',', '', .data) %>%
+            ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,6] <- location[[k]]$`보증금액` %>% trimws %>% gsub(',', '', .data) %>%
+            ifelse(is.null(.data), NA, .data) %>% as.numeric
         } # end of loop k.
       }else if(houseType == 'detached'){
         tmp.data <- data.frame(
@@ -258,17 +263,17 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
         )
 
         for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.), NA, .) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`법정동` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
-          tmp.data[k,5] <- location[[k]]$`계약면적` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,6] <- location[[k]]$`년` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,7] <- location[[k]]$`월` %>% ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`일` %>% ifelse(is.null(.), NA, .) %>% trimws %>% as.character
+          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
+          tmp.data[k,2] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
+          tmp.data[k,5] <- location[[k]]$`계약면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,6] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,7] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,8] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
 
-          tmp.data[k,3] <- location[[k]]$`월세금액` %>% trimws %>% gsub(',', '', .) %>%
-            ifelse(is.null(.), NA, .) %>% as.numeric
-          tmp.data[k,4] <- location[[k]]$`보증금액` %>% trimws %>% gsub(',', '', .) %>%
-            ifelse(is.null(.), NA, .) %>% as.numeric
+          tmp.data[k,3] <- location[[k]]$`월세금액` %>% trimws %>% gsub(',', '', .data) %>%
+            ifelse(is.null(.data), NA, .data) %>% as.numeric
+          tmp.data[k,4] <- location[[k]]$`보증금액` %>% trimws %>% gsub(',', '', .data) %>%
+            ifelse(is.null(.data), NA, .data) %>% as.numeric
         } # end of loop k.
       } # end of if statement.
     }
@@ -282,42 +287,63 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     setTxtProgressBar(pb, value = i)
   } # end of loop i.
 
+  re.da <- bind_rows(all.data) %>% as.tbl
+  re.da <- re.da %>% mutate("Code" = as.integer(re.da$Code)) %>%
+    left_join(y = molit_locale_code[,c('code', 'name')], by = c("Code" = "code"))
+
   result <- list(
-    data = bind_rows(all.data) %>% as.tbl %>% mutate(Code = as.integer(Code)) %>%
-      left_join(., molit_locale_code[,c('code', 'name')], by = c("Code" = "code")),
+    data = re.da,
     plot = NULL
   )
 
   if(viz == T){
-    requireNamespace("plotly")
-
     tmp.m <- result$data[,grepl("name|Dong|Price|Trade", colnames(result$data))]
-    tmp.m <- tmp.m %>% mutate(Date = Trade_day %>% strsplit(., "~") %>%
-                      lapply(., function(x) as.numeric(x) %>% mean %>% round) %>%
-                      paste(Trade_year, Trade_month, ., sep = "-") %>% as.Date,
-                      Trade_year = NULL, Trade_month = NULL, Trade_day = NULL,
-                      Location = as.factor(name))
+
+    tmp.m$Trade_day <- tmp.m$Trade_day %>% strsplit(split = "~") %>%
+      lapply(function(x) as.numeric(x) %>% mean %>% round) %>% unlist
+    tmp.m$Date <- paste(tmp.m$Trade_year, tmp.m$Trade_month, tmp.m$Trade_day, sep = "-") %>% as.Date
+    tmp.m$Location <- as.factor(tmp.m$name)
+
+    tmp.m <- tmp.m[,c("Dong", "rentPrice", "depoPrice", "Date", "Location")]
 
     if(tradeType == "trade"){
-      tmp.m.g <- tmp.m %>% group_by(Location, Date) %>% summarise(Price = mean(Price)*10000, Contract = n())
+      tmp.m.g <- tmp.m %>% group_by(.data$Location, .data$Date) %>%
+        summarise("Price" = mean(.data$Price)*10000, "Contract" = n()) %>% ungroup
 
       result$plot <- list(
-        price = plot_ly(data = tmp.m.g, x = ~Date, y = ~Price, z = ~Contract, color = ~Location, size = ~Price,
-                        #mode = "markers", type = "scatter",
-                        text = ~paste("Address: ", Location, "<br>Price: ", round(Price), "<br>Count: ", Contract)) %>%
-          layout(title = paste(year, "molit Trade Data(from data.go.kr)"))
+        price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$Price, z = ~tmp.m.g$Contract,
+                        color = ~tmp.m.g$Location, size = ~tmp.m.g$Price,
+                        text = ~paste("Address: ", tmp.m.g$Location, "<br>Price: ",
+                                      round(tmp.m.g$Price), "<br>Count: ", tmp.m.g$Contract)) %>%
+          layout(title = paste(tmp.m.g$year, "molit Trade Data(from data.go.kr)"),
+                 scene = list(xaxis = list(title = "Date"),
+                              yaxis = list(title = "Price"),
+                              zaxis = list(title = "N")))
       )
     }else{
-      tmp.m.g <- tmp.m %>% group_by(Location, Date) %>%
-        summarise(rentPrice = mean(rentPrice)*10000, depoPrice = mean(depoPrice)*10000, Contract = n())
+      tmp.m.g <- tmp.m %>% group_by(.data$Location, .data$Date) %>%
+        summarise("rentPrice" = mean(.data$rentPrice)*10000,
+                  "depoPrice" = mean(.data$depoPrice)*10000,
+                  "Contract" = n()) %>% ungroup
 
       result$plot <- list(
-        price = plot_ly(data = tmp.m.g, x = ~Date, y = ~rentPrice, z = ~Contract, color = ~Location, size = ~rentPrice,
-                        text = ~paste("Address: ", Location, "<br>Rental Price: ", round(rentPrice), "<br>Count: ", Contract)) %>%
-          layout(title = paste(year, "molit Rental Price Data(from data.go.kr)")),
-        deposit = plot_ly(data = tmp.m.g, x = ~Date, y = ~depoPrice, z = ~Contract, color = ~Location, size = ~depoPrice,
-                          text = ~paste("Address: ", Location, "<br>Deposit: ", round(depoPrice), "<br>Count: ", Contract)) %>%
-          layout(title = paste(year, "molit Deposit Data(from data.go.kr)"))
+        price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$rentPrice, z = ~tmp.m.g$Contract,
+                        color = ~tmp.m.g$Location, size = ~tmp.m.g$rentPrice,
+                        text = ~paste("Address: ", tmp.m.g$Location, "<br>Rental Price: ",
+                                      round(tmp.m.g$rentPrice), "<br>Count: ", tmp.m.g$Contract)) %>%
+          layout(title = paste(year, "molit Rental Price Data(from data.go.kr)"),
+                 scene = list(xaxis = list(title = "Date"),
+                              yaxis = list(title = "Rental Price"),
+                              zaxis = list(title = "N"))),
+
+        deposit = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$depoPrice, z = ~tmp.m.g$Contract,
+                          color = ~tmp.m.g$Location, size = ~tmp.m.g$depoPrice,
+                          text = ~paste("Address: ", tmp.m.g$Location, "<br>Deposit: ",
+                                        round(tmp.m.g$depoPrice), "<br>Count: ", tmp.m.g$Contract)) %>%
+          layout(title = paste(year, "molit Deposit Data(from data.go.kr)"),
+                 scene = list(xaxis = list(title = "Date"),
+                              yaxis = list(title = "Deposit"),
+                              zaxis = list(title = "N")))
       )
     }
   }

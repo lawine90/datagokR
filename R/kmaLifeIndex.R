@@ -177,7 +177,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
         all.data[[i]] <- data.frame(
           idxCode = location$code,
           type = gsub(".*get(.*)LifeList.*", "\\1", urls[i]),
-          locale = location$areaNo,
+          locale = as.character(location$areaNo),
           time = location$date,
           d0 = ifelse(is.null(location$today), NA, location$today) %>% as.numeric,
           d1 = ifelse(is.null(location$tomorrow), NA, location$tomorrow) %>% as.numeric,
@@ -188,7 +188,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
         all.data[[i]] <- data.frame(
           idxCode = location$code,
           type = gsub(".*get(.*)LifeList.*", "\\1", urls[i]),
-          locale = location$areaNo,
+          locale = as.character(location$areaNo),
           time = location$date,
           h3 = ifelse(is.null(location$h3), NA, location$h3) %>% as.numeric,
           h6 = ifelse(is.null(location$h6), NA, location$h6) %>% as.numeric,

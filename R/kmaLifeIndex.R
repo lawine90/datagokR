@@ -56,7 +56,7 @@
 #' @importFrom XML xmlToList
 #'
 #' @export
-utils::globalVariables(c(".", "code", "kma_lifeIndex_locale_code", "kma_lifeIndex_type_check",
+utils::globalVariables(c(".data", "code", "kma_lifeIndex_locale_code", "kma_lifeIndex_type_check",
                          "kma_lifeIndex_urlType", "locale"), add = F)
 kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
   ### 1. parameter checking and processing.
@@ -174,9 +174,9 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
           type = gsub(".*get(.*)LifeList.*", "\\1", urls[i]),
           locale = location$areaNo,
           time = location$date,
-          d0 = location$today %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          d1 = location$tomorrow %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          d2 = location$theDayAfterTomorrow %>% ifelse(is.null(.), NA, .) %>% as.numeric,
+          d0 = ifelse(is.null(location$today), NA, location$today) %>% as.numeric,
+          d1 = ifelse(is.null(location$tomorrow), NA, location$tomorrow) %>% as.numeric,
+          d2 = ifelse(is.null(location$theDayAfterTomorrow), NA, location$theDayAfterTomorrow) %>% as.numeric,
           stringsAsFactors = F
         )
       }else{
@@ -185,28 +185,28 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
           type = gsub(".*get(.*)LifeList.*", "\\1", urls[i]),
           locale = location$areaNo,
           time = location$date,
-          h3 = location$h3 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h6 = location$h6 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h9= location$h9 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h12 = location$h12 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h15 = location$h15 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h18 = location$h18 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h21 = location$h21 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h24 = location$h24 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h27 = location$h27 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h30 = location$h30 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h33 = location$h33 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h36 = location$h36 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h39 = location$h39 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h42 = location$h42 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h45 = location$h45 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h48 = location$h48 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h51 = location$h51 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h54 = location$h54 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h57 = location$h57 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h60 = location$h60 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h63 = location$h63 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
-          h66 = location$h66 %>% ifelse(is.null(.), NA, .) %>% as.numeric,
+          h3 = ifelse(is.null(location$h3), NA, location$h3) %>% as.numeric,
+          h6 = ifelse(is.null(location$h6), NA, location$h6) %>% as.numeric,
+          h9 = ifelse(is.null(location$h9), NA, location$h9) %>% as.numeric,
+          h12 = ifelse(is.null(location$h12), NA, location$h12) %>% as.numeric,
+          h15 = ifelse(is.null(location$h15), NA, location$h15) %>% as.numeric,
+          h18 = ifelse(is.null(location$h18), NA, location$h18) %>% as.numeric,
+          h21 = ifelse(is.null(location$h21), NA, location$h21) %>% as.numeric,
+          h24 = ifelse(is.null(location$h24), NA, location$h24) %>% as.numeric,
+          h27 = ifelse(is.null(location$h27), NA, location$h27) %>% as.numeric,
+          h30 = ifelse(is.null(location$h30), NA, location$h30) %>% as.numeric,
+          h33 = ifelse(is.null(location$h33), NA, location$h33) %>% as.numeric,
+          h36 = ifelse(is.null(location$h36), NA, location$h36) %>% as.numeric,
+          h39 = ifelse(is.null(location$h39), NA, location$h39) %>% as.numeric,
+          h42 = ifelse(is.null(location$h42), NA, location$h42) %>% as.numeric,
+          h45 = ifelse(is.null(location$h45), NA, location$h45) %>% as.numeric,
+          h48 = ifelse(is.null(location$h48), NA, location$h48) %>% as.numeric,
+          h51 = ifelse(is.null(location$h51), NA, location$h51) %>% as.numeric,
+          h54 = ifelse(is.null(location$h54), NA, location$h54) %>% as.numeric,
+          h57 = ifelse(is.null(location$h57), NA, location$h57) %>% as.numeric,
+          h60 = ifelse(is.null(location$h60), NA, location$h60) %>% as.numeric,
+          h63 = ifelse(is.null(location$h63), NA, location$h63) %>% as.numeric,
+          h66 = ifelse(is.null(location$h66), NA, location$h66) %>% as.numeric,
 
           stringsAsFactors = F
         )
@@ -220,8 +220,8 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   for(i in 1:length(data)){
     data[[i]] <- bind_rows(all.data[lapply(all.data, function(x)
       x$type == datagokR::kma_lifeIndex_urlType[type][i]) %>% unlist %>% which]) %>% as.tbl %>%
-      mutate(time = strptime(time, format='%Y%m%d%H') %>% as.character,
-             locale = as.numeric(locale))
+      mutate("time" = strptime(.data$time, format='%Y%m%d%H') %>% as.character,
+             "locale" = as.numeric(.data$locale))
 
     data[[i]] <- data[[i]][!duplicated(data[[i]]),]
 

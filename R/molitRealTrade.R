@@ -34,11 +34,12 @@
 #' @importFrom dplyr bind_rows
 #' @importFrom dplyr filter
 #' @importFrom dplyr group_by
+#' @importFrom dplyr if_else
 #' @importFrom dplyr inner_join
 #' @importFrom dplyr left_join
-#' @importFrom dplyr right_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr n
+#' @importFrom dplyr right_join
 #' @importFrom dplyr select
 #' @importFrom dplyr summarise
 #' @importFrom dplyr ungroup
@@ -86,7 +87,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
                       to = as.Date(paste(year, '-12-01', sep = "")),
                       by = 'month')
   datelst <- as.character(datelst)
-  datelst <- gsub("-", "", datelst) %>% substr(start = 1, stop = 6)
+  datelst <- substr(gsub("-", "", datelst), start = 1, stop = 6)
 
   if(!is.null(month)){
     datelst <- datelst[gsub(year, "", datelst) %in% sprintf("%02d", month)]
@@ -109,7 +110,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
-    tmp.xml <- GET(urls[[i]]) %>% content(as = "parsed", encoding = 'UTF-8')
+    tmp.xml <- httr::GET(urls[[i]]) %>% httr::content(as = "parsed", encoding = 'UTF-8')
     Count <- tmp.xml$response$body$totalCount
 
     if(slow){
@@ -127,154 +128,66 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
       location <- tmp.xml$response$body$items$item
     } # end of if statement.
 
+    tmp.data <- data.frame(
+      Code = character(Count),
+      Dong = character(Count),
+      Trade_year = numeric(Count),
+      Trade_month = numeric(Count),
+      Trade_day = character(Count),
+      stringsAsFactors = F
+    )
+
+    # common variables(5).
+    tmp.data$Code <- unlist( lapply(location, function(x) ifelse(is.null(x$"지역코드"), NA, x$"지역코드")) )
+    tmp.data$Dong <- unlist( lapply(location, function(x) ifelse(is.null(x$"법정동"), NA, trimws(x$"지역코드"))) )
+    tmp.data$Trade_year <- unlist( lapply(location, function(x) ifelse(is.null(x$"년"), NA, x$"년")) )
+    tmp.data$Trade_month <- unlist( lapply(location, function(x) ifelse(is.null(x$"월"), NA, x$"월")) )
+    tmp.data$Trade_day <- unlist( lapply(location, function(x) ifelse(is.null(x$"일"), NA, x$"일")) )
+
     if(tradeType == "trade"){
-      if(houseType == 'apart'){
-        tmp.data <- data.frame(
-          Code = character(Count), Add_Code = character(Count), Dong = character(Count),
-          Apart = character(Count), Price = numeric(Count), Cons_year = numeric(Count),
-          excArea = numeric(Count), Floor = numeric(Count), Trade_year = numeric(Count),
-          Trade_month = numeric(Count), Trade_day = character(Count),
-          stringsAsFactors = F
-        )
+      # sub-common variables by trade type(2).
+      tmp.data$consYear <- unlist( lapply(location, function(x) ifelse(is.null(x$"건축년도"), NA, x$"건축년도")) )
+      tmp.data$Price <- unlist( lapply(location, function(x)
+        ifelse(is.null(x$"거래금액"), NA, as.numeric(trimws(gsub(",", "", x$"거래금액"))))) )
 
-        for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,4] <- location[[k]]$`아파트` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,6] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,7] <- location[[k]]$`전용면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`층` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,11] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-
-          tmp.data[k,5] <- location[[k]]$`거래금액` %>% trimws %>% gsub(',', '', .data) %>%
-            ifelse(is.null(.data), NA, .data) %>% as.numeric
-        } # end of loop k.
-      }else if(houseType == 'multi'){
-        tmp.data <- data.frame(
-          Code = character(Count), Add_Code = character(Count), Dong = character(Count),
-          Multi = character(Count), Price = numeric(Count), Cons_year = numeric(Count),
-          excArea = numeric(Count), lndArea = numeric(Count), Floor = numeric(Count),
-          Trade_year = numeric(Count), Trade_month = numeric(Count), Trade_day = character(Count),
-          stringsAsFactors = F
-        )
-
-        for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,4] <- location[[k]]$`연립다세대` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,6] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,7] <- location[[k]]$`전용면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`대지권면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`층` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,11] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,12] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-
-          tmp.data[k,5] <- location[[k]]$`거래금액` %>% trimws %>% gsub(',', '', .data) %>%
-            ifelse(is.null(.data), NA, .data) %>% as.numeric
-        } # end of loop k.
-      }else if(houseType == 'detached'){
-        tmp.data <- data.frame(
-          Code = character(Count), Dong = character(Count), Type = character(Count),
-          Price = numeric(Count), Cons_year = numeric(Count), totArea = numeric(Count),
-          lndArea = numeric(Count), Trade_year = numeric(Count), Trade_month = numeric(Count),
-          Trade_day = character(Count), stringsAsFactors = F
-        )
-
-        for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`주택유형` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,5] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,6] <- location[[k]]$`연면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,7] <- location[[k]]$`대지면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-
-          tmp.data[k,4] <- location[[k]]$`거래금액` %>% trimws %>% gsub(',', '', .data) %>%
-            ifelse(is.null(.data), NA, .data) %>% as.numeric
-        } # end of loop k.
+      # particular variables by house type.
+      if(houseType == 'apart'){ # (11)
+        tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
+        tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"아파트"), NA, trimws(x$"아파트"))) )
+        tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )
+        tmp.data$Floor <- unlist( lapply(location, function(x) ifelse(is.null(x$"층"), NA, trimws(x$"층"))) )
+      }else if(houseType == 'multi'){ # (12)
+        tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
+        tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"연립다세대"), NA, trimws(x$"연립다세대"))) )
+        tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )
+        tmp.data$grdArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"대지권면적"), NA, trimws(x$"대지권면적"))) )
+        tmp.data$Floor <- unlist( lapply(location, function(x) ifelse(is.null(x$"층"), NA, trimws(x$"층"))) )
+      }else if(houseType == 'detached'){ # (10)
+        tmp.data$Type <- unlist( lapply(location, function(x) ifelse(is.null(x$"주택유형"), NA, trimws(x$"주택유형"))) )
+        tmp.data$totArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"연면적"), NA, trimws(x$"연면적"))) )
+        tmp.data$plottage <- unlist( lapply(location, function(x) ifelse(is.null(x$"대지면적"), NA, trimws(x$"대지면적"))) )
       } # end of if statement.
     }else{
+      # sub-common variables by trade type(2).
+      tmp.data$rentPrice <- unlist( lapply(location, function(x)
+        ifelse(is.null(x$"월세금액"), NA, as.numeric(trimws(gsub(",", "", x$"월세금액"))))) )
+      tmp.data$depoPrice <- unlist( lapply(location, function(x)
+        ifelse(is.null(x$"보증금액"), NA, as.numeric(trimws(gsub(",", "", x$"보증금액"))))) )
+
       if(houseType == 'apart'){
-        tmp.data <- data.frame(
-          Code = character(Count), Add_Code = character(Count), Dong = character(Count),
-          Apart = character(Count), rentPrice = numeric(Count), depoPrice = numeric(Count),
-          Cons_year = numeric(Count), excArea = numeric(Count), Floor = numeric(Count),
-          Trade_year = numeric(Count), Trade_month = numeric(Count), Trade_day = character(Count),
-          stringsAsFactors = F
-        )
-
-        for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,4] <- location[[k]]$`아파트` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,7] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`전용면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`층` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,11] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,12] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-
-          tmp.data[k,5] <- location[[k]]$`월세금액` %>% trimws %>% gsub(',', '', .data) %>%
-            ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,6] <- location[[k]]$`보증금액` %>% trimws %>% gsub(',', '', .data) %>%
-            ifelse(is.null(.data), NA, .data) %>% as.numeric
-        } # end of loop k.
+        tmp.data$consYear <- unlist( lapply(location, function(x) ifelse(is.null(x$"건축년도"), NA, x$"건축년도")) )
+        tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
+        tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"아파트"), NA, trimws(x$"아파트"))) )
+        tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )
+        tmp.data$Floor <- unlist( lapply(location, function(x) ifelse(is.null(x$"층"), NA, trimws(x$"층"))) )
       }else if(houseType == 'multi'){
-        tmp.data <- data.frame(
-          Code = character(Count), Add_Code = character(Count), Dong = character(Count),
-          Multi = character(Count), rentPrice = numeric(Count), depoPrice = numeric(Count),
-          Cons_year = numeric(Count), excArea = numeric(Count), Floor = numeric(Count),
-          Trade_year = numeric(Count), Trade_month = numeric(Count), Trade_day = character(Count),
-          stringsAsFactors = F
-        )
-
-        for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`지번` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,3] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,4] <- location[[k]]$`연립다세대` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,7] <- location[[k]]$`건축년도` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`전용면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,9] <- location[[k]]$`층` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,10] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,11] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,12] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-
-          tmp.data[k,5] <- location[[k]]$`월세금액` %>% trimws %>% gsub(',', '', .data) %>%
-            ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,6] <- location[[k]]$`보증금액` %>% trimws %>% gsub(',', '', .data) %>%
-            ifelse(is.null(.data), NA, .data) %>% as.numeric
-        } # end of loop k.
+        tmp.data$consYear <- unlist( lapply(location, function(x) ifelse(is.null(x$"건축년도"), NA, x$"건축년도")) )
+        tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
+        tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"연립다세대"), NA, trimws(x$"연립다세대"))) )
+        tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )
+        tmp.data$Floor <- unlist( lapply(location, function(x) ifelse(is.null(x$"층"), NA, trimws(x$"층"))) )
       }else if(houseType == 'detached'){
-        tmp.data <- data.frame(
-          Code = character(Count), Dong = character(Count),
-          rentPrice = numeric(Count), depoPrice = numeric(Count),
-          contArea = numeric(Count), Trade_year = numeric(Count),
-          Trade_month = numeric(Count), Trade_day = character(Count),
-          stringsAsFactors = F
-        )
-
-        for(k in 1:Count){
-          tmp.data[k,1] <- location[[k]]$`지역코드` %>% ifelse(is.null(.data), NA, .data) %>% as.character
-          tmp.data[k,2] <- location[[k]]$`법정동` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-          tmp.data[k,5] <- location[[k]]$`계약면적` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,6] <- location[[k]]$`년` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,7] <- location[[k]]$`월` %>% ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,8] <- location[[k]]$`일` %>% ifelse(is.null(.data), NA, .data) %>% trimws %>% as.character
-
-          tmp.data[k,3] <- location[[k]]$`월세금액` %>% trimws %>% gsub(',', '', .data) %>%
-            ifelse(is.null(.data), NA, .data) %>% as.numeric
-          tmp.data[k,4] <- location[[k]]$`보증금액` %>% trimws %>% gsub(',', '', .data) %>%
-            ifelse(is.null(.data), NA, .data) %>% as.numeric
-        } # end of loop k.
+        tmp.data$contArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"계약면적"), NA, trimws(x$"계약면적"))) )
       } # end of if statement.
     }
 

@@ -228,7 +228,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
                         color = ~tmp.m.g$Location, size = ~tmp.m.g$Price,
                         text = ~paste("Address: ", tmp.m.g$Location, "<br>Price: ",
                                       round(tmp.m.g$Price), "<br>Count: ", tmp.m.g$Contract)) %>%
-          layout(title = paste(tmp.m.g$year, "molit Trade Data(from data.go.kr)"),
+          layout(title = paste(year, "molit Trade Data(from data.go.kr)"),
                  scene = list(xaxis = list(title = "Date"),
                               yaxis = list(title = "Price"),
                               zaxis = list(title = "N")))

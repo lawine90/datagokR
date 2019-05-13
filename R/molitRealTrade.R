@@ -217,7 +217,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     tmp.m$Date <- paste(tmp.m$Trade_year, tmp.m$Trade_month, tmp.m$Trade_day, sep = "-") %>% as.Date
     tmp.m$Location <- as.factor(tmp.m$name)
 
-    tmp.m <- tmp.m[,c("Dong", "rentPrice", "depoPrice", "Date", "Location")]
+    tmp.m <- tmp.m[,grepl("Dong|Price|Date|Location", colnames(tmp.m))]
 
     if(tradeType == "trade"){
       tmp.m.g <- tmp.m %>% group_by(.data$Location, .data$Date) %>%

@@ -77,7 +77,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   if(!(type %in% c(rownames(datagokR::kma_lifeIndex_type_check), "possible")) ){
     stop('Invalid type. \n \"type\" param should be one of ',
          rownames(datagokR::kma_lifeIndex_type_check) %>%
-           paste('"', ., '"', sep = "", collapse = ", "), ' or "possible"')
+           paste('"', .data, '"', sep = "", collapse = ", "), ' or "possible"')
   }
   if(type == "possible"){
     type <- datagokR::kma_lifeIndex_type_check[,month] %>% which %>% names
@@ -94,10 +94,10 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   }
   if( all(type %in% c("fp", "ui", "sh")) ){
     mt <- outer(c(6,18), time, "-") %>% abs; dimnames(mt) <- list(c(6,18), time)
-    time <- names((mt %>% apply(., 1, min) <= 6) %>% which) %>% as.numeric %>% sprintf("%02d", .)
+    time <- names((mt %>% apply(.data, 1, min) <= 6) %>% which) %>% as.numeric %>% sprintf("%02d", .data)
   }else{
     mt <- outer(seq(0, 21, 3), time, "-") %>% abs; dimnames(mt) <- list(seq(0, 21, 3), time)
-    time <- names((mt %>% apply(., 1, min) <= 2) %>% which) %>% as.numeric %>% sprintf("%02d", .)
+    time <- names((mt %>% apply(.data, 1, min) <= 2) %>% which) %>% as.numeric %>% sprintf("%02d", .data)
   }
 
 
@@ -106,18 +106,19 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   url <- paste("http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/get", datagokR::kma_lifeIndex_urlType[type], "LifeList?", sep = "")
 
   ## date time(only last 2 days...).
-  datelst <- c(Sys.Date() - 1, Sys.Date()) %>% gsub("-", "", .) %>%
-    outer(., time, paste, sep = "") %>% as.vector %>% sort
+  datelst <- c(Sys.Date() - 1, Sys.Date()) %>% gsub("-", "", .data) %>%
+    outer(.data, time, paste, sep = "") %>% as.vector %>% sort
 
   # remove not comming datelst.
   datelst <- datelst[strptime(datelst,format='%Y%m%d%H') <= Sys.time()]
 
   ## locale
   if(is.null(localeCode) & !is.null(localeName)){
-    localeName <- gsub("시\\b|도\\b|구\\b", "", localeName) %>% paste(., collapse = "|")
-    localeCode <- datagokR::kma_lifeIndex_locale_code[grepl(localeName, paste(datagokR::kma_lifeIndex_locale_code$name1,
-                                                                              datagokR::kma_lifeIndex_locale_code$name2, sep = " ")),] %>%
-      select(code) %>% unlist %>% as.numeric
+    localeName <- gsub("시\\b|도\\b|구\\b", "", localeName) %>% paste(collapse = "|")
+    localeCode <- datagokR::kma_lifeIndex_locale_code[grepl(localeName,
+                                                            paste(datagokR::kma_lifeIndex_locale_code$name1,
+                                                            datagokR::kma_lifeIndex_locale_code$name2, sep = " ")),] %>%
+      select("code") %>% unlist %>% as.numeric
   }
 
   ## generate list of urls(fxxking so many limitations...).
@@ -127,7 +128,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
     paste(x, "serviceKey=", key, "&time=", datelst[substr(datelst, 9, 10) %in% c("06", "18")], "&areaNo=", sep = "")
   } else{
     paste(x, "serviceKey=", key, "&time=", datelst, "&areaNo=", sep = "")
-  }) %>% lapply(., function(x) outer(x, localeCode, paste, sep = "") %>% as.vector) %>% unlist
+  }) %>% lapply(function(x) outer(x, localeCode, paste, sep = "") %>% as.vector) %>% unlist
 
 
   ### 3. urls's xml parsing.

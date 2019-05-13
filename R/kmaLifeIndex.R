@@ -95,11 +95,11 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   if( all(type %in% c("fp", "ui", "sh")) ){
     mt <- outer(c(6,18), time, "-") %>% abs; dimnames(mt) <- list(c(6,18), time)
     time <- names((mt %>% apply(MARGIN = 1, FUN = min) <= 6) %>% which) %>%
-      as.numeric %>% sprintf("%02d", .data)
+      as.numeric %>% sprintf("%02d")
   }else{
     mt <- outer(seq(0, 21, 3), time, "-") %>% abs; dimnames(mt) <- list(seq(0, 21, 3), time)
     time <- names((mt %>% apply(MARGIN = 1, FUN = min) <= 2) %>% which) %>%
-      as.numeric %>% sprintf("%02d", .data)
+      as.numeric %>% sprintf("%02d")
   }
 
 

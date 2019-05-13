@@ -124,11 +124,8 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   ## generate list of urls(fxxking so many limitations...).
   # 1st, url + key + datelst. datelst by type condition.
   # 2nd, (url + key + datelst) + localeCode.
-  urls <- lapply(url, function(x) if(grepl(datagokR::kma_lifeIndex_urlType[c("fp", "ui", "sh")] %>% paste(collapse = "|"), x)){
-    paste(x, "serviceKey=", key, "&time=", datelst[substr(datelst, 9, 10) %in% c("06", "18")], "&areaNo=", sep = "")
-  } else{
-    paste(x, "serviceKey=", key, "&time=", datelst, "&areaNo=", sep = "")
-  }) %>% lapply(function(x) outer(x, localeCode, paste, sep = "") %>% as.vector) %>% unlist
+  urls <- paste(url, "serviceKey=", key, "&time=", datelst, "&areaNo=", sep = "")
+  urls <- outer(urls, localeCode, paste, sep = "") %>% as.vector
 
 
   ### 3. urls's xml parsing.
@@ -284,7 +281,8 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   result <- list(
     data = data,
     plot = NULL,
-    errors = unlist(errors)
+    errors = unlist(errors),
+    urls = urls
   )
 
   # if(viz){

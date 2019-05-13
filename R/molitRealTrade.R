@@ -229,7 +229,8 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
   result <- list(
     data = re.da,
-    plot = NULL
+    plot = NULL,
+    errors = unlist(errors)
   )
 
   if(viz == T){

@@ -283,7 +283,8 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
 
   result <- list(
     data = data,
-    plot = NULL
+    plot = NULL,
+    errors = unlist(errors)
   )
 
   # if(viz){

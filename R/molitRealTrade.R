@@ -106,11 +106,34 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
   ### 3. urls's xml parsing.
   all.data <- list(); length(all.data) <- length(urls)
+  errors <- list(); length(errors) <- length(urls)
   pb <- txtProgressBar(min = 1, length(urls), style = 3)
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
-    tmp.xml <- httr::GET(urls[[i]]) %>% httr::content(as = "parsed", encoding = 'UTF-8')
+    ii <- 0
+    repeat{
+      ii <- ii + 1
+      tmp.xml <- tryCatch(
+        {
+          httr::GET(urls[[i]]) %>% httr::content(as = "parsed", encoding = 'UTF-8')
+        }, error = function(e){
+          NULL
+        }
+      )
+
+      if(slow){
+        Sys.sleep(runif(1, 0, 2.5))
+      }
+      if(!is.null(tmp.xml)|ii == 15) break
+    }
+
+    # if tmp.xml is error, go next.
+    if(is.null(tmp.xml)) {
+      errors[[i]] <- urls[[i]]
+      next
+    }
+
     Count <- tmp.xml$response$body$totalCount
 
     if(slow){

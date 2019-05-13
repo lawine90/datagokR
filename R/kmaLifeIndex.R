@@ -106,8 +106,8 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   url <- paste("http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/get", datagokR::kma_lifeIndex_urlType[type], "LifeList?", sep = "")
 
   ## date time(only last 2 days...).
-  datelst <- c(Sys.Date() - 1, Sys.Date()) %>% gsub("-", "", .data) %>%
-    outer(.data, time, paste, sep = "") %>% as.vector %>% sort
+  datelst <- c(Sys.Date() - 1, Sys.Date()) %>% gsub(pattern = "-", replacement = "") %>%
+    outer(time, paste, sep = "") %>% as.vector %>% sort
 
   # remove not comming datelst.
   datelst <- datelst[strptime(datelst,format='%Y%m%d%H') <= Sys.time()]
@@ -134,13 +134,16 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   ### 3. urls's xml parsing.
   all.data <- list(); length(all.data) <- length(urls)
   all.error <- list(); length(all.error) <- length(urls)
+  errors <- list(); length(errors) <- length(urls)
   suc <- character(length(urls))
   pb <- txtProgressBar(min = 1, length(urls), style = 3)
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
     # parsing xml codes with repeat and trycatch.
+    ii <- 0
     repeat{
+      ii <- ii + 1
       tmp.xml <- tryCatch(
         {
           xmlToList(urls[[i]])
@@ -152,7 +155,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
       if(slow){
         Sys.sleep(runif(1, 0, 2.5))
       }
-      if(!is.null(tmp.xml)) break
+      if(!is.null(tmp.xml) | ii == 15) break
     }
 
     suc[i] <- tmp.xml$Header$SuccessYN
@@ -164,6 +167,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
     # if suc is "N", skip.
     if(suc[i] == "N"){
       all.error[[i]] <- tmp.xml$Header$ErrMsg
+      errors[[i]] <- urls[[i]]
       setTxtProgressBar(pb, value = i)
       next
     }else if(suc[i] =="Y"){

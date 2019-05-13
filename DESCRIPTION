@@ -8,7 +8,7 @@ Description: This package is built for data importing from <www.data.go.kr>
     which offering various public data from korean goverment.
     Almost all functions in package need a API key as a parameter so user should 
     apply the key. If someone have questions or requests, please send e-mail.
-License: file LICENSE
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1

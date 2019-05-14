@@ -91,7 +91,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
   datelst <- substr(gsub("-", "", datelst), start = 1, stop = 6)
 
   if(!is.null(month)){
-    datelst <- datelst[gsub(year, "", datelst) %in% sprintf("%02d", month)]
+    datelst <- datelst[gsub(year, "", datelst) %in% sprintf("%02d", as.numeric(month))]
   }
 
   ## locale

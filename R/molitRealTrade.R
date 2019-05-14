@@ -162,7 +162,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
     # common variables(5).
     tmp.data$Code <- unlist( lapply(location, function(x) ifelse(is.null(x$"지역코드"), NA, x$"지역코드")) )
-    tmp.data$Dong <- unlist( lapply(location, function(x) ifelse(is.null(x$"법정동"), NA, trimws(x$"지역코드"))) )
+    tmp.data$Dong <- unlist( lapply(location, function(x) ifelse(is.null(x$"법정동"), NA, trimws(x$"법정동"))) )
     tmp.data$Trade_year <- unlist( lapply(location, function(x) ifelse(is.null(x$"년"), NA, x$"년")) )
     tmp.data$Trade_month <- unlist( lapply(location, function(x) ifelse(is.null(x$"월"), NA, x$"월")) )
     tmp.data$Trade_day <- unlist( lapply(location, function(x) ifelse(is.null(x$"일"), NA, x$"일")) )

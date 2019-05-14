@@ -12,7 +12,8 @@
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is FALSE
 #' @param viz logical value. if TRUE, provide simple 3d visualization result. x: date, y: price, z: the number of contract.
 #'
-#' @return data.frame and visualization.
+#' @return two data.frame for meta-data and imported data.
+#' two vectors for error urls and all urls. visualization.
 #'
 #' @details If month value is NULL, all data of the year will imported.\cr
 #'    Between localeCode and localeName, one of these parameters should be inserted. \cr
@@ -105,8 +106,10 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     lapply(function(x) paste(x, "&LAWD_CD=", localeCode, sep = "")) %>% unlist
 
   ### 3. urls's xml parsing.
-  all.data <- list(); length(all.data) <- length(urls)
-  errors <- list(); length(errors) <- length(urls)
+  all.data <- list(); length(all.data) <- length(urls)                # define data.frame for importing.
+  errors <- list(); length(errors) <- length(urls)                    # define vector for error urls.
+  meta <- data.frame(url = urls, count = "", stringsAsFactors = F)    # define data.frame for meta-data.
+
   pb <- txtProgressBar(min = 1, length(urls), style = 3)
 
   ## xml data parsing as list form.
@@ -131,10 +134,12 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     # if tmp.xml is error, go next.
     if(is.null(tmp.xml)) {
       errors[[i]] <- urls[[i]]
+      meta[i,]$count <- "error"
       next
     }
 
     Count <- tmp.xml$response$body$totalCount
+    meta[i,]$count <- tmp.xml$response$body$totalCount
 
     if(slow){
       Sys.sleep(runif(1, 0, 1.5))
@@ -223,68 +228,76 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     setTxtProgressBar(pb, value = i)
   } # end of loop i.
 
-  re.da <- bind_rows(all.data) %>% as.tbl
-  re.da <- re.da %>% mutate("Code" = as.integer(re.da$Code)) %>%
-    left_join(y = molit_locale_code[,c('code', 'name')], by = c("Code" = "code"))
-
   result <- list(
-    data = re.da,
+    meta = meta,
+    data = NULL,
     plot = NULL,
-    errors = unlist(errors),
+    errors = NULL,
     urls = urls
   )
 
-  if(viz == T){
-    tmp.m <- result$data[,grepl("name|Dong|Price|Trade", colnames(result$data))]
+  re.da <- bind_rows(all.data) %>% as.tbl
 
-    tmp.m$Trade_day <- tmp.m$Trade_day %>% strsplit(split = "~") %>%
-      lapply(function(x) as.numeric(x) %>% mean %>% round) %>% unlist
-    tmp.m$Date <- paste(tmp.m$Trade_year, tmp.m$Trade_month, tmp.m$Trade_day, sep = "-") %>% as.Date
-    tmp.m$Location <- as.factor(tmp.m$name)
+  if(nrow(re.da) != 0){
+    re.da <- re.da %>% mutate("Code" = as.integer(re.da$Code)) %>%
+      left_join(y = molit_locale_code[,c('code', 'name')], by = c("Code" = "code"))
 
-    tmp.m <- tmp.m[,grepl("Dong|Price|Date|Location", colnames(tmp.m))]
+    result$data <- re.da
+    result$errors <- unlist(errors)
 
-    if(tradeType == "trade"){
-      tmp.m.g <- tmp.m %>% group_by(.data$Location, .data$Date) %>%
-        summarise("Price" = mean(.data$Price)*10000, "Contract" = n()) %>% ungroup
+    if(viz == T){
+      tmp.m <- result$data[,grepl("name|Dong|Price|Trade", colnames(result$data))]
 
-      result$plot <- list(
-        price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$Price, z = ~tmp.m.g$Contract,
-                        color = ~tmp.m.g$Location, size = ~tmp.m.g$Price,
-                        text = ~paste("Address: ", tmp.m.g$Location, "<br>Price: ",
-                                      round(tmp.m.g$Price), "<br>Count: ", tmp.m.g$Contract)) %>%
-          layout(title = paste(year, "molit Trade Data(from data.go.kr)"),
-                 scene = list(xaxis = list(title = "Date"),
-                              yaxis = list(title = "Price"),
-                              zaxis = list(title = "N")))
-      )
-    }else{
-      tmp.m.g <- tmp.m %>% group_by(.data$Location, .data$Date) %>%
-        summarise("rentPrice" = mean(.data$rentPrice)*10000,
-                  "depoPrice" = mean(.data$depoPrice)*10000,
-                  "Contract" = n()) %>% ungroup
+      tmp.m$Trade_day <- tmp.m$Trade_day %>% strsplit(split = "~") %>%
+        lapply(function(x) as.numeric(x) %>% mean %>% round) %>% unlist
+      tmp.m$Date <- paste(tmp.m$Trade_year, tmp.m$Trade_month, tmp.m$Trade_day, sep = "-") %>% as.Date
+      tmp.m$Location <- as.factor(tmp.m$name)
 
-      result$plot <- list(
-        price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$rentPrice, z = ~tmp.m.g$Contract,
-                        color = ~tmp.m.g$Location, size = ~tmp.m.g$rentPrice,
-                        text = ~paste("Address: ", tmp.m.g$Location, "<br>Rental Price: ",
-                                      round(tmp.m.g$rentPrice), "<br>Count: ", tmp.m.g$Contract)) %>%
-          layout(title = paste(year, "molit Rental Price Data(from data.go.kr)"),
-                 scene = list(xaxis = list(title = "Date"),
-                              yaxis = list(title = "Rental Price"),
-                              zaxis = list(title = "N"))),
+      tmp.m <- tmp.m[,grepl("Dong|Price|Date|Location", colnames(tmp.m))]
 
-        deposit = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$depoPrice, z = ~tmp.m.g$Contract,
-                          color = ~tmp.m.g$Location, size = ~tmp.m.g$depoPrice,
-                          text = ~paste("Address: ", tmp.m.g$Location, "<br>Deposit: ",
-                                        round(tmp.m.g$depoPrice), "<br>Count: ", tmp.m.g$Contract)) %>%
-          layout(title = paste(year, "molit Deposit Data(from data.go.kr)"),
-                 scene = list(xaxis = list(title = "Date"),
-                              yaxis = list(title = "Deposit"),
-                              zaxis = list(title = "N")))
-      )
-    }
-  }
+      if(tradeType == "trade"){
+        tmp.m.g <- tmp.m %>% group_by(.data$Location, .data$Date) %>%
+          summarise("Price" = mean(.data$Price)*10000, "Contract" = n()) %>% ungroup
+
+        result$plot <- list(
+          price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$Price, z = ~tmp.m.g$Contract,
+                          color = ~tmp.m.g$Location, size = ~tmp.m.g$Price,
+                          text = ~paste("Address: ", tmp.m.g$Location, "<br>Price: ",
+                                        round(tmp.m.g$Price), "<br>Count: ", tmp.m.g$Contract)) %>%
+            layout(title = paste(year, "molit Trade Data(from data.go.kr)"),
+                   scene = list(xaxis = list(title = "Date"),
+                                yaxis = list(title = "Price"),
+                                zaxis = list(title = "N")))
+        )
+      }else{
+        tmp.m.g <- tmp.m %>% group_by(.data$Location, .data$Date) %>%
+          summarise("rentPrice" = mean(.data$rentPrice)*10000,
+                    "depoPrice" = mean(.data$depoPrice)*10000,
+                    "Contract" = n()) %>% ungroup
+
+        result$plot <- list(
+          price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$rentPrice, z = ~tmp.m.g$Contract,
+                          color = ~tmp.m.g$Location, size = ~tmp.m.g$rentPrice,
+                          text = ~paste("Address: ", tmp.m.g$Location, "<br>Rental Price: ",
+                                        round(tmp.m.g$rentPrice), "<br>Count: ", tmp.m.g$Contract)) %>%
+            layout(title = paste(year, "molit Rental Price Data(from data.go.kr)"),
+                   scene = list(xaxis = list(title = "Date"),
+                                yaxis = list(title = "Rental Price"),
+                                zaxis = list(title = "N"))),
+
+          deposit = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$depoPrice, z = ~tmp.m.g$Contract,
+                            color = ~tmp.m.g$Location, size = ~tmp.m.g$depoPrice,
+                            text = ~paste("Address: ", tmp.m.g$Location, "<br>Deposit: ",
+                                          round(tmp.m.g$depoPrice), "<br>Count: ", tmp.m.g$Contract)) %>%
+            layout(title = paste(year, "molit Deposit Data(from data.go.kr)"),
+                   scene = list(xaxis = list(title = "Date"),
+                                yaxis = list(title = "Deposit"),
+                                zaxis = list(title = "N")))
+        )
+      } # if tradeType == "trade
+    } # if viz == T
+  } # if nrow(re.na) != 0
+
   return(result)
   cat("\nJobs Done.\n")
 } # end of function.

@@ -57,6 +57,7 @@
 #' @importFrom plotly layout
 #'
 #' @export
+
 utils::globalVariables(c("molit_locale_code", ".data"), add = F)
 molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeName = NULL,
                            houseType, tradeType, slow = F, viz = F){
@@ -106,9 +107,10 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     lapply(function(x) paste(x, "&LAWD_CD=", localeCode, sep = "")) %>% unlist
 
   ### 3. urls's xml parsing.
-  all.data <- list(); length(all.data) <- length(urls)                # define data.frame for importing.
-  errors <- list(); length(errors) <- length(urls)                    # define vector for error urls.
-  meta <- data.frame(url = urls, count = "", stringsAsFactors = F)    # define data.frame for meta-data.
+  all.data <- list(); length(all.data) <- length(urls)                 # define data.frame for importing.
+  errors <- list(); length(errors) <- length(urls)                     # define vector for error urls.
+  meta <- data.frame(url = urls, count = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
+    as.tbl
 
   pb <- txtProgressBar(min = 1, length(urls), style = 3)
 
@@ -139,7 +141,8 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     }
 
     Count <- tmp.xml$response$body$totalCount
-    meta[i,]$count <- tmp.xml$response$body$totalCount
+    meta[i,]$count <- ifelse(is.null(Count)|is.na(Count),
+                             "error", Count)
 
     if(slow){
       Sys.sleep(runif(1, 0, 1.5))

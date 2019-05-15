@@ -56,7 +56,8 @@
 #' @importFrom XML xmlToList
 #'
 #' @export
-utils::globalVariables(c(".data", "code", "kma_lifeIndex_locale_code", "kma_lifeIndex_type_check",
+
+utils::globalVariables(c(".data", "code", "kma_locale_code", "kma_lifeIndex_type_check",
                          "kma_lifeIndex_urlType", "locale"), add = F)
 kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
   ### 1. parameter checking and processing.
@@ -115,9 +116,9 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   ## locale
   if(is.null(localeCode) & !is.null(localeName)){
     localeName <- gsub("시\\b|도\\b|구\\b", "", localeName) %>% paste(collapse = "|")
-    localeCode <- datagokR::kma_lifeIndex_locale_code[grepl(localeName,
-                                                            paste(datagokR::kma_lifeIndex_locale_code$name1,
-                                                            datagokR::kma_lifeIndex_locale_code$name2, sep = " ")),] %>%
+    localeCode <- datagokR::kma_locale_code[grepl(localeName,
+                                                  paste(datagokR::kma_locale_code$name1,
+                                                  datagokR::kma_locale_code$name2, sep = " ")),] %>%
       select("code") %>% unlist %>% as.numeric
   }
 
@@ -133,6 +134,9 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   all.error <- list(); length(all.error) <- length(urls)
   errors <- list(); length(errors) <- length(urls)
   suc <- character(length(urls))
+  meta <- data.frame(url = urls, success = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
+    as.tbl
+
   pb <- txtProgressBar(min = 1, length(urls), style = 3)
 
   ## xml data parsing as list form.
@@ -155,7 +159,16 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
       if(!is.null(tmp.xml) | ii == 15) break
     }
 
+    # if tmp.xml is error, go next.
+    if(is.null(tmp.xml)) {
+      errors[[i]] <- urls[[i]]
+      meta[i,]$success <- "error"
+      next
+    }
+
     suc[i] <- tmp.xml$Header$SuccessYN
+    meta[i,]$success <- ifelse(is.null(suc[i])|is.na(suc[i]),
+                             "error", suc[i])
 
     if(slow){
       Sys.sleep(runif(1, 0, 1.5))

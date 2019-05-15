@@ -98,7 +98,7 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
 
   ### 2. REST url
   ## End Point.
-  url <- paste("http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService2/get", type, "WhoList?", sep = "")
+  url <- paste("http://newsky2.kma.go.kr/iros/RetrieveWhoIndexService2/get", type, "WhoList?", sep = "")
 
   ## date time(only last 2 days...).
   datelst <- c(Sys.Date() - 1, Sys.Date()) %>% gsub(pattern = "-", replacement = "") %>%
@@ -117,9 +117,11 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
   }
 
   ## generate list of urls(fxxking so many limitations...).
-  # 1st, url + key + datelst. datelst by type condition.
-  # 2nd, (url + key + datelst) + localeCode.
-  urls <- paste(url, "serviceKey=", key, "&time=", datelst, "&areaNo=", sep = "")
+  # 1st, (url + key)
+  # 2nd, (url + key) + datelst. datelst by type condition.
+  # 3rd, ((url + key) + datelst) + localeCode.
+  urls <- paste(url, "serviceKey=", key, "&time=", sep = "")
+  urls <- outer(urls, datelst, paste, sep = "") %>% as.vector %>% paste("&areaNo=", sep = "")
   urls <- outer(urls, localeCode, paste, sep = "") %>% as.vector
 
 
@@ -177,49 +179,16 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
     }else if(suc[i] =="Y"){
       location <- tmp.xml$Body$IndexModel
 
-      if(gsub(".*get(.*)LifeList.*", "\\1", urls[i]) %in% datagokR::kma_lifeIndex_urlType[c("fp", "ui")]){
-        all.data[[i]] <- data.frame(
+      all.data[[i]] <- data.frame(
           idxCode = location$code,
-          type = gsub(".*get(.*)LifeList.*", "\\1", urls[i]),
+          type = gsub(".*get(.*)WhoList.*", "\\1", urls[i]),
           locale = as.character(location$areaNo),
           time = location$date,
           d0 = ifelse(is.null(location$today), NA, location$today) %>% as.numeric,
           d1 = ifelse(is.null(location$tomorrow), NA, location$tomorrow) %>% as.numeric,
           d2 = ifelse(is.null(location$theDayAfterTomorrow), NA, location$theDayAfterTomorrow) %>% as.numeric,
           stringsAsFactors = F
-        )
-      }else{
-        all.data[[i]] <- data.frame(
-          idxCode = location$code,
-          type = gsub(".*get(.*)LifeList.*", "\\1", urls[i]),
-          locale = as.character(location$areaNo),
-          time = location$date,
-          h3 = ifelse(is.null(location$h3), NA, location$h3) %>% as.numeric,
-          h6 = ifelse(is.null(location$h6), NA, location$h6) %>% as.numeric,
-          h9 = ifelse(is.null(location$h9), NA, location$h9) %>% as.numeric,
-          h12 = ifelse(is.null(location$h12), NA, location$h12) %>% as.numeric,
-          h15 = ifelse(is.null(location$h15), NA, location$h15) %>% as.numeric,
-          h18 = ifelse(is.null(location$h18), NA, location$h18) %>% as.numeric,
-          h21 = ifelse(is.null(location$h21), NA, location$h21) %>% as.numeric,
-          h24 = ifelse(is.null(location$h24), NA, location$h24) %>% as.numeric,
-          h27 = ifelse(is.null(location$h27), NA, location$h27) %>% as.numeric,
-          h30 = ifelse(is.null(location$h30), NA, location$h30) %>% as.numeric,
-          h33 = ifelse(is.null(location$h33), NA, location$h33) %>% as.numeric,
-          h36 = ifelse(is.null(location$h36), NA, location$h36) %>% as.numeric,
-          h39 = ifelse(is.null(location$h39), NA, location$h39) %>% as.numeric,
-          h42 = ifelse(is.null(location$h42), NA, location$h42) %>% as.numeric,
-          h45 = ifelse(is.null(location$h45), NA, location$h45) %>% as.numeric,
-          h48 = ifelse(is.null(location$h48), NA, location$h48) %>% as.numeric,
-          h51 = ifelse(is.null(location$h51), NA, location$h51) %>% as.numeric,
-          h54 = ifelse(is.null(location$h54), NA, location$h54) %>% as.numeric,
-          h57 = ifelse(is.null(location$h57), NA, location$h57) %>% as.numeric,
-          h60 = ifelse(is.null(location$h60), NA, location$h60) %>% as.numeric,
-          h63 = ifelse(is.null(location$h63), NA, location$h63) %>% as.numeric,
-          h66 = ifelse(is.null(location$h66), NA, location$h66) %>% as.numeric,
-
-          stringsAsFactors = F
-        )
-      } # if statement regarding to type.
+      )
     } # if statement regarding to SuccessYN.
     setTxtProgressBar(pb, value = i)
   } # end of loop i.
@@ -228,60 +197,16 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
   data <- list(); length(data) <- length(type)
   for(i in 1:length(data)){
     data[[i]] <- bind_rows(all.data[lapply(all.data, function(x)
-      x$type == datagokR::kma_lifeIndex_urlType[type][i]) %>% unlist %>% which]) %>% as.tbl %>%
+      x$type == type[i]) %>% unlist %>% which]) %>% as.tbl %>%
       mutate("time" = strptime(.data$time, format='%Y%m%d%H') %>% as.character,
              "locale" = as.numeric(.data$locale))
 
-    data[[i]] <- data[[i]][!duplicated(data[[i]]),]
+    data[[i]] <- data[[i]][!duplicated(data[[i]]),] %>% arrange(.data$locale, .data$time)
 
-    if(unique(data[[i]]$type) == "Fsn"){
+    # 0: low, 1: normal, 2: high, 3: very high.
+    data[[i]]$level <- cut(data[[i]]$d0, breaks = c(0, 1, 2, 3, Inf), right = F,
+                           labels = c("low", "normal", "high", "very high"), ordered_result = T)
 
-      # 1. Food Poison.
-      data[[i]]$level <- cut(data[[i]]$d0, breaks = c(0, 35, 70, 95, Inf), right = F,
-                             labels = c("safe", "care", "warn", "danger"), ordered_result = T)
-
-    }else if(unique(data[[i]]$type) == "Sensorytem"){
-
-      # 2. Sensory temporature.
-      data[[i]]$level <- cut(data[[i]]$h3*(-1), breaks = c(-Inf, 10, 25, 45, Inf),
-                             labels = c("safe", "care", "warn", "danger"), ordered_result = T)
-
-    }else if(unique(data[[i]]$type) == "Heat"){
-
-      # 3. Heat index.
-      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(-Inf, 32, 41, 54, 65, Inf), right = F,
-                             labels = c("low", "normal", "high", "very high", "danger"), ordered_result = T)
-
-    }else if(unique(data[[i]]$type) == "Dspl"){
-
-      # 4. Discomport index.
-      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(-Inf, 68, 75, 80, Inf), right = F,
-                             labels = c("low", "normal", "high", "very high"), ordered_result = T)
-
-    }else if(unique(data[[i]]$type) == "Ultrv"){
-
-      # 5. Ultra-violet index.
-      data[[i]]$level <- cut(data[[i]]$d0, breaks = c(0, 3, 6, 8, 11, Inf), right = F,
-                             labels = c("low", "normal", "high", "very high", "danger"), ordered_result = T)
-
-    }else if(unique(data[[i]]$type) == "Winter"){
-
-      # 6. Freezing-burst index.
-      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(0, 26, 51, 76, 101), right = F,
-                             labels = c("low", "normal", "high", "very high"), ordered_result = T)
-
-    }else if(unique(data[[i]]$type) == "Airpollution"){
-
-      # 7. Atmospheric dispersion index.
-      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(0, 26, 51, 76, 101), right = F,
-                             labels = c("very high", "high", "normal", "low"), ordered_result = T)
-
-    }else{
-
-      # 8. Sensory heat.
-      data[[i]]$level <- cut(data[[i]]$h3, breaks = c(-Inf, 21, 25, 28, 31, Inf), right = F,
-                             labels = c("safe", "care", "warn", "danger", "very danger"), ordered_result = T)
-    }
 
   }; names(data) <- type
 

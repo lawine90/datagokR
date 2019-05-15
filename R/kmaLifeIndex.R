@@ -123,9 +123,11 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   }
 
   ## generate list of urls(fxxking so many limitations...).
-  # 1st, url + key + datelst. datelst by type condition.
-  # 2nd, (url + key + datelst) + localeCode.
-  urls <- paste(url, "serviceKey=", key, "&time=", datelst, "&areaNo=", sep = "")
+  # 1st, (url + key)
+  # 2nd, (url + key) + datelst. datelst by type condition.
+  # 3rd, ((url + key) + datelst) + localeCode.
+  urls <- paste(url, "serviceKey=", key, "&time=", sep = "")
+  urls <- outer(urls, datelst, paste, sep = "") %>% as.vector %>% paste("&areaNo=", sep = "")
   urls <- outer(urls, localeCode, paste, sep = "") %>% as.vector
 
 
@@ -238,7 +240,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
       mutate("time" = strptime(.data$time, format='%Y%m%d%H') %>% as.character,
              "locale" = as.numeric(.data$locale))
 
-    data[[i]] <- data[[i]][!duplicated(data[[i]]),]
+    data[[i]] <- data[[i]][!duplicated(data[[i]]),] %>% arrange(.data$locale, .data$time)
 
     if(unique(data[[i]]$type) == "Fsn"){
 

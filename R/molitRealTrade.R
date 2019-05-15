@@ -174,10 +174,10 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     tmp.data$Trade_year <- unlist( lapply(location, function(x) ifelse(is.null(x$"년"), NA, x$"년")) )
     tmp.data$Trade_month <- unlist( lapply(location, function(x) ifelse(is.null(x$"월"), NA, x$"월")) )
     tmp.data$Trade_day <- unlist( lapply(location, function(x) ifelse(is.null(x$"일"), NA, x$"일")) )
+    tmp.data$consYear <- unlist( lapply(location, function(x) ifelse(is.null(x$"건축년도"), NA, x$"건축년도")) )
 
     if(tradeType == "trade"){
       # sub-common variables by trade type(2).
-      tmp.data$consYear <- unlist( lapply(location, function(x) ifelse(is.null(x$"건축년도"), NA, x$"건축년도")) )
       tmp.data$Price <- unlist( lapply(location, function(x)
         ifelse(is.null(x$"거래금액"), NA, as.numeric(trimws(gsub(",", "", x$"거래금액"))))) )
 
@@ -206,13 +206,11 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
         ifelse(is.null(x$"보증금액"), NA, as.numeric(trimws(gsub(",", "", x$"보증금액"))))) )
 
       if(houseType == 'apart'){
-        tmp.data$consYear <- unlist( lapply(location, function(x) ifelse(is.null(x$"건축년도"), NA, x$"건축년도")) )
         tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
         tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"아파트"), NA, trimws(x$"아파트"))) )
         tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )
         tmp.data$Floor <- unlist( lapply(location, function(x) ifelse(is.null(x$"층"), NA, trimws(x$"층"))) )
       }else if(houseType == 'multi'){
-        tmp.data$consYear <- unlist( lapply(location, function(x) ifelse(is.null(x$"건축년도"), NA, x$"건축년도")) )
         tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
         tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"연립다세대"), NA, trimws(x$"연립다세대"))) )
         tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )

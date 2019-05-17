@@ -67,7 +67,7 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
   if(is.null(localeCode) & is.null(localeName)){
     stop("Invalid locale. \n Please insert at least one params between \"localeCode\" and \"localeName\".")
   }
-  if(!is.null(localeCode) & (mean(nchar(localeCode)) != 10)){
+  if(!is.null(localeCode) & (mean(nchar(format(localeCode, scientific = F))) != 10)){
     stop("Invalid localeCode. \n Please insert right \"localeCode\". It should be 10-digit numeric values.")
   }
 
@@ -113,7 +113,9 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
     localeCode <- datagokR::kma_locale_code[grepl(localeName,
                                                   paste(datagokR::kma_locale_code$name1,
                                                   datagokR::kma_locale_code$name2, sep = " ")),] %>%
-      select("code") %>% unlist %>% as.numeric
+      select("code") %>% unlist
+  }else if(!is.null(localeCode)){
+    localeCode <- format(localeCode, scientific = FALSE)
   }
 
   ## generate list of urls(fxxking so many limitations...).
@@ -130,7 +132,7 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
   all.error <- list(); length(all.error) <- length(urls)
   errors <- list(); length(errors) <- length(urls)
   suc <- character(length(urls))
-  meta <- data.frame(url = urls, success = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
+  meta <- data.frame(url = urls, success = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
     as.tbl
 
   pb <- txtProgressBar(min = 1, length(urls), style = 3)
@@ -197,7 +199,7 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
   data <- list(); length(data) <- length(type)
   for(i in 1:length(data)){
     tmp.d <- bind_rows(all.data[lapply(all.data, function(x)
-      x$type == datagokR::kma_lifeIndex_urlType[type][i]) %>% unlist %>% which]) %>% as.tbl
+      x$type == type[i]) %>% unlist %>% which]) %>% as.tbl
 
     if(nrow(tmp.d) == 0){
       next

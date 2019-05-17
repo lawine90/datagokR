@@ -58,8 +58,8 @@
 #'
 #' @export
 
-utils::globalVariables(c(".data", "code", "kma_locale_code", "kma_lifeIndex_type_check",
-                         "kma_lifeIndex_urlType", "locale"), add = F)
+# utils::globalVariables(c(".data", "code", "kma_locale_code", "kma_lifeIndex_type_check",
+#                          "kma_lifeIndex_urlType", "locale"), add = F)
 kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
   ### 1. parameter checking and processing.
   ## key

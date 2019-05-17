@@ -59,7 +59,7 @@
 #'
 #' @export
 
-utils::globalVariables(c("molit_locale_code", ".data"), add = F)
+# utils::globalVariables(c(".data"), add = F)
 molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeName = NULL,
                            houseType, tradeType, slow = F, viz = F){
   ### 1. parameter checking.

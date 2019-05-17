@@ -57,7 +57,7 @@
 #'
 #' @export
 
-utils::globalVariables(c(".data", "code", "kma_locale_code", "kma_healthIndex_type_check", "locale"), add = F)
+# utils::globalVariables(c(".data", "code", "kma_locale_code", "kma_healthIndex_type_check", "locale"), add = F)
 kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
   ### 1. parameter checking and processing.
   ## key

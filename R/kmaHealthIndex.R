@@ -196,8 +196,14 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
   ### 4. merge data by index type.
   data <- list(); length(data) <- length(type)
   for(i in 1:length(data)){
-    data[[i]] <- bind_rows(all.data[lapply(all.data, function(x)
-      x$type == type[i]) %>% unlist %>% which]) %>% as.tbl %>%
+    tmp.d <- bind_rows(all.data[lapply(all.data, function(x)
+      x$type == datagokR::kma_lifeIndex_urlType[type][i]) %>% unlist %>% which]) %>% as.tbl
+
+    if(nrow(tmp.d) == 0){
+      next
+    }
+
+    data[[i]] <- tmp.d %>%
       mutate("time" = strptime(.data$time, format='%Y%m%d%H') %>% as.character,
              "locale" = as.numeric(.data$locale))
 

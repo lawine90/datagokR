@@ -44,6 +44,7 @@
 #' @importFrom dplyr select
 #' @importFrom dplyr summarise
 #' @importFrom dplyr ungroup
+#' @importFrom dplyr arrange
 #' @importFrom httr GET
 #' @importFrom httr content
 #' @importFrom utils txtProgressBar

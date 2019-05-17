@@ -47,6 +47,7 @@
 #' @importFrom dplyr select
 #' @importFrom dplyr summarise
 #' @importFrom dplyr ungroup
+#' @importFrom dplyr arrange
 #' @importFrom utils txtProgressBar
 #' @importFrom utils setTxtProgressBar
 #' @importFrom utils globalVariables

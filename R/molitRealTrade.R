@@ -242,7 +242,7 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
 
   if(nrow(re.da) != 0){
     re.da <- re.da %>% mutate("Code" = as.integer(re.da$Code)) %>%
-      left_join(y = molit_locale_code[,c('code', 'name')], by = c("Code" = "code"))
+      left_join(y = datagokR::molit_locale_code[,c('code', 'name')], by = c("Code" = "code"))
 
     result$data <- re.da
     result$errors <- unlist(errors)

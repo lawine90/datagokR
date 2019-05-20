@@ -58,7 +58,7 @@
 #' @export
 
 # utils::globalVariables(c(".data", "code", "kma_locale_code", "kma_healthIndex_type_check", "locale"), add = F)
-kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
+kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
   ### 1. parameter checking and processing.
   ## key
   if(is.null(key)){ stop("Invalid key. \n Please issue API key first and insert it to \"key\" param.") }
@@ -88,12 +88,7 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
   }
 
   ## time
-  if( any(!(time %in% c(6,18))) ){
-    warning("Inappropriate time. \n All data of kma health index produced twice per day at 6 and 18 o'clock.")
-  }
-
-  mt <- outer(c(6,18), time, "-") %>% abs; dimnames(mt) <- list(c(6,18), time)
-  time <- names((mt %>% apply(MARGIN = 1, FUN = min) <= 6) %>% which) %>% as.character %>% sprintf("%02d")
+  time <- sprintf("%02d", c(6, 18))
 
 
   ### 2. REST url

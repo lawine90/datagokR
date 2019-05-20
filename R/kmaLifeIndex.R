@@ -3,7 +3,6 @@
 #' kmaLifeIndex function import the life weather index data last 2 days. The function also provide simple visualization using plotly.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>. no default.
-#' @param time numeric value. The time when the data is generated.
 #' @param localeCode numeric value. SiGunGu code which means legal area. one of localeCode or localeName should be inserted.
 #' @param localeName character value. SiGunGu name wich means legal area. one of localeCode or localeName should be inserted. It should be Korean.
 #' @param type character value. decide the type of index. it should be one of "fp", "st", "hi", "di", "ui", "fb", "ap", "sh" or "possible". see details.
@@ -60,7 +59,7 @@
 
 # utils::globalVariables(c(".data", "code", "kma_locale_code", "kma_lifeIndex_type_check",
 #                          "kma_lifeIndex_urlType", "locale"), add = F)
-kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
+kmaLifeIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow = T, viz = F){
   ### 1. parameter checking and processing.
   ## key
   if(is.null(key)){ stop("Invalid key. \n Please issue API key first and insert it to \"key\" param.") }
@@ -90,22 +89,17 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   }
 
   ## time
-  if( any(!(time %in% seq(0, 21, 3))) ){
-    warning("Inappropriate time. \n The data of \"fp\", \"ui\", \"sh\" type produced twice per day at 6 and 18 o'clock.",
-            "\n Other types data produced 8-times per day at 0, 3, 6, 9, 12, 15, 18, 21 o'clock.")
-  }
   if( all(type %in% c("fp", "ui", "sh")) ){
-    mt <- outer(c(6,18), time, "-") %>% abs; dimnames(mt) <- list(c(6,18), time)
-    time <- names((mt %>% apply(MARGIN = 1, FUN = min) <= 6) %>% which) %>% as.character %>% sprintf("%02d")
+    time <- sprintf("%02d", c(6, 18))
   }else{
-    mt <- outer(seq(0, 21, 3), time, "-") %>% abs; dimnames(mt) <- list(seq(0, 21, 3), time)
-    time <- names((mt %>% apply(MARGIN = 1, FUN = min) <= 2) %>% which) %>% as.character %>% sprintf("%02d")
+    time <- sprintf("%02d", seq(0, 21, 3))
   }
 
 
   ### 2. REST url
   ## End Point.
-  url <- paste("http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/get", datagokR::kma_lifeIndex_urlType[type], "LifeList?", sep = "")
+  url <- paste("http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/get",
+               datagokR::kma_lifeIndex_urlType[type], "LifeList?", sep = "")
 
   ## date time(only yesterday).
   datelst <- c(Sys.Date() - 1) %>% gsub(pattern = "-", replacement = "") %>%
@@ -120,7 +114,9 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
     localeCode <- datagokR::kma_locale_code[grepl(localeName,
                                                   paste(datagokR::kma_locale_code$name1,
                                                   datagokR::kma_locale_code$name2, sep = " ")),] %>%
-      select("code") %>% unlist %>% as.numeric
+      select("code") %>% unlist
+  }else if(!is.null(localeCode)){
+    localeCode <- format(localeCode, scientific = FALSE)
   }
 
   ## generate list of urls(fxxking so many limitations...).
@@ -130,6 +126,12 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   urls <- paste(url, "serviceKey=", key, "&time=", sep = "")
   urls <- outer(urls, datelst, paste, sep = "") %>% as.vector %>% paste("&areaNo=", sep = "")
   urls <- outer(urls, localeCode, paste, sep = "") %>% as.vector
+
+  ## remove useless urls.
+  cond1 <- gsub(".*get(.*)Life.*", "\\1", urls) %in%
+    datagokR::kma_lifeIndex_urlType[type[type %in% c("fp", "ui", "sh")]]
+  cond2 <- gsub(".*&time=\\d{8}(\\d{2})&areaNo.*", "\\1", urls) %in% c("00", "03", "09", "12", "15", "21")
+  urls <- urls[!(cond1 & cond2)]
 
 
   ### 3. urls's xml parsing.
@@ -245,7 +247,7 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
 
     data[[i]] <- tmp.d %>%
       mutate("time" = strptime(.data$time, format='%Y%m%d%H') %>% as.character,
-             "locale" = as.numeric(.data$locale))
+             "locale" = .data$locale)
 
     data[[i]] <- data[[i]][!duplicated(data[[i]]),] %>% arrange(.data$locale, .data$time)
 

@@ -3,7 +3,7 @@
 \docType{data}
 \name{molit_locale_code}
 \alias{molit_locale_code}
-\title{Data for molit_realTrade function.}
+\title{Data for molitRealTrade function.}
 \format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 461 rows and 3 columns.}
 \usage{
 molit_locale_code

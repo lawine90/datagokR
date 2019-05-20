@@ -1,4 +1,4 @@
-#' Data for molit_realTrade function.
+#' Data for molitRealTrade function.
 #'
 #' A dataset containing the legal location code and the name of locations.
 #'  It is tbl_df type object so "dplyr" library is recommended.

@@ -100,8 +100,8 @@ kmaHealthIndex <- function(key, time = c(6,18), localeCode = NULL, localeName = 
   ## End Point.
   url <- paste("http://newsky2.kma.go.kr/iros/RetrieveWhoIndexService2/get", type, "WhoList?", sep = "")
 
-  ## date time(only last 2 days...).
-  datelst <- c(Sys.Date() - 1, Sys.Date()) %>% gsub(pattern = "-", replacement = "") %>%
+  ## date time(only yesterday).
+  datelst <- c(Sys.Date() - 1) %>% gsub(pattern = "-", replacement = "") %>%
     outer(time, paste, sep = "") %>% as.vector %>% sort
 
   # remove not comming datelst.

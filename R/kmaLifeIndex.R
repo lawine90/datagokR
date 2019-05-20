@@ -107,8 +107,8 @@ kmaLifeIndex <- function(key, time = seq(0, 21, 3), localeCode = NULL, localeNam
   ## End Point.
   url <- paste("http://newsky2.kma.go.kr/iros/RetrieveLifeIndexService3/get", datagokR::kma_lifeIndex_urlType[type], "LifeList?", sep = "")
 
-  ## date time(only last 2 days...).
-  datelst <- c(Sys.Date() - 1, Sys.Date()) %>% gsub(pattern = "-", replacement = "") %>%
+  ## date time(only yesterday).
+  datelst <- c(Sys.Date() - 1) %>% gsub(pattern = "-", replacement = "") %>%
     outer(time, paste, sep = "") %>% as.vector %>% sort
 
   # remove not comming datelst.

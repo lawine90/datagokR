@@ -202,7 +202,7 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
 
     data[[i]] <- tmp.d %>%
       mutate("time" = strptime(.data$time, format='%Y%m%d%H') %>% as.character,
-             "locale" = as.numeric(.data$locale))
+             "locale" = .data$locale)
 
     data[[i]] <- data[[i]][!duplicated(data[[i]]),] %>% arrange(.data$locale, .data$time)
 

@@ -3,6 +3,7 @@
 export(kmaHealthIndex)
 export(kmaLifeIndex)
 export(molitRealTrade)
+export(nhisDiseaseForcast)
 importFrom(XML,xmlToList)
 importFrom(dplyr,"%>%")
 importFrom(dplyr,arrange)

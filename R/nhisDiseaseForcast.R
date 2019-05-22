@@ -101,7 +101,7 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
 
   ### 3. urls's xml parsing.
   all.data <- list(); length(all.data) <- length(urls)
-  all.error <- list(); length(all.error) <- length(urls)
+  recomand <- list(); length(recomand) <- length(urls)
   meta <- data.frame(url = urls, count = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
     as.tbl
 
@@ -160,6 +160,15 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
         risk = unlist( lapply(location, function(x) ifelse(is.null(x$"risk"), NA, x$"risk")) ),
         stringsAsFactors = F
       ) %>% as.tbl
+
+      recomand[[i]] <- data.frame(
+        diss = unlist( lapply(location, function(x) ifelse(is.null(x$"dissCd"), NA, x$"dissCd")) ),
+        risk = unlist( lapply(location, function(x) ifelse(is.null(x$"risk"), NA, x$"risk")) ),
+        rcmd = unlist( lapply(location, function(x) ifelse(is.null(x$"dissRiskXpln"), NA, x$"dissRiskXpln")) ),
+        stringsAsFactors = F
+      ) %>% as.tbl
+
+      recomand[[i]] <- recomand[[i]][!duplicated(recomand[[i]]),]
     } # if statement regarding to count.
     setTxtProgressBar(pb, value = i)
   } # end of loop i.
@@ -167,6 +176,8 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
 
   ### 4. merge data by index type.
   data <- bind_rows(all.data)
+  recomand <- bind_rows(recomand)
+  recomand <- recomand[!duplicated(recomand),] %>% arrange(diss, risk)
 
   result <- list(
     meta = meta,

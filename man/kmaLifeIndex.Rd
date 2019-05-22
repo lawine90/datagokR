@@ -4,13 +4,11 @@
 \alias{kmaLifeIndex}
 \title{Korea Meteorological Administration, The life weather index.}
 \usage{
-kmaLifeIndex(key, time = seq(0, 21, 3), localeCode = NULL,
-  localeName = NULL, type, slow = T, viz = F)
+kmaLifeIndex(key, localeCode = NULL, localeName = NULL, type,
+  slow = T, viz = F)
 }
 \arguments{
 \item{key}{character value. API key issued from <www.data.go.kr>. no default.}
-
-\item{time}{numeric value. The time when the data is generated.}
 
 \item{localeCode}{numeric value. SiGunGu code which means legal area. one of localeCode or localeName should be inserted.}
 
@@ -29,7 +27,7 @@ data.frame and visualization.
 kmaLifeIndex function import the life weather index data last 2 days. The function also provide simple visualization using plotly.
 }
 \details{
-kmaLifeIndex function import eight index value which calculated by Korea Meteorological Administration and related to public's life.
+kmaLifeIndex function import eight index value which calculated by Korea Meteorological Administration and related to public's life.\cr
  Explanation about "type" as follow.\cr
  "fp" = Food poison index. It is povided from Jan to Dec.\cr
  "st" = Sensory temperature index. It is povided from Nov to Mar.\cr
@@ -40,7 +38,8 @@ kmaLifeIndex function import eight index value which calculated by Korea Meteoro
  "ap" = Atmospheric dispersion index. It is povided from Nov to May.\cr
  "sh" = Sensory heat index. It is povided from May to Sep.\cr
  "possible" = All index which affordable now.\cr
- See more details about each index from <http://www.weather.go.kr/weather/lifenindustry/life_jisu.jsp#>
+ See more details about each index from <http://www.weather.go.kr/weather/lifenindustry/life_jisu.jsp#>\cr\cr
+ Importing data from KMA is so unstable that it is recommended to checking error urls in result.
 }
 \examples{
  # example 1 searching by localeCode.

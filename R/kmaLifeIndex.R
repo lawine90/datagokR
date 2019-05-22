@@ -11,7 +11,7 @@
 #'
 #' @return data.frame and visualization.
 #'
-#' @details kmaLifeIndex function import eight index value which calculated by Korea Meteorological Administration and related to public's life.
+#' @details kmaLifeIndex function import eight index value which calculated by Korea Meteorological Administration and related to public's life.\cr
 #'  Explanation about "type" as follow.\cr
 #'  "fp" = Food poison index. It is povided from Jan to Dec.\cr
 #'  "st" = Sensory temperature index. It is povided from Nov to Mar.\cr
@@ -22,7 +22,8 @@
 #'  "ap" = Atmospheric dispersion index. It is povided from Nov to May.\cr
 #'  "sh" = Sensory heat index. It is povided from May to Sep.\cr
 #'  "possible" = All index which affordable now.\cr
-#'  See more details about each index from <http://www.weather.go.kr/weather/lifenindustry/life_jisu.jsp#>
+#'  See more details about each index from <http://www.weather.go.kr/weather/lifenindustry/life_jisu.jsp#>\cr\cr
+#'  Importing data from KMA is so unstable that it is recommended to checking error urls in result.
 #'
 #' @examples
 #'  # example 1 searching by localeCode.

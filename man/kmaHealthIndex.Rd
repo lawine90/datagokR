@@ -4,13 +4,11 @@
 \alias{kmaHealthIndex}
 \title{Korea Meteorological Administration, The health index.}
 \usage{
-kmaHealthIndex(key, time = c(6, 18), localeCode = NULL,
-  localeName = NULL, type, slow = T, viz = F)
+kmaHealthIndex(key, localeCode = NULL, localeName = NULL, type,
+  slow = T, viz = F)
 }
 \arguments{
 \item{key}{character value. API key issued from <www.data.go.kr>. no default.}
-
-\item{time}{numeric value. The time when the data is generated.}
 
 \item{localeCode}{numeric value. SiGunGu code which means legal area. one of localeCode or localeName should be inserted.}
 
@@ -30,7 +28,7 @@ data.frame and visualization.
 kmaLifeIndex function import the health index data last 2 days. The function also provide simple visualization using plotly.
 }
 \details{
-kmaLifeIndex function import eight index value which calculated by Korea Meteorological Administration and related to public's life.
+kmaLifeIndex function import eight index value which calculated by Korea Meteorological Administration and related to public's life.\cr
  Explanation about "type" as follow.\cr
  "Asthma" = Possibility index of asthma or lung disease. It is povided the whole year.\cr
  "Brain" = Possibility index of stroke. It is povided the whole year.\cr
@@ -40,15 +38,15 @@ kmaLifeIndex function import eight index value which calculated by Korea Meteoro
  "FlowerWeeds" = Risk index of weed's pollen. It is povided from Sep to Oct.\cr
  "Infl" = Possibility index of influenza. It is povided from Sep to Apr.\cr
  "possible" = All index which affordable now.\cr
- See more details about each index from <http://www.weather.go.kr/weather/lifenindustry/life_jisu.jsp#>
+ See more details about each index from <http://www.weather.go.kr/weather/lifenindustry/life_jisu.jsp#> \cr\cr
+ Importing data from KMA is so unstable that it is recommended to checking error urls in result.
 }
 \examples{
  # example 1 searching by localeCode.
- data <- kmaHealthIndex(key, time = seq(0, 21, 3), localeCode = c(4111100000, 4111156600),
+ data <- kmaHealthIndex(key, localeCode = c(4111100000, 4111156600),
                         type = "Asthma", slow = T)
 
  # example 2 searching by localeName
- data <- kmaHealthIndex(key, time = seq(0, 21, 3),
-                        localeName = c("수원"), type = "possible", slow = T)
+ data <- kmaHealthIndex(key, localeName = c("수원"), type = "possible", slow = T)
 
 }

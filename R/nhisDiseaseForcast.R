@@ -182,6 +182,9 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
   result <- list(
     meta = meta,
     data = data,
+    recommanded = recomand,
     plot = NULL
   )
+
+  return(result)
 }

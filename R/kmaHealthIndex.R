@@ -148,7 +148,7 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
       if(slow){
         Sys.sleep(runif(1, 0, 2.5))
       }
-      if(!is.null(tmp.xml) | ii == 15) break
+      if(!is.null(tmp.xml) | ii >= 15) break
     }
 
     # if tmp.xml is error, go next.

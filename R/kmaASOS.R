@@ -56,7 +56,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
   ## branchCode
   if(is.null(branchCode)){
     stop("Invalid branchCode. \n Please insert \"branchCode\" argument.")
-  }else if(!all(as.numeric(branchCode) %in% 90:295)){
+  }else if(!all(as.numeric(branchCode) %in% 90:295 | branchCode != "all")){
     stop("Invalid branchCode. \n Please insert \"branchCode\" between 90 to 295.")
   }
 

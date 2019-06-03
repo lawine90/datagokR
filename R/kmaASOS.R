@@ -3,7 +3,7 @@
 #' kmaASOS function import Korea Moteorological Administration's ASOS data of day.
 #'
 #' @param key character value. API key issued from <https://data.kma.go.kr>. Note that it's not from <data.go.kr>. no default.
-#' @param branchCode numeric value. the codes of branches. If insert \"all\", import all branches data. See kma_branch data for details.
+#' @param branchCode numeric value. the codes of branches. If insert "all", import all branches data. See kma_branch data for details.
 #' @param fromDate date value. 8-digits date which means starting date.
 #' @param toDate date value. 8-digits date which means end date.
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is TRUE.
@@ -21,11 +21,8 @@
 #'
 #' @examples
 #'  # example 1 searching by branchCode.
-#'  data <- kmaHealthIndex(key, branchCode = c(108), fromDate = as.date("2010-01-01"),
-#'                         toDate = as.date("2010-01-10"), slow = T)
-#'
-#'  # example 2 searching by localeName
-#'  data <- kmaHealthIndex(key, localeName = c("수원"), type = "possible", slow = T)
+#'  data <- kmaASOS(key, branchCode = c(108), fromDate = as.date("2010-01-01"),
+#'                  toDate = as.date("2010-01-10"), slow = T)
 #'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr as.tbl
@@ -110,7 +107,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
   meta <- data.frame(url = urls, success = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
     as.tbl
 
-  pb <- txtProgressBar(min = 1, length(urls), style = 3)
+  pb <- txtProgressBar(min = 0, length(urls), style = 3)
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
@@ -314,10 +311,10 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
         re.data[[i]] <- re.data[[i]] %>% select(c("date", "brch", "brch_nme", sort(colnames(re.data[[i]])[-(1:3)])))
       } # if statement regarding to SuccessYN.
     } # end of loop i.
-  } # end of errorCheck statement.
 
-  eror.data <- bind_rows(re.data)
-  data <- bind_rows(data, re.data)
+    eror.data <- bind_rows(re.data)
+    data <- bind_rows(data, re.data)
+  } # end of errorCheck statement.
 
   result <- list(
     data = data,

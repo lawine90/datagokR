@@ -10,7 +10,7 @@ kmaASOS(key, branchCode = NULL, fromDate = NULL, toDate = NULL,
 \arguments{
 \item{key}{character value. API key issued from <https://data.kma.go.kr>. Note that it's not from <data.go.kr>. no default.}
 
-\item{branchCode}{numeric value. the codes of branches. If insert \"all\", import all branches data. See kma_branch data for details.}
+\item{branchCode}{numeric value. the codes of branches. If insert "all", import all branches data. See kma_branch data for details.}
 
 \item{fromDate}{date value. 8-digits date which means starting date.}
 
@@ -37,10 +37,7 @@ ASOS is an observation conducted at the same time at all
 }
 \examples{
  # example 1 searching by branchCode.
- data <- kmaHealthIndex(key, branchCode = c(108), fromDate = as.date("2010-01-01"),
-                        toDate = as.date("2010-01-10"), slow = T)
-
- # example 2 searching by localeName
- data <- kmaHealthIndex(key, localeName = c("수원"), type = "possible", slow = T)
+ data <- kmaASOS(key, branchCode = c(108), fromDate = as.date("2010-01-01"),
+                 toDate = as.date("2010-01-10"), slow = T)
 
 }

@@ -54,16 +54,15 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
   if(is.null(key)){ stop("Invalid key. \n Please issue API key first and insert it to \"key\" param.") }
 
   ## branchCode
-  if(is.null(branchCode)){
-    stop("Invalid branchCode. \n Please insert \"branchCode\" argument.")
-  }else if(!all(as.numeric(branchCode) %in% 90:295 | branchCode != "all")){
-    stop("Invalid branchCode. \n Please insert \"branchCode\" between 90 to 295.")
-  }
-
   if(branchCode == "all"){
     branchCode <- datagokR::kma_branches[datagokR::kma_branches$endDate == "",]
     branchCode <- branchCode[branchCode$code %in% 90:295,]
     branchCode <- branchCode[branchCode$data == "asos",]$code %>% unique
+  }
+  if(is.null(branchCode)){
+    stop("Invalid branchCode. \n Please insert \"branchCode\" argument.")
+  }else if(!all(as.numeric(branchCode) %in% 90:295)){
+    stop("Invalid branchCode. \n Please insert \"branchCode\" between 90 to 295.")
   }
 
   ## fromDate and toDate

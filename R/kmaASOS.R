@@ -317,9 +317,8 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
   } # end of errorCheck statement.
 
   result <- list(
+    meta = meta,
     data = data,
-    plot = NULL,
-    errors = unlist(errors),
-    urls = urls
+    plot = NULL
   )
 }

@@ -171,6 +171,11 @@ kmaLifeIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow =
       meta[i,]$success <- "error"
       next
     }
+    if(is.null(tmp.xml$Header$SuccessYN)){
+      errors[[i]] <- urls[[i]]
+      meta[i,]$success <- "error"
+      next
+    }
 
     suc[i] <- tmp.xml$Header$SuccessYN
     meta[i,]$success <- ifelse(is.null(suc[i])|is.na(suc[i]),

@@ -249,10 +249,10 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
       }
 
       # if suc is "N", skip.
-      if(meta[meta$url == meta[meta$success == "error",]$url[i],]$success != "success"){
-        meta[meta$url == meta[meta$success == "error",]$url[i],]$success <- "error"
+      if(meta[meta$url == meta[meta$success != "success",]$url[i],]$success != "success"){
+        meta[meta$url == meta[meta$success != "success",]$url[i],]$success <- "error"
         next
-      }else if(meta[meta$url == meta[meta$success == "error",]$url[i],]$success == "success"){
+      }else if(meta[meta$url == meta[meta$success != "success",]$url[i],]$success == "success"){
         location <- tmp.xml[[lapply(tmp.xml, function(x) grepl("info", names(x))) %>% unlist %>% which]][[1]]
 
         re.data[[i]] <- data.frame(

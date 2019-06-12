@@ -25,11 +25,11 @@
 #'
 #' @examples
 #'  # example 1 searching by localeCode.
-#'  data <- kmaHealthIndex(key, localeCode = c(11, 41),
+#'  data <- nhisDiseaseForcast(key, localeCode = c(11, 41),
 #'                         type = "Asthma", slow = T)
 #'
 #'  # example 2 searching by localeName
-#'  data <- kmaHealthIndex(key, localeName = c("수원"), type = "All", slow = T)
+#'  data <- nhisDiseaseForcast(key, localeName = c("수원"), type = "All", slow = T)
 #'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr as.tbl

@@ -214,16 +214,17 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
 
   ### 4. checking error retry.
   if(errorCheck & nrow(meta[meta$success != "success",]) != 0){
+    errors <- meta[meta$success != "success",]
     re.data <- list()
 
-    for(i in 1:nrow(meta[meta$success != "success",])){
+    for(i in 1:nrow(errors)){
       # parsing xml codes with repeat and trycatch.
       ii <- 0
       repeat{
         ii <- ii + 1
         tmp.xml <- tryCatch(
           {
-            httr::GET(meta[meta$success != "success",]$url[i]) %>%
+            httr::GET(errors$url[i]) %>%
               httr::content(as = "parsed", encoding = 'UTF-8')
           }, error = function(e){
             NULL
@@ -242,10 +243,10 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
 
       # if suc is "N", skip.
       if(is.null(tmp.xml)){
-        meta[meta$success != "success",]$success[i] <- "error"
+        meta[meta$url %in% errors$url[i],]$success <- "error"
         next
       }else if(!is.null(tmp.xml)){
-        meta[meta$success != "success",]$success[i] <- tmp.xml[[lapply(tmp.xml, function(x)
+        meta[meta$url %in% errors$url[i],]$success <- tmp.xml[[lapply(tmp.xml, function(x)
           grepl("msg", names(x))) %>% unlist %>% which]] %>% as.character
 
         location <- tmp.xml[[lapply(tmp.xml, function(x) grepl("info", names(x))) %>% unlist %>% which]][[1]]

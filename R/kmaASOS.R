@@ -91,7 +91,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
                "pageIndex=1&apiKey=", key, sep = "")
 
   ## count.
-  listCnt <- ifelse(as.numeric(toDate-fromDate)*2 == 0, 1, as.numeric(toDate-fromDate)*2)
+  listCnt <- ifelse(as.numeric(toDate-fromDate)*2 == 0, 2, as.numeric(toDate-fromDate)*2)
   url <- paste(url, "&schListCnt=", listCnt, sep = "")
 
   ## from & end date.
@@ -213,17 +213,17 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
 
 
   ### 4. checking error retry.
-  if(errorCheck & nrow(meta[meta$success == "error",]) != 0){
+  if(errorCheck & nrow(meta[meta$success != "success",]) != 0){
     re.data <- list()
 
-    for(i in 1:nrow(meta[meta$success == "error",])){
+    for(i in 1:nrow(meta[meta$success != "success",])){
       # parsing xml codes with repeat and trycatch.
       ii <- 0
       repeat{
         ii <- ii + 1
         tmp.xml <- tryCatch(
           {
-            httr::GET(meta[meta$success == "error",]$url[i]) %>%
+            httr::GET(meta[meta$success != "success",]$url[i]) %>%
               httr::content(as = "parsed", encoding = 'UTF-8')
           }, error = function(e){
             NULL
@@ -236,24 +236,18 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
         if(!is.null(tmp.xml) | ii >= 15) break
       }
 
-      # if tmp.xml is error, go next.
-      if(is.null(tmp.xml)){
-        meta[meta$url == meta[meta$success == "error",]$url[i],]$success <- "error"
-        next
-      }else{
-        meta[meta$url == meta[meta$success == "error",]$url[i],]$success <- tmp.xml[[lapply(tmp.xml, function(x) grepl("msg", names(x))) %>% unlist %>% which]] %>%
-          as.character
-      }
-
       if(slow){
         Sys.sleep(runif(1, 0, 1.5))
       }
 
       # if suc is "N", skip.
-      if(meta[meta$url == meta[meta$success != "success",]$url[i],]$success != "success"){
-        meta[meta$url == meta[meta$success != "success",]$url[i],]$success <- "error"
+      if(is.null(tmp.xml)){
+        meta[meta$success != "success",]$success[i] <- "error"
         next
-      }else if(meta[meta$url == meta[meta$success != "success",]$url[i],]$success == "success"){
+      }else if(!is.null(tmp.xml)){
+        meta[meta$success != "success",]$success[i] <- tmp.xml[[lapply(tmp.xml, function(x)
+          grepl("msg", names(x))) %>% unlist %>% which]] %>% as.character
+
         location <- tmp.xml[[lapply(tmp.xml, function(x) grepl("info", names(x))) %>% unlist %>% which]][[1]]
 
         re.data[[i]] <- data.frame(

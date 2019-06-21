@@ -54,7 +54,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
   if(is.null(key)){ stop("Invalid key. \n Please issue API key first and insert it to \"key\" param.") }
 
   ## branchCode
-  if(branchCode == "all"){
+  if(length(branchCode) == 1 & (branchCode == "all")){
     branchCode <- datagokR::kma_branches[datagokR::kma_branches$endDate == "",]
     branchCode <- branchCode[branchCode$code %in% 90:295,]
     branchCode <- branchCode[branchCode$data == "asos",]$code %>% unique
@@ -91,7 +91,8 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
                "pageIndex=1&apiKey=", key, sep = "")
 
   ## count.
-  url <- paste(url, "&schListCnt=", as.numeric(toDate-fromDate)*2, sep = "")
+  listCnt <- ifelse(as.numeric(toDate-fromDate)*2 == 0, 1, as.numeric(toDate-fromDate)*2)
+  url <- paste(url, "&schListCnt=", listCnt, sep = "")
 
   ## from & end date.
   url <- paste(url, "&startDt=", gsub("\\D", "", fromDate),

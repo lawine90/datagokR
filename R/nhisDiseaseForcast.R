@@ -9,6 +9,7 @@
 #'             "Influenza", "Eye", "Food", "Asthma", "Skin", or "All". see details.
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is TRUE.
 #' @param viz logical value. if TRUE, provide simple 2d visualization result. x: date, y: mean index.
+#' @param verbose logical value. if TRUE, provide process bar. Default value set as false.
 #'
 #' @return data.frame and visualization.
 #'
@@ -54,7 +55,7 @@
 #'
 #' @export
 
-nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, slow = F, viz = F){
+nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, slow = F, viz = F, verbose = F){
   ### 1. parameter checking and processing.
   ## key
   if(is.null(key)){ stop("Invalid key. \n Please issue API key first and insert it to \"key\" param.") }
@@ -105,7 +106,7 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
   meta <- data.frame(url = urls, count = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
     as.tbl
 
-  pb <- txtProgressBar(min = 1, length(urls), style = 3)
+  if(verbose == T){pb <- txtProgressBar(min = 1, length(urls), style = 3)}
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
@@ -148,7 +149,8 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
 
     # if meta[i,]$count is "error" or 0, skip.
     if(meta[i,]$count %in% c("error", "0")){
-      setTxtProgressBar(pb, value = i); next
+      if(verbose == T){setTxtProgressBar(pb, value = i)}
+      next
     }else{
       location <- tmp.xml$body$items
 
@@ -170,7 +172,7 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
 
       recomand[[i]] <- recomand[[i]][!duplicated(recomand[[i]]),]
     } # if statement regarding to count.
-    setTxtProgressBar(pb, value = i)
+    if(verbose == T){setTxtProgressBar(pb, value = i)}
   } # end of loop i.
 
 

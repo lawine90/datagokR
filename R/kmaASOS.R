@@ -8,6 +8,7 @@
 #' @param toDate date value. 8-digits date which means end date.
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is TRUE.
 #' @param viz logical value. if TRUE, provide simple 2d visualization result. x: date, y: mean index.
+#' @param verbose logical value. if TRUE, provide process bar. Default value set as false.
 #'
 #' @return data.frame and visualization.
 #'
@@ -48,7 +49,7 @@
 #'
 #' @export
 
-kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow = F, errorCheck = T){
+kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow = F, errorCheck = T, verbose = F){
   ### 1. parameter checking
   ## key
   if(is.null(key)){ stop("Invalid key. \n Please issue API key first and insert it to \"key\" param.") }
@@ -107,7 +108,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
   meta <- data.frame(url = urls, success = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
     as.tbl
 
-  pb <- txtProgressBar(min = 0, length(urls), style = 3)
+  if(verbose == T){pb <- txtProgressBar(min = 0, length(urls), style = 3)}
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
@@ -146,7 +147,9 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
     # if suc is "N", skip.
     if(meta[i,]$success != "success"){
       meta[i,]$success <- "error"
-      setTxtProgressBar(pb, value = i)
+
+      if(verbose == T){setTxtProgressBar(pb, value = i)}
+
       next
     }else if(meta[i,]$success == "success"){
       location <- tmp.xml[[lapply(tmp.xml, function(x) grepl("info", names(x))) %>% unlist %>% which]][[1]]
@@ -206,7 +209,9 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
       # Encoding(all.data[[i]]$brch_nme) <- rep("UTF-8", nrow(all.data[[i]]))
       # all.data[[i]]$brch_nme <- enc2utf8(all.data[[i]]$brch_nme)
     } # if statement regarding to SuccessYN.
-    setTxtProgressBar(pb, value = i)
+
+    if(verbose == T){setTxtProgressBar(pb, value = i)}
+
   } # end of loop i.
 
   data <- bind_rows(all.data)

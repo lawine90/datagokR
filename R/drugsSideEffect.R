@@ -5,6 +5,8 @@
 #' @param key character value. API key issued from <www.data.go.kr>. no default.
 #'
 #' @examples
+#'  key <- 'your key issued from data.go.kr'
+#'
 #'  # example 1 searching by localeCode.
 #'  data <- drugsSideEffect(key)
 #'

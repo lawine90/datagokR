@@ -25,9 +25,10 @@
 #'
 #'
 #' @examples
+#'  key <- 'your key issued from data.go.kr'
+#'
 #'  # example 1 searching by localeCode.
-#'  data <- nhisDiseaseForcast(key, localeCode = c(11, 41),
-#'                         type = "Asthma", slow = T)
+#'  data <- nhisDiseaseForcast(key, localeCode = c(11, 41), type = "Asthma", slow = T)
 #'
 #'  # example 2 searching by localeName
 #'  data <- nhisDiseaseForcast(key, localeName = c("수원"), type = "All", slow = T)

@@ -41,9 +41,10 @@ nhisDiseaseForcast function import forcasted count of treatment and risk of five
  localeCode argument should be first 2-digit value of SiGunGu code like "11" for Seoul or "12" for Busan.
 }
 \examples{
+ key <- 'your key issued from data.go.kr'
+
  # example 1 searching by localeCode.
- data <- nhisDiseaseForcast(key, localeCode = c(11, 41),
-                        type = "Asthma", slow = T)
+ data <- nhisDiseaseForcast(key, localeCode = c(11, 41), type = "Asthma", slow = T)
 
  # example 2 searching by localeName
  data <- nhisDiseaseForcast(key, localeName = c("수원"), type = "All", slow = T)

@@ -1,7 +1,6 @@
 datagokR
 ========
-[**공공데이터포털**](https://www.data.go.kr/)에서 REST API를 이용하여 데이터를 받을 수 있는 패키지입니다.
-공공데이터포털에서 API 키를 발급받고 API 사용 승인을 받아야 사용하실 수 있습니다.
+[**공공데이터포털**](https://www.data.go.kr/)에서 REST API를 이용하여 데이터를 받을 수 있는 패키지입니다. 공공데이터포털에서 API 키를 발급받고 API 사용 승인을 받아야 사용하실 수 있습니다. API 사용 승인의 경우 자동승인과 심의승인이 있으며 datagokR에서는 자동승인만을 수집 대상으로 합니다.
 
 
 # 1. 패키지 설치 방법
@@ -155,7 +154,7 @@ devtools::install_github('lawine90/datagokR')
 
 > **4) [**종관기상관측**](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do)(kmaASOS)**
 > 
-> 정해진 시각에 각 지역의 관측소에서 실측된 지상관측 데이터입니다. 기온, 강수, 바람, 기압, 습도 등 날씨현상과 관련된 데이터이며  전국 94개 지점에서 수집된 데이터의 하루 평균을 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **기상자료개방포털에서 발급받은 별도의 API키가 필요**합니다. 기상자료개방포털에서 제공하는 API는 매우 불안정하므로 slow argument를 TRUE로 설정하고 사용하길 권정합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 list 타입이며 $meta에는 메타데이터, $data에 관측 데이터가 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> 정해진 시각에 각 지역의 관측소에서 실측된 지상관측 데이터입니다. 기온, 강수, 바람, 기압, 습도 등 날씨현상과 관련된 데이터이며  전국 94개 지점에서 수집된 데이터의 하루 평균을 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **기상자료개방포털에서 발급받은 별도의 API키가 필요**합니다. 기상자료개방포털에서 제공하는 API는 매우 불안정하므로 slow argument를 TRUE로 설정하고 사용하길 권장합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 list 타입이며 $meta에는 메타데이터, $data에 관측 데이터가 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 기상자료개방 포털에서 발급받은 API 키
 > - branchCode: (필수, 정수|문자). 관측소의 지점 코드. 'all'을 입력시 모든 지점의 관측 데이터를 수집
 > - fromDate: (필수, 날짜). 데이터를 수집하려는 기간의 시작일
@@ -167,7 +166,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 # example
 > key <- 'your key from data.kma.go.kr'
-> data <- kmaASOS(key2, branchCode = 'all', fromDate = as.Date('2019-08-19'), 
+> data <- kmaASOS(key, branchCode = 'all', fromDate = as.Date('2019-08-19'), 
                   toDate = Sys.Date(), slow = T)
 > data$data
 # A tibble: 658 x 46
@@ -191,5 +190,73 @@ devtools::install_github('lawine90/datagokR')
 #   sunDurTm_sum <dbl>, surfTmp_avg <dbl>, ttlCld_avg <dbl>, vapPrs_avg <dbl>, wdRun_sum <dbl>, wdSp_avg <dbl>, wdSp_max <dbl>,
 #   wdSpDrc_max <dbl>
 ```
+
+
+> **5) [**예측진료정보**](https://www.data.go.kr/dataset/15028050/openapi.do)(nhisDiseaseForcast)**
+> 
+> 수요조사 결과에 따라 관심도가 높은 5대 질병(눈병, 천식, 감기, 피부염, 식중독)에 대한 위험도 및 예측 진료 건수 정보를 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15028050/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 list 타입이며 $meta에는 메타데이터, $data에 관측 데이터, data$recommanded에 각 질병의 위험도에 따른 추천행동이 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 기상자료개방 포털에서 발급받은 API 키
+> - localeCode: (옵션, 정수). 지역의 시/군/구 코드의 앞 2자리. localeName 미입력시 입력 필수
+> - localeName: (옵션, 문자). 지역의 시/군/구 명. localeCode 미입력시 입력 필수
+> - slow: (옵션, T/F). 데이터를 받을 시 서버에 보내는 요청에 약 1초 정도의 pause를 둠. 기본값은 False
+> - viz: (옵션, T/F). 다운받은 데이터에 대한 간략한 시각화 제공. 기본값은 False(추후 구현 예정)
+> - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
+> - type: (필수, 문자). 7가지 보건기상지수의 타입. 각 타입에 대한 설명은 다음과 같습니다.
+>     * Asthma: 천식.
+>     * Eye: 눈병.
+>     * Food: 식중독.
+>     * Influenza: 감기.
+>     * Skin: 피부염.
+>     * All: 모든 질병.
+
+```
+# example
+> key <- 'your key'
+> data <- nhisDiseaseForcast(key, localeName = c("수원"), type = "All", slow = T)
+> data$data
+# A tibble: 462 x 5
+   diss  date     locale cnt   risk 
+   <chr> <chr>    <chr>  <chr> <chr>
+ 1 1     20191023 41111  2117  2    
+ 2 1     20191023 41113  2412  2    
+ 3 1     20191023 41115  1435  2    
+ 4 1     20191023 41117  2328  2    
+ 5 1     20191023 41131  1605  2    
+ 6 1     20191023 41133  1809  2    
+ 7 1     20191023 41135  3555  2    
+ 8 1     20191023 41150  3093  2    
+ 9 1     20191023 41171  1736  2    
+10 1     20191023 41173  2481  2    
+# ... with 452 more rows
+>
+> data$recommanded
+# A tibble: 9 x 3
+  diss  risk  rcmd                                                                                                              
+  <chr> <chr> <chr>                                                                                                             
+1 1     1     환기를 자주 시켜 깨끗한 환경을 유지하고, 외출 후에는 반드시 손을 씻는 등 평소 손 씻기를 생활화합니다.             
+2 1     2     기침과 재채기를 할 때에는 반드시 휴지나 손수건으로 가리는 등 기침 에티켓을 지켜주시고 충분한~
+3 2     1     비누를 사용하여 흐르는 수돗물에 손을 자주 씻고, 손으로 얼굴, 특히 눈 주위를 만지지 않도록 합니다.                 
+4 2     2     비누를 사용하여 흐르는 수돗물에 손을 자주 씻고, 수건이나 개인 소지품 등은 다른 사람과 함께 사용하지 않습니다.     
+5 3     1     식중독 발생가능성은 낮으나 식중독예방에 지속적인 관심이 요망됩니다. 화장실 사용 후, 귀가 후, 조리 전에 손 씻기를 생활화 합시다.~
+6 4     3     급격한 온도 변화를 피하고, 외출 후 손씻기, 양치질 등 개인위생관리를 철저히 하고, 인플루엔자 독감 예방접종을 받습니다.~
+7 4     4     급격한 온도 변화를 피하고 심한 기침이 발생시 바로 의료기관을 방문하여 전문의의 지시를 따르고, 증상이 조절되더라도 재발, 합병증을 막기 위해 꾸준히~
+8 5     2     보습제를 사용하고 털, 먼지, 화학물질 피하며 신선한 제철 야채와 과일을 통해 비타민C, 비타민 B1을 충분히 섭취합니다.
+9 5     3     피부가 건조하지 않도록 보습제를 충분히 사용하며 실내 온도 및 습도(50~60%)를 유지하고 땀을 흘리는 운동은 피합니다. 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

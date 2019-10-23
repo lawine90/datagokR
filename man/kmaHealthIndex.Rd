@@ -5,7 +5,7 @@
 \title{Korea Meteorological Administration, The health index.}
 \usage{
 kmaHealthIndex(key, localeCode = NULL, localeName = NULL, type,
-  slow = T, viz = F)
+  slow = T, viz = F, verbose = F)
 }
 \arguments{
 \item{key}{character value. API key issued from <www.data.go.kr>. no default.}
@@ -20,6 +20,8 @@ kmaHealthIndex(key, localeCode = NULL, localeName = NULL, type,
 \item{slow}{logical value. if TRUE, give sleep inbetween importing. default is TRUE.}
 
 \item{viz}{logical value. if TRUE, provide simple 2d visualization result. x: date, y: mean index.}
+
+\item{verbose}{logical value. if TRUE, provide process bar. Default value set as false.}
 }
 \value{
 data.frame and visualization.

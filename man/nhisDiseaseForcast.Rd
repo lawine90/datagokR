@@ -5,7 +5,7 @@
 \title{National Health Insurance Service, The Disease forcasting data.}
 \usage{
 nhisDiseaseForcast(key, localeCode = NULL, localeName = NULL, type,
-  slow = F, viz = F)
+  slow = F, viz = F, verbose = F)
 }
 \arguments{
 \item{key}{character value. API key issued from <www.data.go.kr>. no default.}
@@ -20,6 +20,8 @@ nhisDiseaseForcast(key, localeCode = NULL, localeName = NULL, type,
 \item{slow}{logical value. if TRUE, give sleep inbetween importing. default is TRUE.}
 
 \item{viz}{logical value. if TRUE, provide simple 2d visualization result. x: date, y: mean index.}
+
+\item{verbose}{logical value. if TRUE, provide process bar. Default value set as false.}
 }
 \value{
 data.frame and visualization.
@@ -40,10 +42,10 @@ nhisDiseaseForcast function import forcasted count of treatment and risk of five
 }
 \examples{
  # example 1 searching by localeCode.
- data <- kmaHealthIndex(key, localeCode = c(11, 41),
+ data <- nhisDiseaseForcast(key, localeCode = c(11, 41),
                         type = "Asthma", slow = T)
 
  # example 2 searching by localeName
- data <- kmaHealthIndex(key, localeName = c("수원"), type = "All", slow = T)
+ data <- nhisDiseaseForcast(key, localeName = c("수원"), type = "All", slow = T)
 
 }

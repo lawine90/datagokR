@@ -5,7 +5,7 @@
 \title{Korea Meteorological Administration, Automated Synoptic Observing System(ASOS) data of day.}
 \usage{
 kmaASOS(key, branchCode = NULL, fromDate = NULL, toDate = NULL,
-  slow = F, errorCheck = T)
+  slow = F, errorCheck = T, verbose = F)
 }
 \arguments{
 \item{key}{character value. API key issued from <https://data.kma.go.kr>. Note that it's not from <data.go.kr>. no default.}
@@ -17,6 +17,8 @@ kmaASOS(key, branchCode = NULL, fromDate = NULL, toDate = NULL,
 \item{toDate}{date value. 8-digits date which means end date.}
 
 \item{slow}{logical value. if TRUE, give sleep inbetween importing. default is TRUE.}
+
+\item{verbose}{logical value. if TRUE, provide process bar. Default value set as false.}
 
 \item{viz}{logical value. if TRUE, provide simple 2d visualization result. x: date, y: mean index.}
 }

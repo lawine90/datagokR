@@ -105,8 +105,8 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
 
   ### 3. urls's xml parsing.
   all.data <- list(); length(all.data) <- length(urls)
-  meta <- data.frame(url = urls, success = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
-    as.tbl
+  meta <- data.frame(url = urls, success = "", message = "", stringsAsFactors = F)
+  meta <- as.tbl(meta)
 
   if(verbose == T){pb <- txtProgressBar(min = 0, length(urls), style = 3)}
 
@@ -216,7 +216,6 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
 
   data <- bind_rows(all.data)
 
-
   ### 4. checking error retry.
   if(errorCheck & nrow(meta[meta$success != "success",]) != 0){
     errors <- meta[meta$success != "success",]
@@ -253,6 +252,8 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
       }else if(!is.null(tmp.xml)){
         meta[meta$url %in% errors$url[i],]$success <- tmp.xml[[lapply(tmp.xml, function(x)
           grepl("msg", names(x))) %>% unlist %>% which]] %>% as.character
+
+        if(meta[meta$url %in% errors$url[i],]$success != 'success'){next}
 
         location <- tmp.xml[[lapply(tmp.xml, function(x) grepl("info", names(x))) %>% unlist %>% which]][[1]]
 

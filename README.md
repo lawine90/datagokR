@@ -20,7 +20,7 @@ devtools::install_github('lawine90/datagokR')
 
 
 # 3. 각 함수 설명 및 사용법
-> 부동산 실거래가(molitRealTrade)
+> **부동산 실거래가(molitRealTrade)**
 > 
 > 부동산 거래신고에 관한 법률에 따라 신고된 주택의 실거래 자료을 제공합니다. 주거시설의 타입은 아파트, 연립다세대, 단독/다가구 3가지이며 거래 타입은 매매, 전월세 2가지 입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터에서 발급받은 API 키.
@@ -54,6 +54,8 @@ devtools::install_github('lawine90/datagokR')
 10 http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?serviceKey=5~ 29   
 11 http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?serviceKey=5~ 29   
 12 http://openapi.molit.go.kr:8081/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTrade?serviceKey=5~ 11   
+
+
 ```
 
 

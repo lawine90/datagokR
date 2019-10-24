@@ -272,5 +272,5 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-# 4. 건의 및 문의사항.
-추가적으로 수집을 원하시는 데이터에 대한 함수나 패키지에 대한 건의 및 문의사항은 환영입니다. 관리자 lawine90(power1sky@gmail.com)에게 연락주시기 바랍니다.
+# 4. 건의 및 문의사항
+추가적으로 수집을 원하시는 데이터에 대한 함수나 패키지에 대한 건의 및 문의사항은 환영입니다 :) lawine90(power1sky@gmail.com)에게 많은 연락 부탁드리겠습니다.

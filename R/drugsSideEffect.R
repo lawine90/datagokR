@@ -45,17 +45,6 @@ drugsSideEffect <- function(key){
                tmp_xml$cmmMsgHeader$returnReasonCode, sep = ""))
   }
 
-  all.data <- data.frame(
-    name_kor = '',
-    name_eng = '',
-    type = '',
-    period = '',
-    effect_kor = '',
-    effect_eng = '',
-    etc = '',
-    stringsAsFactors = F
-  )
-
   all_data <- data.frame(
     name_kor = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"COL_001"), '', x$"COL_001")) ),
     name_eng = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"COL_002"), '', x$"COL_002")) ),

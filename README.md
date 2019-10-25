@@ -16,6 +16,7 @@ devtools::install_github('lawine90/datagokR')
   - 기상청: [**종관기상관측**](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do)
   - 국민건강보험공단: [**예측진료정보**](https://www.data.go.kr/dataset/15028050/openapi.do)
   - 식품의약품안전처: [**의약품 부작용**](https://www.data.go.kr/dataset/15020627/openapi.do)
+  - 식품의약품안전처: [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -272,5 +273,35 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
+> **7) [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)(nutriComponent)**
+> 
+> 식품의약품안전처에서 관리하는 식품 영양성분 데이터를 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15020625/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 기상자료개방 포털에서 발급받은 API 키
+> - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
+
+```
+# example
+> key <- 'your key'
+> data <- nutriComponent(key)
+> data <- nutriComponent(key, verbose = T)
+  |==============================================================================================================| 100%
+> data
+# A tibble: 22,629 x 13
+   name_kor serving_wt  kcal carbohydrate protein   fat sugar sodium cholesterol saturated_fatty~ trans_fatty_acid  year
+   <chr>         <dbl> <dbl>        <dbl>   <dbl> <dbl> <dbl>  <dbl>       <dbl>            <dbl>            <dbl> <dbl>
+ 1 고량미,알곡~        100   349         67.8    10.1   3.7    NA     NA          NA            NA                  NA  2001
+ 2 겉귀리,생것~        100   373         73.5    11.4   3.7    NA      2           0            NA                  NA  2011
+ 3 겉귀리,생것~        100   332         73.5    11.4   3.7    NA      2          NA            NA                  NA  2017
+ 4 쌀귀리,생것~        100   371         70.4    14.3   3.8    NA      3          NA            NA                  NA  2011
+ 5 쌀귀리,생것~        100   334         70.4    14.3   3.8    NA      3          NA            NA                  NA  2017
+ 6 오트밀          100   382         64.9    13.2   8.2    NA      4           0            NA                  NA  2011
+ 7 오트밀          100   348         64.9    13.2   8.2    NA      4          NA            NA                  NA  2017
+ 8 기장,생것~        100   367         74.6    11.2   1.9    NA      6           0            NA                  NA  2011
+ 9 기장,생것~        100   360         74.6    11.2   1.9    NA      6          NA            NA                  NA  2017
+10 메밀,생것~        100   374         74.7    11.5   2.3    NA     14           0             0.59               NA  2011
+# ... with 22,619 more rows, and 1 more variable: factory <chr>
+```
+
+
 # 4. 건의 및 문의사항
-추가적으로 수집을 원하시는 데이터에 대한 함수나 패키지에 대한 건의 및 문의사항은 환영입니다 :) lawine90(power1sky@gmail.com)에게 많은 연락 부탁드리겠습니다.
+추가적으로 수집을 원하시는 공공데이터포털의 데이터나 패키지에 대한 건의 및 문의사항은 환영입니다 :) lawine90(power1sky@gmail.com)에게 많은 연락 부탁드리겠습니다.

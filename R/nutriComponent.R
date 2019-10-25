@@ -8,7 +8,7 @@
 #'  key <- 'your key issued from data.go.kr'
 #'
 #'  # example 1 searching by localeCode.
-#'  data <- drugsSideEffect(key)
+#'  data <- nutriComponent(key, verbose = T)
 #'
 #' @export
 

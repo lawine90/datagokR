@@ -196,7 +196,7 @@ devtools::install_github('lawine90/datagokR')
 > **5) [**예측진료정보**](https://www.data.go.kr/dataset/15028050/openapi.do)(nhisDiseaseForcast)**
 > 
 > 수요조사 결과에 따라 관심도가 높은 5대 질병(눈병, 천식, 감기, 피부염, 식중독)에 대한 위험도 및 예측 진료 건수 정보를 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15028050/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 list 타입이며 $meta에는 메타데이터, $data에 관측 데이터, $recommanded에 각 질병의 위험도에 따른 추천행동이 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
-> - key: (필수, 문자). 기상자료개방 포털에서 발급받은 API 키
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
 > - localeCode: (옵션, 정수). 지역의 시/군/구 코드 앞 2자리. localeName 미입력시 입력 필수
 > - localeName: (옵션, 문자). 지역의 시/군/구 명. localeCode 미입력시 입력 필수
 > - slow: (옵션, T/F). 데이터를 받을 시 서버에 보내는 요청에 약 1초 정도의 pause를 둠. 기본값은 False
@@ -249,7 +249,7 @@ devtools::install_github('lawine90/datagokR')
 > **6) [**의약품 부작용**](https://www.data.go.kr/dataset/15020627/openapi.do)(drugsSideEffect)**
 > 
 > 수요조사 결과에 따라 관심도가 높은 5대 질병(눈병, 천식, 감기, 피부염, 식중독)에 대한 위험도 및 예측 진료 건수 정보를 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15028050/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
-> - key: (필수, 문자). 기상자료개방 포털에서 발급받은 API 키
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
 
 ```
 # example
@@ -276,7 +276,7 @@ devtools::install_github('lawine90/datagokR')
 > **7) [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)(nutriComponent)**
 > 
 > 식품의약품안전처에서 관리하는 식품 영양성분 데이터를 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15020625/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
-> - key: (필수, 문자). 기상자료개방 포털에서 발급받은 API 키
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
 > - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
 
 ```

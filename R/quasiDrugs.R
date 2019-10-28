@@ -65,8 +65,8 @@ quasiDrugs <- function(key, verbose = F){
     if(is.null(tmp_xml)){
       stop('XML parsing fail.Please try again.')
     }
-    #children <- read_xml(urls[i], encoding = 'UTF-8') %>% xml_find_all('//NB_DOC_DATA//SECTION')
-    #lapply(children, function(x) html_nodes(x, 'ARTICLE') %>% xml_attrs('title') %>% unlist %>% unname)
+    children <- read_xml(urls[i], encoding = 'UTF-8') %>% xml_find_all('//NB_DOC_DATA//SECTION')
+    children <- lapply(children, function(x) html_nodes(x, 'ARTICLE') %>% xml_attrs('title') %>% unlist %>% unname)
 
     all_data[[i]] <- data.frame(
       item_code = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//ITEM_SEQ')),

@@ -8,6 +8,8 @@ nutriComponent(key, verbose = F)
 }
 \arguments{
 \item{key}{character value. API key issued from <www.data.go.kr>. no default.}
+
+\item{verbose}{logical value. if TRUE, provide process bar. Default value set as false.}
 }
 \description{
 nutriComponent function import the food nutritive component information.
@@ -16,6 +18,6 @@ nutriComponent function import the food nutritive component information.
  key <- 'your key issued from data.go.kr'
 
  # example 1 searching by localeCode.
- data <- drugsSideEffect(key)
+ data <- nutriComponent(key, verbose = T)
 
 }

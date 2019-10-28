@@ -3,6 +3,7 @@
 #' nutriComponent function import the food nutritive component information.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>. no default.
+#' @param verbose logical value. if TRUE, provide process bar. Default value set as false.
 #'
 #' @examples
 #'  key <- 'your key issued from data.go.kr'
@@ -42,7 +43,9 @@ nutriComponent <- function(key, verbose = F){
   # }
 
   # the number of pages.
-  nofpage <- (as.numeric(tmp_xml$body$totalCount)/as.numeric(tmp_xml$body$numOfRows)) %>% ceiling()
+  nofpage <- (as.numeric(tmp_xml$body$totalCount)/as.numeric(tmp_xml$body$numOfRows))
+  nofpage <- ceiling(nofpage)
+
   urls <- lapply(1:nofpage, function(x) sprintf("%sserviceKey=%s&numOfRows=100&pageNo=%s", base, key, x))
   urls <- unlist(urls)
 

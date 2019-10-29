@@ -17,6 +17,7 @@ devtools::install_github('lawine90/datagokR')
   - 국민건강보험공단: [**예측진료정보**](https://www.data.go.kr/dataset/15028050/openapi.do)
   - 식품의약품안전처: [**의약품 부작용**](https://www.data.go.kr/dataset/15020627/openapi.do)
   - 식품의약품안전처: [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)
+  - 식품의약품안전처: [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -282,9 +283,9 @@ devtools::install_github('lawine90/datagokR')
 ```
 # example
 > key <- 'your key'
-> data <- nutriComponent(key)
 > data <- nutriComponent(key, verbose = T)
   |==============================================================================================================| 100%
+> 
 > data
 # A tibble: 22,629 x 13
    name_kor serving_wt  kcal carbohydrate protein   fat sugar sodium cholesterol saturated_fatty~ trans_fatty_acid  year
@@ -300,6 +301,36 @@ devtools::install_github('lawine90/datagokR')
  9 기장,생것~        100   360         74.6    11.2   1.9    NA      6          NA            NA                  NA  2017
 10 메밀,생것~        100   374         74.7    11.5   2.3    NA     14           0             0.59               NA  2011
 # ... with 22,619 more rows, and 1 more variable: factory <chr>
+```
+
+
+> **8) [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)(quasiDrugs)**
+> 
+> 식품의약품안전처에서 관리하는 의약외품(quasi-drugs)dml 품목명, 용법용량, 효능효과, 사용상의 주의사항 등을 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15028967/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+> - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
+
+```
+# example
+> key <- 'your key'
+> data <- nutriComponent(key, verbose = T)
+  |==============================================================================================================| 100%
+> 
+> data
+# A tibble: 10,334 x 8
+   item_code  item_name    effect          usage              notice          type_code  type_name        firm  
+   <chr>      <chr>        <chr>           <chr>              <chr>           <chr>      <chr>            <chr> 
+ 1 200308392  레이욘부직~  창상 및 수술~   창상 및 수술전후~  보관 및 취급시~ 35000      [35000]기타~     신용코리아~
+ 2 201602150  니찌반바틀~  붕대, 거즈, 카~ 필요한 길이만큼~   피부발적, 가려~ 33800      [33800]반창고~   (주)나음~
+ 3 200608013  헤파-알2     진료 또는 치~   제품의 코 편 폴~   없음.           32100      [32100]수술용~   (주)신진~
+ 4 200608007  헤파-알2~    진료 또는 치~   제품의 코 편 폴~   없음.           32100      [32100]수술용~   (주)신진~
+ 5 200608014  헤파-알2~    진료 또는 치~   제품의 코 편 폴~   없음.           32100      [32100]수술용~   (주)신진~
+ 6 200612211  1.쑥건향초~  흡연욕구를 참~  1)담배대용으로~                    45100      [45100]흡연욕구~ (주)한국~
+ 7 200701636  아이면생리~  생리혈의 위~    1일 수 회 사용~    사용후 변기에~  31100      [31100]생리대~   (주)아이~
+ 8 200701635  아이면생리~  생리혈의 위~    1일 수 회 사용~    사용후 변기에~  31100      [31100]생리대~   (주)아이~
+ 9 200701637  아이면생리~  생리혈의 위~    1일 수 회 사용~    사용후 변기에~  31100      [31100]생리대~   (주)아이~
+10 200701638  아이면생리~  생리혈의 위~    1일 수 회 사용~    사용후 변기에~  31100      [31100]생리대~   (주)아이~
+# ... with 10,324 more rows
 ```
 
 

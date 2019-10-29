@@ -18,6 +18,7 @@ devtools::install_github('lawine90/datagokR')
   - 식품의약품안전처: [**의약품 부작용**](https://www.data.go.kr/dataset/15020627/openapi.do)
   - 식품의약품안전처: [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)
   - 식품의약품안전처: [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)
+  - 농림축산식품부: [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -306,7 +307,7 @@ devtools::install_github('lawine90/datagokR')
 
 > **8) [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)(quasiDrugs)**
 > 
-> 식품의약품안전처에서 관리하는 의약외품(quasi-drugs)dml 품목명, 용법용량, 효능효과, 사용상의 주의사항 등을 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15028967/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> 식품의약품안전처에서 관리하는 의약외품(quasi-drugs)의 품목명, 용법용량, 효능효과, 사용상의 주의사항 등을 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15028967/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
 > - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
 
@@ -331,6 +332,34 @@ devtools::install_github('lawine90/datagokR')
  9 200701637  아이면생리~  생리혈의 위~    1일 수 회 사용~    사용후 변기에~  31100      [31100]생리대~   (주)아이~
 10 200701638  아이면생리~  생리혈의 위~    1일 수 회 사용~    사용후 변기에~  31100      [31100]생리대~   (주)아이~
 # ... with 10,324 more rows
+```
+
+
+> **9) [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)(livestockDisease)**
+>
+> 농림축산식품부 농림축산검역본부 역학조사과에서 관리하며 가축 전염병, 발생 농장, 사육하는 가축, 진단자 등의 정보를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **농림축산식품 공공데이터 포털에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+
+```
+# example
+> key <- 'your key from data.mafra.go.kr'
+> data <- livestockDisease(key, fromDate = as.Date('2019-09-01'), toDate = as.Date('2019-10-29'), verbose = T)
+  |==========================================================================================================| 100%
+> 
+> data
+# A tibble: 108 x 12
+   occr_no  dizz_name  farm_name farm_code farm_addr  occr_date  occr_n lvst_code lvst_type diag_code diag_name clos_date 
+   <chr>    <chr>      <chr>     <chr>     <chr>      <date>      <dbl> <chr>     <chr>     <chr>     <chr>     <date>    
+ 1 00053833 낭충봉아부패병~ 김정근 윤미자~ 41830395~ 경기도 양평군 지~ 2019-09-02     15 418600    벌-재래종 6412106   경기 동부지소~ NA        
+ 2 00053834 낭충봉아부패병~ 박동선    41830250~ 경기도 양평군 양~ 2019-09-02      2 418600    벌-재래종 6412106   경기 동부지소~ NA        
+ 3 00203822 결핵병     한길농장  46830370~ 전라남도 영암군 ~ 2019-09-02      1 412002    소-한우   6430863   충북 중부지소~ NA        
+ 4 00202950 브루셀라병 세윤농장  42110340~ 강원도 춘천시 남~ 2019-09-03      1 412002    소-한우   6420912   강원 동물위생시~ NA        
+ 5 00053709 낭충봉아부패병~ 최헌숙    42760330~ 강원도 평창군 대~ 2019-09-03     10 418600    벌-재래종 6420925   강원 중부지소~ NA        
+ 6 00053710 낭충봉아부패병~ 김영목    42760330~ 강원도 평창군 대~ 2019-09-03      3 418600    벌-재래종 6420925   강원 중부지소~ NA        
+ 7 00053711 낭충봉아부패병~ 조창길    42760340~ 강원도 평창군 봉~ 2019-09-03      5 418600    벌-재래종 6420925   강원 중부지소~ NA        
+ 8 00204226 결핵병     양학농장A 46840340~ 전라남도 무안군 ~ 2019-09-04      1 412002    소-한우   6460965   전남 서부지소~ NA        
+ 9 00202760 결핵병     삼호한우  41670250~ 경기도 여주시 가~ 2019-09-04      1 412002    소-한우   6412106   경기 동부지소~ NA        
+10 00204689 결핵병     NA        41590410~ 경기도 화성시 정~ 2019-09-05      2 412004    소-젖소   6412102   경기도 동물위생~ NA        
+# ... with 98 more rows
 ```
 
 

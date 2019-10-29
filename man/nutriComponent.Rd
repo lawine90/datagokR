@@ -17,7 +17,7 @@ nutriComponent function import the food nutritive component information.
 \examples{
  key <- 'your key issued from data.go.kr'
 
- # example 1 searching by localeCode.
+ # example.
  data <- nutriComponent(key, verbose = T)
 
 }

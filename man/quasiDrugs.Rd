@@ -17,7 +17,7 @@ quasiDrugs function import Quasi-drug product information like name, manufacture
 \examples{
  key <- 'your key issued from data.go.kr'
 
- # example 1 searching by localeCode.
+ # example.
  data <- quasiDrugs(key, verbose = T)
 
 }

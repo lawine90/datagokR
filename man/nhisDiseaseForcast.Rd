@@ -38,7 +38,7 @@ nhisDiseaseForcast function import forcasted count of treatment and risk of five
  "Food" = Predicted number of patients and risk of food poisoning from the day to the day after tomorrow.\cr
  "Asthma" = Predicted number of patients and risk of asthma at the day.\cr
  "Skin" = Predicted number of patients and risk of skin disease from the day to the day after tomorrow.\cr\cr
- localeCode argument should be first 2-digit value of SiGunGu code like "11" for Seoul or "12" for Busan.
+ localeCode argument should be first 2-digit value of SiGunGu code. For example, "11" means Seoul and "12" means Busan.
 }
 \examples{
  key <- 'your key issued from data.go.kr'
@@ -47,6 +47,6 @@ nhisDiseaseForcast function import forcasted count of treatment and risk of five
  data <- nhisDiseaseForcast(key, localeCode = c(11, 41), type = "Asthma", slow = T)
 
  # example 2 searching by localeName
- data <- nhisDiseaseForcast(key, localeName = c("\\uc218\\uc6d0"), type = "All", slow = T)
+ data <- nhisDiseaseForcast(key, localeName = c("\\\\uc218\\\\uc6d0"), type = "All", slow = T)
 
 }

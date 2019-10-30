@@ -162,7 +162,7 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
   data <- dplyr::bind_rows(all.data)
   recomand <- dplyr::bind_rows(recomand)
   recomand <- recomand[!duplicated(recomand),]
-  recomand <- recomand[order(recomand[,'diss'], recomand[,'risk']),]
+  recomand <- recomand[order(recomand$diss, recomand$risk),]
 
   result <- list(
     meta = meta,

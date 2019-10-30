@@ -34,25 +34,6 @@
 #'  data <- nhisDiseaseForcast(key, localeName = c("수원"), type = "All", slow = T)
 #'
 #' @importFrom dplyr %>%
-#' @importFrom dplyr as.tbl
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr filter
-#' @importFrom dplyr group_by
-#' @importFrom dplyr inner_join
-#' @importFrom dplyr left_join
-#' @importFrom dplyr right_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr n
-#' @importFrom dplyr select
-#' @importFrom dplyr summarise
-#' @importFrom dplyr ungroup
-#' @importFrom utils txtProgressBar
-#' @importFrom utils setTxtProgressBar
-#' @importFrom utils globalVariables
-#' @importFrom utils data
-#' @importFrom magrittr set_colnames
-#' @importFrom stats runif
-#' @importFrom XML xmlToList
 #'
 #' @export
 
@@ -85,9 +66,9 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
 
   ## locale
   if(is.null(localeCode) & !is.null(localeName)){
-    localeName <- gsub("시\\b|도\\b|구\\b", "", localeName) %>% paste(collapse = "|")
+    localeName <- paste(gsub("시\\b|도\\b|구\\b", "", localeName), collapse = "|")
     localeCode <- datagokR::molit_locale_code[grepl(localeName, datagokR::molit_locale_code$name),] %>%
-      select("code") %>% unlist %>% gsub(pattern = "^(\\d{2}).*", replacement = "\\1") %>% unique
+      dplyr::select("code") %>% unlist %>% gsub(pattern = "^(\\d{2}).*", replacement = "\\1") %>% unique
   }else if(!is.null(localeCode)){
     localeCode <- format(localeCode, scientific = FALSE)
   }
@@ -105,9 +86,9 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
   all.data <- list(); length(all.data) <- length(urls)
   recomand <- list(); length(recomand) <- length(urls)
   meta <- data.frame(url = urls, count = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
-    as.tbl
+    dplyr::as.tbl
 
-  if(verbose == T){pb <- txtProgressBar(min = 1, length(urls), style = 3)}
+  if(verbose == T){pb <- utils::txtProgressBar(min = 1, length(urls), style = 3)}
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
@@ -117,14 +98,14 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
       ii <- ii + 1
       tmp.xml <- tryCatch(
         {
-          xmlToList(urls[[i]])
+          XML::xmlToList(urls[[i]])
         }, error = function(e){
           NULL
         }
       )
 
       if(slow){
-        Sys.sleep(runif(1, 0, 2.5))
+        Sys.sleep(stats::runif(1, 0, 2.5))
       }
       if(!is.null(tmp.xml) | ii == 15) break
     }
@@ -145,7 +126,7 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
                                "error", tmp.xml$header$resultMsg)
 
     if(slow){
-      Sys.sleep(runif(1, 0, 1.5))
+      Sys.sleep(stats::runif(1, 0, 1.5))
     }
 
     # if meta[i,]$count is "error" or 0, skip.
@@ -162,25 +143,25 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
         cnt = unlist( lapply(location, function(x) ifelse(is.null(x$"cnt"), NA, x$"cnt")) ),
         risk = unlist( lapply(location, function(x) ifelse(is.null(x$"risk"), NA, x$"risk")) ),
         stringsAsFactors = F
-      ) %>% as.tbl
+      ) %>% dplyr::as.tbl
 
       recomand[[i]] <- data.frame(
         diss = unlist( lapply(location, function(x) ifelse(is.null(x$"dissCd"), NA, x$"dissCd")) ),
         risk = unlist( lapply(location, function(x) ifelse(is.null(x$"risk"), NA, x$"risk")) ),
         rcmd = unlist( lapply(location, function(x) ifelse(is.null(x$"dissRiskXpln"), NA, x$"dissRiskXpln")) ),
         stringsAsFactors = F
-      ) %>% as.tbl
+      ) %>% dplyr::as.tbl
 
       recomand[[i]] <- recomand[[i]][!duplicated(recomand[[i]]),]
     } # if statement regarding to count.
-    if(verbose == T){setTxtProgressBar(pb, value = i)}
+    if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
   } # end of loop i.
 
 
   ### 4. merge data by index type.
-  data <- bind_rows(all.data)
-  recomand <- bind_rows(recomand)
-  recomand <- recomand[!duplicated(recomand),] %>% arrange(diss, risk)
+  data <- dplyr::bind_rows(all.data)
+  recomand <- dplyr::bind_rows(recomand)
+  recomand <- recomand[!duplicated(recomand),] %>% dplyr::arrange(diss, risk)
 
   result <- list(
     meta = meta,

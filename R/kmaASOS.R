@@ -26,26 +26,6 @@
 #'                  toDate = as.date("2010-01-10"), slow = T)
 #'
 #' @importFrom dplyr %>%
-#' @importFrom dplyr as.tbl
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr filter
-#' @importFrom dplyr group_by
-#' @importFrom dplyr inner_join
-#' @importFrom dplyr left_join
-#' @importFrom dplyr right_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr n
-#' @importFrom dplyr select
-#' @importFrom dplyr summarise
-#' @importFrom dplyr ungroup
-#' @importFrom utils txtProgressBar
-#' @importFrom utils setTxtProgressBar
-#' @importFrom utils globalVariables
-#' @importFrom utils data
-#' @importFrom magrittr set_colnames
-#' @importFrom stats runif
-#' @importFrom httr GET
-#' @importFrom httr content
 #'
 #' @export
 
@@ -106,9 +86,9 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
   ### 3. urls's xml parsing.
   all.data <- list(); length(all.data) <- length(urls)
   meta <- data.frame(url = urls, success = "", message = "", stringsAsFactors = F)
-  meta <- as.tbl(meta)
+  meta <- dplyr::as.tbl(meta)
 
-  if(verbose == T){pb <- txtProgressBar(min = 0, length(urls), style = 3)}
+  if(verbose == T){pb <- utils::txtProgressBar(min = 0, length(urls), style = 3)}
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
@@ -126,7 +106,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
       )
 
       if(slow){
-        Sys.sleep(runif(1, 0, 2.5))
+        Sys.sleep(stats::runif(1, 0, 2.5))
       }
       if(!is.null(tmp.xml) | ii >= 15) break
     }
@@ -141,14 +121,14 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
     }
 
     if(slow){
-      Sys.sleep(runif(1, 0, 1.5))
+      Sys.sleep(stats::runif(1, 0, 1.5))
     }
 
     # if suc is "N", skip.
     if(meta[i,]$success != "success"){
       meta[i,]$success <- "error"
 
-      if(verbose == T){setTxtProgressBar(pb, value = i)}
+      if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
 
       next
     }else if(meta[i,]$success == "success"){
@@ -202,19 +182,19 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
         "rain_1hr_max" = lapply(location, function(x) ifelse(is.null(x$HR1_MAX_RN), "NA", x$HR1_MAX_RN)) %>% as.numeric,
         "rain_10mts_max" = lapply(location, function(x) ifelse(is.null(x$mi10_MAX_RN), "NA", x$mi10_MAX_RN)) %>% as.numeric,
         stringsAsFactors = F
-      ) %>% as.tbl
+      ) %>% dplyr::as.tbl
 
-      all.data[[i]] <- all.data[[i]] %>% select(c("date", "brch", "brch_nme", sort(colnames(all.data[[i]])[-(1:3)])))
+      all.data[[i]] <- all.data[[i]] %>% dplyr::select(c("date", "brch", "brch_nme", sort(colnames(all.data[[i]])[-(1:3)])))
 
       # Encoding(all.data[[i]]$brch_nme) <- rep("UTF-8", nrow(all.data[[i]]))
       # all.data[[i]]$brch_nme <- enc2utf8(all.data[[i]]$brch_nme)
     } # if statement regarding to SuccessYN.
 
-    if(verbose == T){setTxtProgressBar(pb, value = i)}
+    if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
 
   } # end of loop i.
 
-  data <- bind_rows(all.data)
+  data <- dplyr::bind_rows(all.data)
 
   ### 4. checking error retry.
   if(errorCheck & nrow(meta[meta$success != "success",]) != 0){
@@ -236,13 +216,13 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
         )
 
         if(slow){
-          Sys.sleep(runif(1, 0, 2.5))
+          Sys.sleep(stats::runif(1, 0, 2.5))
         }
         if(!is.null(tmp.xml) | ii >= 15) break
       }
 
       if(slow){
-        Sys.sleep(runif(1, 0, 1.5))
+        Sys.sleep(stats::runif(1, 0, 1.5))
       }
 
       # if suc is "N", skip.
@@ -305,14 +285,14 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
           "rain_1hr_max" = lapply(location, function(x) ifelse(is.null(x$HR1_MAX_RN), "NA", x$HR1_MAX_RN)) %>% as.numeric,
           "rain_10mts_max" = lapply(location, function(x) ifelse(is.null(x$mi10_MAX_RN), "NA", x$mi10_MAX_RN)) %>% as.numeric,
           stringsAsFactors = F
-        ) %>% as.tbl
+        ) %>% dplyr::as.tbl
 
-        re.data[[i]] <- re.data[[i]] %>% select(c("date", "brch", "brch_nme", sort(colnames(re.data[[i]])[-(1:3)])))
+        re.data[[i]] <- re.data[[i]] %>% dplyr::select(c("date", "brch", "brch_nme", sort(colnames(re.data[[i]])[-(1:3)])))
       } # if statement regarding to SuccessYN.
     } # end of loop i.
 
-    eror.data <- bind_rows(re.data)
-    data <- bind_rows(data, re.data)
+    eror.data <- dplyr::bind_rows(re.data)
+    data <- dplyr::bind_rows(data, re.data)
   } # end of errorCheck statement.
 
   result <- list(

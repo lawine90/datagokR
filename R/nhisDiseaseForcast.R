@@ -31,7 +31,7 @@
 #'  data <- nhisDiseaseForcast(key, localeCode = c(11, 41), type = "Asthma", slow = T)
 #'
 #'  # example 2 searching by localeName
-#'  data <- nhisDiseaseForcast(key, localeName = c("수원"), type = "All", slow = T)
+#'  data <- nhisDiseaseForcast(key, localeName = c("\uc218\uc6d0"), type = "All", slow = T)
 #'
 #' @importFrom dplyr %>%
 #'
@@ -161,7 +161,8 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
   ### 4. merge data by index type.
   data <- dplyr::bind_rows(all.data)
   recomand <- dplyr::bind_rows(recomand)
-  recomand <- recomand[!duplicated(recomand),] %>% dplyr::arrange(diss, risk)
+  recomand <- recomand[!duplicated(recomand),]
+  recomand <- recomand[order(recomand[,'diss'], recomand[,'risk']),]
 
   result <- list(
     meta = meta,

@@ -18,9 +18,9 @@ kmaASOS(key, branchCode = NULL, fromDate = NULL, toDate = NULL,
 
 \item{slow}{logical value. if TRUE, give sleep inbetween importing. default is TRUE.}
 
-\item{verbose}{logical value. if TRUE, provide process bar. Default value set as false.}
+\item{errorCheck}{logical value. if TRUE, one more try to get data which occured API error.}
 
-\item{viz}{logical value. if TRUE, provide simple 2d visualization result. x: date, y: mean index.}
+\item{verbose}{logical value. if TRUE, provide process bar. Default value set as false.}
 }
 \value{
 data.frame and visualization.

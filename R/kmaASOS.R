@@ -7,7 +7,7 @@
 #' @param fromDate date value. 8-digits date which means starting date.
 #' @param toDate date value. 8-digits date which means end date.
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is TRUE.
-#' @param viz logical value. if TRUE, provide simple 2d visualization result. x: date, y: mean index.
+#' @param errorCheck logical value. if TRUE, one more try to get data which occured API error.
 #' @param verbose logical value. if TRUE, provide process bar. Default value set as false.
 #'
 #' @return data.frame and visualization.

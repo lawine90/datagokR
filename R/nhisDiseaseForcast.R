@@ -86,7 +86,7 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
   all.data <- list(); length(all.data) <- length(urls)
   recomand <- list(); length(recomand) <- length(urls)
   meta <- data.frame(url = urls, count = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
-    dplyr::as.tbl
+    dplyr::as.tbl()
 
   if(verbose == T){pb <- utils::txtProgressBar(min = 1, length(urls), style = 3)}
 
@@ -143,14 +143,14 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
         cnt = unlist( lapply(location, function(x) ifelse(is.null(x$"cnt"), NA, x$"cnt")) ),
         risk = unlist( lapply(location, function(x) ifelse(is.null(x$"risk"), NA, x$"risk")) ),
         stringsAsFactors = F
-      ) %>% dplyr::as.tbl
+      ) %>% dplyr::as.tbl()
 
       recomand[[i]] <- data.frame(
         diss = unlist( lapply(location, function(x) ifelse(is.null(x$"dissCd"), NA, x$"dissCd")) ),
         risk = unlist( lapply(location, function(x) ifelse(is.null(x$"risk"), NA, x$"risk")) ),
         rcmd = unlist( lapply(location, function(x) ifelse(is.null(x$"dissRiskXpln"), NA, x$"dissRiskXpln")) ),
         stringsAsFactors = F
-      ) %>% dplyr::as.tbl
+      ) %>% dplyr::as.tbl()
 
       recomand[[i]] <- recomand[[i]][!duplicated(recomand[[i]]),]
     } # if statement regarding to count.

@@ -182,7 +182,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
         "rain_1hr_max" = lapply(location, function(x) ifelse(is.null(x$HR1_MAX_RN), "NA", x$HR1_MAX_RN)) %>% as.numeric,
         "rain_10mts_max" = lapply(location, function(x) ifelse(is.null(x$mi10_MAX_RN), "NA", x$mi10_MAX_RN)) %>% as.numeric,
         stringsAsFactors = F
-      ) %>% dplyr::as.tbl
+      ) %>% dplyr::as.tbl()
 
       all.data[[i]] <- all.data[[i]] %>% dplyr::select(c("date", "brch", "brch_nme", sort(colnames(all.data[[i]])[-(1:3)])))
 
@@ -285,7 +285,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
           "rain_1hr_max" = lapply(location, function(x) ifelse(is.null(x$HR1_MAX_RN), "NA", x$HR1_MAX_RN)) %>% as.numeric,
           "rain_10mts_max" = lapply(location, function(x) ifelse(is.null(x$mi10_MAX_RN), "NA", x$mi10_MAX_RN)) %>% as.numeric,
           stringsAsFactors = F
-        ) %>% dplyr::as.tbl
+        ) %>% dplyr::as.tbl()
 
         re.data[[i]] <- re.data[[i]] %>% dplyr::select(c("date", "brch", "brch_nme", sort(colnames(re.data[[i]])[-(1:3)])))
       } # if statement regarding to SuccessYN.

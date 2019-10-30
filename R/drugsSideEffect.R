@@ -39,7 +39,6 @@ drugsSideEffect <- function(key){
   if(is.null(tmp_xml)){
     stop('XML parsing fail.Please try again.')
   }
-
   if(!is.null(tmp_xml$cmmMsgHeader)){
     stop(paste(tmp_xml$cmmMsgHeader$returnAuthMsg, ".\nError Code: ",
                tmp_xml$cmmMsgHeader$returnReasonCode, sep = ""))

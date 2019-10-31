@@ -80,7 +80,7 @@ livestockDisease <- function(key, fromDate = NULL, toDate = NULL, verbose = F){
     if(verbose == T){setTxtProgressBar(pb, value = i)}
   }
 
-  merged <- bind_rows(all_data)
+  merged <- dplyr::bind_rows(all_data)
   for(col in colnames(merged)){
     if(class(merged[[col]]) == 'character'){
       Encoding(merged[[col]]) <- 'UTF-8'

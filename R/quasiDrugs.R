@@ -82,7 +82,7 @@ quasiDrugs <- function(key, verbose = F){
     if(verbose == T){setTxtProgressBar(pb, value = i)}
   }
 
-  merged <- bind_rows(all_data)
+  merged <- dplyr::bind_rows(all_data)
   for(col in colnames(merged)){
     Encoding(merged[[col]]) <- 'UTF-8'
     merged[[col]][merged[[col]] == 'N/A'] <- NA

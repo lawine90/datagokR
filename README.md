@@ -19,6 +19,7 @@ devtools::install_github('lawine90/datagokR')
   - 식품의약품안전처: [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)
   - 식품의약품안전처: [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)
   - 농림축산식품부: [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)
+  - 국회사무처: [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -338,6 +339,10 @@ devtools::install_github('lawine90/datagokR')
 > **9) [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)(livestockDisease)**
 >
 > 농림축산식품부 농림축산검역본부 역학조사과에서 관리하며 가축 전염병, 발생 농장, 사육하는 가축, 진단자 등의 정보를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **농림축산식품 공공데이터 포털에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 농림축산식품 공공데이터 포털에서 발급받은 API 키
+> - fromDate: (필수, 날짜). 데이터를 수집하려는 기간의 시작일
+> - toDate: (필수, 날짜). 데이터를 수집하려는 기간의 종료일
+> - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
 
 ```
 # example
@@ -360,6 +365,34 @@ devtools::install_github('lawine90/datagokR')
  9 00202760 결핵병     삼호한우  41670250~ 경기도 여주시 가~ 2019-09-04      1 412002    소-한우   6412106   경기 동부지소~ NA        
 10 00204689 결핵병     NA        41590410~ 경기도 화성시 정~ 2019-09-05      2 412004    소-젖소   6412102   경기도 동물위생~ NA        
 # ... with 98 more rows
+```
+
+
+> **10) 국회사무처: [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+>
+> 국회사무처가 제공하는 간략한 국회의원 정보를 제공합니다. 특정 국회의원의 상세한 정보는 nasCongressman2 함수를 사용하시기 바랍니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+
+
+```
+# example
+> key <- 'your key'
+> data <- nasCongressman1(key)
+> data
+# A tibble: 297 x 8
+   code_dept code_numb name_kr name_en        name_ch poto_link                              numb_elec csty                      
+   <chr>     <chr>     <chr>   <chr>          <chr>   <chr>                                  <chr>     <chr>                     
+ 1 9770276   153       강길부  KANG GHILBOO   姜吉夫  http://www.assembly.go.kr/photo/97702~ 4선       울산 울주군               
+ 2 9770933   2892      강병원  KANG BYUNGWON  姜炳遠  http://www.assembly.go.kr/photo/97709~ 초선      서울 은평구을             
+ 3 9771036   2927      강석진  KANG SEOGJIN   姜錫振  http://www.assembly.go.kr/photo/97710~ 초선      경남 산청군함양군거창군합천군~
+ 4 9770512   2788      강석호  KANG SEOKHO    姜碩鎬  http://www.assembly.go.kr/photo/97705~ 3선       경북 영양군영덕군봉화군울진군~
+ 5 9770279   155       강창일  KANG CHANGIL   姜昌一  http://www.assembly.go.kr/photo/97702~ 4선       제주 제주시갑             
+ 6 9771054   2852      강효상  KHANG HYOSHANG 姜孝祥  http://www.assembly.go.kr/photo/97710~ 초선      비례대표                  
+ 7 9771007   2855      강훈식  KANG HOONSIK   姜勳植  http://www.assembly.go.kr/photo/97710~ 초선      충남 아산시을             
+ 8 9770708   2680      경대수  KYEONG DAESOO  慶大秀  http://www.assembly.go.kr/photo/97707~ 재선      충북 증평군진천군음성군   
+ 9 9770931   2952      고용진  KOH YONGJIN    고용진  http://www.assembly.go.kr/photo/97709~ 초선      서울 노원구갑             
+10 9770961   2862      곽대훈  KWAK DAEHOON   郭大勳  http://www.assembly.go.kr/photo/97709~ 초선      대구 달서구갑             
+# ... with 287 more rows
 ```
 
 

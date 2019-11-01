@@ -20,6 +20,7 @@ devtools::install_github('lawine90/datagokR')
   - 식품의약품안전처: [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)
   - 농림축산식품부: [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)
   - 국회사무처: [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
+  - 국회사무처: [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -393,6 +394,25 @@ devtools::install_github('lawine90/datagokR')
  9 9770931   2952      고용진  KOH YONGJIN    고용진  http://www.assembly.go.kr/photo/97709~ 초선      서울 노원구갑             
 10 9770961   2862      곽대훈  KWAK DAEHOON   郭大勳  http://www.assembly.go.kr/photo/97709~ 초선      대구 달서구갑             
 # ... with 287 more rows
+```
+
+
+> **11) 국회사무처: [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+>
+> 국회사무처가 제공하는 상세한 국회의원 정보를 제공합니다. nasCongressman1 함수로 얻을 수 있는 부서코드(code_dept)와 식별코드(code_numb)가 필요합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+
+
+```
+# example
+> key <- 'your key'
+> data <- nasCongressman2(key, code_dept = '9770931', code_numb = '2952')
+> data
+# A tibble: 1 x 18
+  name_kr name_en name_ch birth hobby able  title party csty  board elec_numb elec_vol off_tel off_web off_mail staf_adv
+  <chr>   <chr>   <chr>   <chr> <chr> <chr> <chr> <chr> <chr> <chr> <chr>     <chr>    <chr>   <chr>   <chr>    <chr>   
+1 고용진  KOH YO~ 고용진  1964~ 영화감상~ 배드민턴~ "현) ~ 더불어민~ 서울 노~ 국회운영~ 초선제20대~ 20대     02-784~ http:/~ gogoyon~ 여경훈, 홍진~
+# ... with 2 more variables: staf_sec1 <chr>, staf_sec2 <chr>
 ```
 
 

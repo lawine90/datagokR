@@ -238,11 +238,11 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
     urls = urls
   )
 
-  re.da <- bind_rows(all.data) %>% as.tbl
+  re.da <- dplyr::bind_rows(all.data) %>% dplyr::as.tbl()
 
   if(nrow(re.da) != 0){
-    re.da <- re.da %>% mutate("Code" = as.integer(re.da$Code)) %>%
-      left_join(y = datagokR::molit_locale_code[,c('code', 'name')], by = c("Code" = "code"))
+    re.da <- re.da %>% dplyr::mutate("Code" = as.integer(re.da$Code)) %>%
+      dplyr::left_join(y = datagokR::molit_locale_code[,c('code', 'name')], by = c("Code" = "code"))
 
     result$data <- re.da
     result$errors <- unlist(errors)
@@ -258,8 +258,8 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
       tmp.m <- tmp.m[,grepl("Dong|Price|Date|Location", colnames(tmp.m))]
 
       if(tradeType == "trade"){
-        tmp.m.g <- tmp.m %>% group_by(.data$Location, .data$Date) %>%
-          summarise("Price" = mean(.data$Price)*10000, "Contract" = n()) %>% ungroup
+        tmp.m.g <- tmp.m %>% dplyr::group_by(.data$Location, .data$Date) %>%
+          dplyr::summarise("Price" = mean(.data$Price)*10000, "Contract" = n()) %>% dplyr::ungroup
 
         result$plot <- list(
           price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$Price, z = ~tmp.m.g$Contract,
@@ -272,10 +272,10 @@ molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeNam
                                 zaxis = list(title = "N")))
         )
       }else{
-        tmp.m.g <- tmp.m %>% group_by(.data$Location, .data$Date) %>%
-          summarise("rentPrice" = mean(.data$rentPrice)*10000,
-                    "depoPrice" = mean(.data$depoPrice)*10000,
-                    "Contract" = n()) %>% ungroup
+        tmp.m.g <- tmp.m %>% dplyr::group_by(.data$Location, .data$Date) %>%
+          dplyr::summarise("rentPrice" = mean(.data$rentPrice)*10000,
+                           "depoPrice" = mean(.data$depoPrice)*10000,
+                           "Contract" = n()) %>% dplyr::ungroup
 
         result$plot <- list(
           price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$rentPrice, z = ~tmp.m.g$Contract,

@@ -21,6 +21,7 @@ devtools::install_github('lawine90/datagokR')
   - 농림축산식품부: [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)
   - 국회사무처: [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
   - 국회사무처: [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
+  - 국회사무처: [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -369,7 +370,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **10) 국회사무처: [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+> **10) [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
 >
 > 국회사무처가 제공하는 간략한 국회의원 정보를 제공합니다. 특정 국회의원의 상세한 정보는 nasCongressman2 함수를 사용하시기 바랍니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -397,7 +398,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **11) 국회사무처: [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+> **11) [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
 >
 > 국회사무처가 제공하는 상세한 국회의원 정보를 제공합니다. nasCongressman1 함수로 얻을 수 있는 부서코드(code_dept)와 식별코드(code_numb)가 필요합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -413,6 +414,34 @@ devtools::install_github('lawine90/datagokR')
   <chr>   <chr>   <chr>   <chr> <chr> <chr> <chr> <chr> <chr> <chr> <chr>     <chr>    <chr>   <chr>   <chr>    <chr>   
 1 고용진  KOH YO~ 고용진  1964~ 영화감상~ 배드민턴~ "현) ~ 더불어민~ 서울 노~ 국회운영~ 초선제20대~ 20대     02-784~ http:/~ gogoyon~ 여경훈, 홍진~
 # ... with 2 more variables: staf_sec1 <chr>, staf_sec2 <chr>
+```
+
+
+> **12) [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPassedBill)**
+>
+> 최근 6개월간 통과된 의안 목록을 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+
+
+```
+# example
+> key <- 'your key'
+> data <- nasPassedBill(key)
+> data
+# A tibble: 387 x 8
+   id                  no     name                                          proposer propose_date committee vote_date vote_result
+   <chr>               <chr>  <chr>                                         <chr>    <chr>        <chr>     <chr>     <chr>      
+ 1 PRC_Y1Q9L1V0Y3G1Q1~ 20233~ 위문금 갹출의 건                              의장     2019-10-31   본회의    2019-10-~ 원안가결   
+ 2 PRC_U1F9E0X9K2J4M1~ 20232~ 초·중등교육법 일부개정법률안(대안)            위원장   2019-10-30   교육위원회~ 2019-10-~ 원안가결   
+ 3 PRC_Z1G9T0Q9W2T3P1~ 20232~ 교육시설 등의 안전 및 유지관리 등에 관한 법률안~ 위원장   2019-10-30   교육위원회~ 2019-10-~ 원안가결   
+ 4 PRC_S1K9T0H8G1S9W1~ 20232~ 재외국민의 교육지원 등에 관한 법률 일부개정법률~ 위원장   2019-10-30   교육위원회~ 2019-10-~ 원안가결   
+ 5 PRC_B1R9H0R8B1P9E1~ 20232~ 한국교직원공제회법 일부개정법률안(대안)       위원장   2019-10-30   교육위원회~ 2019-10-~ 원안가결   
+ 6 PRC_I1G9T0L8O1X9M1~ 20232~ 평생교육법 일부개정법률안(대안)               위원장   2019-10-30   교육위원회~ 2019-10-~ 원안가결   
+ 7 PRC_B1S9P0A8Y2Q1J1~ 20232~ 군용항공기 운용 등에 관한 법률 일부개정법률안(대~ 위원장   2019-10-30   국방위원회~ 2019-10-~ 원안가결   
+ 8 PRC_K1B9G0A8E2H1S1~ 20232~ 군용비행장·군사격장 소음 방지 및 피해 보상에 관한~ 위원장   2019-10-30   국방위원회~ 2019-10-~ 원안가결   
+ 9 PRC_Z1I9M0C8R2J2Z1~ 20232~ 금융회사부실자산 등의 효율적 처리 및 한국자산관리~ 위원장   2019-10-30   정무위원회~ 2019-10-~ 원안가결   
+10 PRC_R1T9K0Q8R2Q1W1~ 20232~ 군인의 지위 및 복무에 관한 기본법 일부개정법률안~ 위원장   2019-10-30   국방위원회~ 2019-10-~ 원안가결   
+# ... with 377 more rows
 ```
 
 

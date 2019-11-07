@@ -1,0 +1,70 @@
+#' National Assembly Secretariat, Recent proposed petition list searching by congressman name who approving the petition.
+#'
+#' nasPetitionSearch function import proposed petition list searching by name of congressman who approving the petition.
+#'
+#' @param key character value. API key issued from <www.data.go.kr>. no default.
+#' @param name character value. the name of congressman who approving it.
+#'
+#' @examples
+#'  key <- 'your key issued from data.go.kr'
+#'
+#'  # example.
+#'  data <- nasBillSearch(key, name = enc2utf8('경대수'))
+#'
+#' @export
+
+nasPetitionSearch <- function(key, name = NULL){
+  ### 1. parameter checking and processing.
+  ## key
+  if(is.null(key)){ stop("Invalid key. \n Please issue API key first and insert it to 'key' param.") }
+
+  ### 2. REST url for get n of pages
+  ## generate list of urls(fxxking so many limitations...).
+  # 1st, (url + key)
+  url <- sprintf('http://apis.data.go.kr/9710000/%s/%s?ServiceKey=%s&numOfRows=%s',
+                 'BillInfoService2', 'getPetitionList', key, 1000)
+
+  # 2nd, name
+  if(!is.null(name)){
+    url <- sprintf('%s&approver=%s', url, utils::URLencode(enc2utf8(name)))
+  }
+
+
+  ### 3. first urls's xml parsing.
+  # parsing xml codes with repeat and trycatch.
+  ii <- 0
+  repeat{
+    ii <- ii + 1
+    tmp_xml <- tryCatch({xml2::read_xml(url, encoding = 'UTF-8')}, error = function(e){NULL})
+    if(!is.null(tmp_xml) | ii == 15) break
+  }
+
+  # if access fail, stop it.
+  if(is.null(tmp_xml)){
+    stop('XML parsing fail.Please try again.')
+  }
+
+  data <- data.frame(
+    id = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//billId')),
+    no = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//billNo')),
+    name = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//billName')),
+
+    approver = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//approver')),
+    proposer = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//proposer')),
+    propose_date = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//proposeDt')),
+
+    committee = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//committeeName')),
+    vote_date = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//procdt')),
+    vote_result = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//generalResult')),
+    stringsAsFactors = F
+  )
+
+  for(col in colnames(data)){
+    if(class(data[[col]]) == 'character'){
+      Encoding(data[[col]]) <- 'UTF-8'
+      data[[col]][data[[col]] == ''] <- NA
+    }
+  }
+
+  return(dplyr::as.tbl(data))
+}

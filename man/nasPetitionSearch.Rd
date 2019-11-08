@@ -18,6 +18,6 @@ nasPetitionSearch function import proposed petition list searching by name of co
  key <- 'your key issued from data.go.kr'
 
  # example.
- data <- nasBillSearch(key, name = enc2utf8('경대수'))
+ data <- nasPetitionSearch(key, name = enc2utf8('경대수'))
 
 }

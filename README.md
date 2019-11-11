@@ -24,6 +24,7 @@ devtools::install_github('lawine90/datagokR')
   - 국회사무처: [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
   - 국회사무처: [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
   - 국회사무처: [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
+  - 건강보험심사평가원: [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -502,6 +503,34 @@ devtools::install_github('lawine90/datagokR')
  9 PRC_T1L5L1E2~ 19002~ 국유재산관리기금 거창교정시설~ 전해철의원        김은옥외 2,56~ 2015-12-01   법제사법위원회~ 2016-05-~ 임기만료폐기~
 10 PRC_W1A5F1Z1~ 19002~ 도시 및 주거환경정비법 개정  송호창의원ㆍ정성호의원ㆍ김경협의~ 한용운외 7인~ 2015-11-23   국토교통위원회~ 2016-05-~ 임기만료폐기~
 # ... with 217 more rows
+```
+
+
+> **15) [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)(hiraCancerAssess)**
+>
+> 수술, 질병, 약제사용 등 병원의 의료서비스를 의·약학적 측면과 비용효과적 측면에서 평가한 결과 정보를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3048126/openapi.do)의 참고문서로 확인하시기 바랍니다. 현재는 간암, 위암 수술 사망률에 대한 평가 정보만을 제공하고 있으며 평가 등급은 1(좋음) ~ 5(나쁨), NA는 수술건수가 10건 미만으로 평가대상에서 제외되는 병원입니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+
+
+```
+# example
+> key <- 'your key'
+> data <- nasPetitionSearch(key)
+> data
+# A tibble: 257 x 8
+   type_code type     name                            addr_code    addr_name1  addr_name2 liver   gastric
+   <chr>     <chr>    <chr>                           <int>        <chr>    <chr>         <int>   <int>
+ 1 21        병원     세웅병원                        210011       부산    부산금정구     NA      0
+ 2 21        병원     의료법인서광의료재단 성북중앙~  110012       서울    성북구         NA      NA
+ 3 11        종합병원 의료법인 인당의료재단 부민병원  210005       부산    부산북구       NA      0
+ 4 11        종합병원 서울특별시 동부병원             110007       서울    동대문구       NA      0
+ 5 11        종합병원 대림성모병원                    110013       서울    영등포구       NA      1
+ 6 21        병원     푸른사랑병원                    320006       강원    영월군         NA      NA
+ 7 31        의원     주함외과의원                    110023       서울    광진구         NA      NA
+ 8 11        종합병원 인천광역시의료원                220002       인천    인천동구       NA      0
+ 9 01        상급종합 아주대학교병원                  310604       경기    수원영통구     1       1
+10 11        종합병원 의료법인보원의료재단 경희의료~  380100       경남    김해시         NA      NA
+# ... with 247 more rows
 ```
 
 

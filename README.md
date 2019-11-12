@@ -28,7 +28,7 @@ devtools::install_github('lawine90/datagokR')
 
 
 # 3. 각 함수 설명 및 사용법
-> **1) [**주거시설 실거래가**](https://www.data.go.kr/dataset/3050988/openapi.do)(molitRealTrade)**
+> **1) [**주거시설 실거래가**](https://www.data.go.kr/dataset/3050988/openapi.do)(molitDwelling)**
 > 
 > 부동산 거래신고에 관한 법률에 따라 신고된 주택의 실거래 자료을 제공합니다. 주거시설의 타입은 아파트, 연립다세대, 단독/다가구 3가지이며 거래 타입은 매매, 전월세 2가지 입니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3050988/openapi.do)의 참고문서를 확인하시거나 패키지 관리자에게 연락주시기 바랍니다. 함수 실행 결과는 R의 list 타입이며 $meta에는 메타데이터, $data에 실제 거래 데이터가 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키

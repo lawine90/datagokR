@@ -1,6 +1,6 @@
 #' Ministry of Land Infrastructure and Transport, real estate transaction data.
 #'
-#' molitRealTrade function import the actual transition data of house. The function also provide simple visualization using plotly.
+#' molitDwelling function import the actual transition data of house. The function also provide simple visualization using plotly.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>
 #' @param year numeric value. the year of real trade
@@ -23,11 +23,11 @@
 #'
 #' @examples
 #'  # example 1 searching by localeCode.
-#'  data <- molitRealTrade(key = "my_key", year = 2018, month = 1, localeCode = 11110,
+#'  data <- molitDwelling(key = "my_key", year = 2018, month = 1, localeCode = 11110,
 #'                         houseType = "apart", tradeType = "trade", slow = T, viz = F)
 #'
 #'  # example 2 searching by localeName
-#'  data <- molitRealTrade(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
+#'  data <- molitDwelling(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
 #'                         houseType = "apart", tradeType = "rent", slow = F, viz = T)
 #'
 #' @importFrom dplyr %>%
@@ -60,7 +60,7 @@
 #' @export
 
 # utils::globalVariables(c(".data"), add = F)
-molitRealTrade <- function(key, year, month = NULL, localeCode = NULL, localeName = NULL,
+molitDwelling <- function(key, year, month = NULL, localeCode = NULL, localeName = NULL,
                            houseType, tradeType, slow = F, viz = F){
   ### 1. parameter checking.
   if(is.null(key)){ stop("Invalid key. Please issue API key first and insert it to \"key\" param.") }

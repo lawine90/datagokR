@@ -1,4 +1,4 @@
-#' Ministry of Land Infrastructure and Transport, real estate transaction data.
+#' Ministry of Land Infrastructure and Transport, real estate for dwelling transaction data.
 #'
 #' molitDwelling function import the actual transition data of house. The function also provide simple visualization using plotly.
 #'

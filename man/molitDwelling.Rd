@@ -2,7 +2,7 @@
 % Please edit documentation in R/molitDwelling.R
 \name{molitDwelling}
 \alias{molitDwelling}
-\title{Ministry of Land Infrastructure and Transport, real estate transaction data.}
+\title{Ministry of Land Infrastructure and Transport, real estate for dwelling transaction data.}
 \usage{
 molitDwelling(key, year, month = NULL, localeCode = NULL,
   localeName = NULL, houseType, tradeType, slow = F, viz = F)

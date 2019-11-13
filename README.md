@@ -10,8 +10,9 @@ devtools::install_github('lawine90/datagokR')
 
 
 # 2. 현재 다운로드 가능한 데이터 목록
-  - 국토교통부: [**주거시설 실거래가**](https://www.data.go.kr/dataset/3050988/openapi.do)
-  - 국토교통부: [**상업시설 실거래가**](https://www.data.go.kr/dataset/3050988/openapi.do)
+  - 국토교통부: [**주거시설 거래내역**](https://www.data.go.kr/dataset/3050988/openapi.do)
+  - 국토교통부: [**상업시설 거래내역**](https://www.data.go.kr/dataset/3050988/openapi.do)
+  - 국토교통부: [**토지 거래내역**](https://www.data.go.kr/dataset/3050988/openapi.do)
   - 기상청: [**생활기상지수**](https://www.data.go.kr/dataset/15000232/openapi.do)
   - 기상청: [**보건기상지수**](https://www.data.go.kr/dataset/15000154/openapi.do)
   - 기상청: [**종관기상관측**](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do)
@@ -29,7 +30,7 @@ devtools::install_github('lawine90/datagokR')
 
 
 # 3. 각 함수 설명 및 사용법
-> **1) [**주거시설 실거래가**](https://www.data.go.kr/dataset/3050988/openapi.do)(molitDwelling)**
+> **1-1) [**주거시설 거래내역**](https://www.data.go.kr/dataset/3050988/openapi.do)(molitDwelling)**
 > 
 > 부동산 거래신고에 관한 법률에 따라 신고된 주택의 실거래 자료을 제공합니다. 주거시설의 타입은 아파트, 연립다세대, 단독/다가구 3가지이며 거래 타입은 매매, 전월세 2가지 입니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3050988/openapi.do)의 참고문서를 확인하시거나 패키지 관리자에게 연락주시기 바랍니다. 함수 실행 결과는 R의 list 타입이며 $meta에는 메타데이터, $data에 실제 거래 데이터가 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -76,7 +77,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **2) [**상업시설 실거래가**](https://www.data.go.kr/dataset/3050988/openapi.do)(molitCommerce)**
+> **1-2) [**상업시설 거래내역**](https://www.data.go.kr/dataset/3050988/openapi.do)(molitCommerce)**
 > 
 > 지역코드와 기간을 설정하여 해당지역, 해당기간의 상업업무용 부동산 매매 신고 자료를 제공하는 상업업무용 부동산 매매 신고 정보를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3050988/openapi.do)의 참고문서를 확인하시거나 패키지 관리자에게 연락주시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입이며 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -90,7 +91,7 @@ devtools::install_github('lawine90/datagokR')
 ``` 
 # example
 > key <- 'your key'
-> data <- molitCommerce(key = "my_key", year = 2018, month = 1:6, 
+> data <- molitCommerce(key = key, year = 2018, month = 1:6, 
                         localeName = enc2utf8("수원"), slow = F, viz = T)
 > data
 # A tibble: 955 x 15
@@ -110,7 +111,41 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **3) [**생활기상지수**](https://www.data.go.kr/dataset/15000232/openapi.do)(kmaHealthIndex)**
+> **1-3) [**토지 거래내역**](https://www.data.go.kr/dataset/3050988/openapi.do)(molitLand)**
+> 
+> 지역코드와 기간을 이용하여 해당기간, 해당지역의 토지 매매 신고 자료를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3050988/openapi.do)의 참고문서를 확인하시거나 패키지 관리자에게 연락주시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입이며 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+> - year: (필수, 정수). 주거시설 거래가 발생한 년도
+> - month: (옵션, 정수). 주거시설 거래가 발생한 달. 입력하지 않을 시 해당 년도의 전체 데이터를 가져옴
+> - localeCode: (옵션, 정수). 주거시설 거래가 발생한 지역의 시/군/구 코드. localeName 미입력시 입력 필수
+> - localeName: (옵션, 문자). 주거시설 거래가 발생한 지역의 시/군/구 명. localeCode 미입력시 입력 필수
+> - slow: (옵션, T/F). 데이터를 받을 시 서버에 보내는 요청에 약 1초 정도의 pause를 둠. 기본값은 False
+> - viz: (옵션, T/F). 다운받은 데이터에 대한 간략한 시각화 제공. 기본값은 False(추후 구현 예정)
+
+``` 
+# example
+> key <- 'your key'
+> data <- molitLand(key = key, year = 2018, month = 1:6, 
+                        localeName = enc2utf8("수원"), slow = F, viz = T)
+> data
+# A tibble: 3,264 x 11
+   code  gu     dong    tradeYear tradeMonth tradeDay tradeType  price landUsage area  type             
+   <chr> <chr>  <chr>       <int>      <int>    <int> <lgl>      <dbl> <chr>     <chr> <chr>            
+ 1 11110 종로구 청운동       2018          1        3 NA        195300 대        379   제1종일반주거지역
+ 2 11110 종로구 누상동       2018          1       11 NA          2194 대        4     제2종일반주거지역
+ 3 11110 종로구 관훈동       2018          1        5 NA         45000 도로      118   일반상업지역     
+ 4 11110 종로구 삼청동       2018          1        3 NA         18847 대        25    제1종일반주거지역
+ 5 11110 종로구 삼청동       2018          1       25 NA         28998 대        21    제1종일반주거지역
+ 6 11110 종로구 이화동       2018          1       30 NA         55000 대        71    제3종일반주거지역
+ 7 11110 종로구 동숭동       2018          1       25 NA          6278 대        16    제2종일반주거지역
+ 8 11110 종로구 명륜2가      2018          1       29 NA           417 대        1     제3종일반주거지역
+ 9 11110 종로구 숭인동       2018          1       18 NA         30000 대        19    일반상업지역     
+10 11110 종로구 숭인동       2018          1       18 NA         10000 대        8     일반상업지역     
+# ... with 3,254 more rows
+```
+
+
+> **2-1) [**생활기상지수**](https://www.data.go.kr/dataset/15000232/openapi.do)(kmaHealthIndex)**
 > 
 > 각종 기상자료를 응용하여 일반 국민의 일상생활 및 보건에 활용할 수 있도록 생산된 생활기상지수(부패지수, 동파지수, 체감온도 등)를 특정 위치(지점)별로 산출한 데이터입니다. 각 지수마다 다르나 3시간 단위로 측정되며 각 지수별로 수집할 수 있는 기간(월 기준)이 다르므로 아래 설명에서 수집 가능한 기간을 확인 후 사용하시기 바랍니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15000232/openapi.do)의 참고문서를 확인하시거나 패키지 관리자에게 연락주시기 바랍니다.함수 실행 결과는 R의 list 타입이며 $data에 실제 생활기상지수 데이터, $error에 에러가 발생한 데이터의 url, $url에 전체 데이터의 url이 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -152,7 +187,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **4) [**보건기상지수**](https://www.data.go.kr/dataset/15000154/openapi.do)(kmaHealthIndex)**
+> **2-2) [**보건기상지수**](https://www.data.go.kr/dataset/15000154/openapi.do)(kmaHealthIndex)**
 > 
 > 기후변화에 능동적으로 신체를 대처할 수 있는 보건기상지수(뇌졸중가능지수, 피부질환지수, 감기가능지수, 꽃가루농도위험지수 등 5종)를 지정위치(지점)별로 산출한 데이터입니다. 각 지수마다 다르나 3시간 단위로 측정되며 각 지수별로 수집할 수 있는 기간(월 기준)이 다르므로 아래 설명에서 수집 가능한 기간을 확인 후 사용하시기 바랍니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15000154/openapi.do)의 참고문서를 확인하시거나 패키지 관리자에게 연락주시기 바랍니다. 함수 실행 결과는 R의 list 타입이며 $data에 실제 보건기상지수 데이터, $error에 에러가 발생한 데이터의 url, $url에 전체 데이터의 url이 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -196,7 +231,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **5) [**종관기상관측**](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do)(kmaASOS)**
+> **2-3) [**종관기상관측**](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do)(kmaASOS)**
 > 
 > 정해진 시각에 각 지역의 관측소에서 실측된 지상관측 데이터입니다. 기온, 강수, 바람, 기압, 습도 등 날씨현상과 관련된 데이터이며  전국 94개 지점에서 수집된 데이터의 하루 평균을 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **기상자료개방포털에서 발급받은 별도의 API키가 필요**합니다. 기상자료개방포털에서 제공하는 API는 매우 불안정하므로 slow argument를 TRUE로 설정하고 사용하길 권장합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 list 타입이며 $meta에는 메타데이터, $data에 관측 데이터가 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 기상자료개방 포털에서 발급받은 API 키
@@ -236,7 +271,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **6) [**예측진료정보**](https://www.data.go.kr/dataset/15028050/openapi.do)(nhisDiseaseForcast)**
+> **3-1) [**예측진료정보**](https://www.data.go.kr/dataset/15028050/openapi.do)(nhisDiseaseForcast)**
 > 
 > 수요조사 결과에 따라 관심도가 높은 5대 질병(눈병, 천식, 감기, 피부염, 식중독)에 대한 위험도 및 예측 진료 건수 정보를 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15028050/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 list 타입이며 $meta에는 메타데이터, $data에 관측 데이터, $recommanded에 각 질병의 위험도에 따른 추천행동이 포함되어 있습니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -289,7 +324,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **7) [**의약품 부작용**](https://www.data.go.kr/dataset/15020627/openapi.do)(drugsSideEffect)**
+> **4-1) [**의약품 부작용**](https://www.data.go.kr/dataset/15020627/openapi.do)(drugsSideEffect)**
 > 
 > 수요조사 결과에 따라 관심도가 높은 5대 질병(눈병, 천식, 감기, 피부염, 식중독)에 대한 위험도 및 예측 진료 건수 정보를 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15028050/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -316,7 +351,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **8) [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)(nutriComponent)**
+> **4-2) [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)(nutriComponent)**
 > 
 > 식품의약품안전처에서 관리하는 식품 영양성분 데이터를 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15020625/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -346,7 +381,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **9) [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)(quasiDrugs)**
+> **4-3) [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)(quasiDrugs)**
 > 
 > 식품의약품안전처에서 관리하는 의약외품(quasi-drugs)의 품목명, 용법용량, 효능효과, 사용상의 주의사항 등을 제공합니다. 다운로드되는 데이터의 변수가 많으므로 자세한 사항을 [링크](https://www.data.go.kr/dataset/15028967/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -376,7 +411,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **10) [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)(livestockDisease)**
+> **5-1) [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)(livestockDisease)**
 >
 > 농림축산식품부 농림축산검역본부 역학조사과에서 관리하며 가축 전염병, 발생 농장, 사육하는 가축, 진단자 등의 정보를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **농림축산식품 공공데이터 포털에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 농림축산식품 공공데이터 포털에서 발급받은 API 키
@@ -408,7 +443,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **11) [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+> **6-1) [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
 >
 > 국회사무처가 제공하는 간략한 국회의원 정보를 제공합니다. 특정 국회의원의 상세한 정보는 nasCongressman2 함수를 사용하시기 바랍니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -436,7 +471,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **12) [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+> **6-2) [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
 >
 > 국회사무처가 제공하는 상세한 국회의원 정보를 제공합니다. nasCongressman1 함수로 얻을 수 있는 부서코드(code_dept)와 식별코드(code_numb)가 필요합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -455,7 +490,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **13) [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPassedBill)**
+> **6-3) [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPassedBill)**
 >
 > 최근 6개월간 통과된 의안 목록을 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -483,7 +518,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **14) [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasBillSearch)**
+> **6-4) [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasBillSearch)**
 >
 > 법률안 발의자의 이름을 조건으로 발의 의안의 목록과 결과를 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -512,7 +547,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **15) [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPetitionSearch)**
+> **6-5) [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPetitionSearch)**
 >
 > 소개 의원의 이름을 조건으로 청원 목록과 그 결과를 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -541,7 +576,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **16) [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)(hiraCancerAssess)**
+> **7-1) [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)(hiraCancerAssess)**
 >
 > 수술, 질병, 약제사용 등 병원의 의료서비스를 의·약학적 측면과 비용효과적 측면에서 평가한 결과 정보를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3048126/openapi.do)의 참고문서로 확인하시기 바랍니다. 현재는 간암, 위암 수술 사망률에 대한 평가 정보만을 제공하고 있으며 평가 등급은 1(좋음) ~ 5(나쁨), NA는 수술건수가 10건 미만으로 평가대상에서 제외되는 병원입니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키

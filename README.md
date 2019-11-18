@@ -27,6 +27,7 @@ devtools::install_github('lawine90/datagokR')
   - 국회사무처: [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
   - 국회사무처: [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
   - 건강보험심사평가원: [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)
+  - 서울시열린데이터광장: [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1&currentPageNo=1)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -601,6 +602,34 @@ devtools::install_github('lawine90/datagokR')
  9 01        상급종합 아주대학교병원                  310604       경기    수원영통구     1       1
 10 11        종합병원 의료법인보원의료재단 경희의료~  380100       경남    김해시         NA      NA
 # ... with 247 more rows
+```
+
+
+> **8-1) [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1&currentPageNo=1)(seoulBike)**
+>
+> 서울특별시 공공자전거 실시간 대여정보로, 대여소별 실시간 자전거 대여가능 건수, 거치율, 대여소 위치정보를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1&currentPageNo=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
+
+
+```
+# example
+> key <- 'your key from data.seoul.go.kr'
+> data <- seoulBike(key)
+> data
+# A tibble: 1,526 x 7
+   id    name                               capa count share  lati longi
+   <chr> <chr>                             <dbl> <dbl> <dbl> <dbl> <dbl>
+ 1 ST-3  101. (구)합정동 주민센터              5     0     0  37.5  127.
+ 2 ST-4  102. 망원역 1번출구 앞               20    19    95  37.6  127.
+ 3 ST-5  103. 망원역 2번출구 앞               14    10    71  37.6  127.
+ 4 ST-6  104. 합정역 1번출구 앞               13     6    46  37.6  127.
+ 5 ST-8  106. 합정역 7번출구 앞               10     7    70  37.5  127.
+ 6 ST-9  107. 신한은행 서교동금융센터점 앞     5     4    80  37.6  127.
+ 7 ST-10 108. 서교동 사거리                   10     5    50  37.6  127.
+ 8 ST-11 109. 제일빌딩 앞                     10     9    90  37.5  127.
+ 9 ST-13 110. 사천교                          20    16    80  37.6  127.
+10 ST-15 111. 상수역 2번출구 앞               10     3    30  37.5  127.
+# ... with 1,516 more rows
 ```
 
 

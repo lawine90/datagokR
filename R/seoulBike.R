@@ -8,7 +8,7 @@
 #'  key <- 'your key issued from data.seoul.go.kr'
 #'
 #'  # example.
-#'  data <- seoulBike(key, verbose = T)
+#'  data <- seoulBike(key)
 #'
 #' @export
 

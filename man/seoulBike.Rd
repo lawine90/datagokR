@@ -16,6 +16,6 @@ seoulBike function import real-time bike of all stations in seoul data. You can 
  key <- 'your key issued from data.seoul.go.kr'
 
  # example.
- data <- seoulBike(key, verbose = T)
+ data <- seoulBike(key)
 
 }

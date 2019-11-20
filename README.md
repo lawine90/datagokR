@@ -27,8 +27,9 @@ devtools::install_github('lawine90/datagokR')
   - 국회사무처: [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
   - 국회사무처: [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
   - 건강보험심사평가원: [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)
-  - 서울시열린데이터광장: [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1&currentPageNo=1)
+  - 서울시열린데이터광장: [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)
   - 서울시열린데이터광장: [**서울시 버스정류장별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)
+  - 서울시열린데이터광장: [**서울시 지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -606,9 +607,9 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **8-1) [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1&currentPageNo=1)(seoulBike)**
+> **8-1) [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)(seoulBike)**
 >
-> 서울특별시 공공자전거 실시간 대여정보로, 대여소별 실시간 자전거 대여가능 건수, 거치율, 대여소 위치정보를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1&currentPageNo=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> 서울특별시 공공자전거 실시간 대여정보로, 대여소별 실시간 자전거 대여가능 건수, 거치율, 대여소 위치정보를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
 
 
@@ -662,6 +663,35 @@ devtools::install_github('lawine90/datagokR')
  9 11110001 100    100번(하계동~용산구청) 101000067 02166    0008984 을지로5가.중부시장            34       56 20191115
 10 11110001 100    100번(하계동~용산구청) 101000070 02169    0009038 을지로6가.국립중앙의료원      57       65 20191115
 # ... with 38,549 more rows
+```
+
+
+> **8-3) [**서울시 지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)(seoulTubeCount)**
+>
+> 교통카드(선후불교통카드 및 1회용 교통카드)를 이용한 지하철호선별 역별(서울교통공사, 한국철도공사, 공항철도, 9호선) 승하차인원을 나타내는 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
+> - day: (필수, 문자). YYYYMMDD 형식의 문자열로 표현된 날짜. 20160101 ~ 현재 -5일의 데이터만 확인 가능.
+
+
+```
+# example
+> key <- 'your key from data.seoul.go.kr'
+> data <- seoulTubeCount(key, day = gsub('-', '', Sys.Date()-4))
+> data
+# A tibble: 591 x 5
+   line  station                in_numb out_numb day     
+   <chr> <chr>                    <dbl>    <dbl> <chr>   
+ 1 1호선 서울역                   60547    59385 20191116
+ 2 1호선 시청                     26202    27913 20191116
+ 3 1호선 종각                     40626    37222 20191116
+ 4 1호선 종로3가                  37708    35868 20191116
+ 5 1호선 종로5가                  29893    30538 20191116
+ 6 1호선 동대문                   16330    18089 20191116
+ 7 1호선 신설동                   14164    13213 20191116
+ 8 1호선 제기동                   20137    20720 20191116
+ 9 1호선 청량리(서울시립대입구)   25576    26989 20191116
+10 1호선 동묘앞                   14038    15215 20191116
+# ... with 581 more rows
 ```
 
 

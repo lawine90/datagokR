@@ -30,6 +30,7 @@ devtools::install_github('lawine90/datagokR')
   - 서울시열린데이터광장: [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)
   - 서울시열린데이터광장: [**서울시 버스정류장별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)
   - 서울시열린데이터광장: [**서울시 지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)
+  - 서울시열린데이터광장: [**서울시 생필품 농수축산물 가격 정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-1170&srvType=S&serviceKind=1)
 
 
 # 3. 각 함수 설명 및 사용법
@@ -692,6 +693,36 @@ devtools::install_github('lawine90/datagokR')
  9 1호선 청량리(서울시립대입구)   25576    26989 20191116
 10 1호선 동묘앞                   14038    15215 20191116
 # ... with 581 more rows
+```
+
+
+> **8-4) [**서울시 생필품 농수축산물 가격 정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-1170&srvType=S&serviceKind=1)(seoulNecessaries)**
+>
+> 주 2회(화, 금) 자치구별 전통시장과 대형마트의 농수축산물 16개 품목의 가격을 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
+> - recent: (옵션, T/F). 최근 7,000개의 데이터만 받을 경우 True로 설정
+> - vebose: (옵션, T/F). 다운로드 진행상황의 콘솔 출력여부. 기본값은 False
+
+
+```
+# example
+> key <- 'your key from data.seoul.go.kr'
+> data <- seoulNecessaries(key, verbose = F)
+> data
+# A tibble: 113,639 x 10
+        id market_id market_name market_type market_dir ness_id ness_name          ness_unit ness_price date      
+     <dbl>     <dbl> <chr>       <chr>       <chr>        <dbl> <chr>              <chr>     <chr>      <chr>     
+ 1 1480019        56 롯데백화점  대형마트    중구           305 사과(부사, 300g)   1개       2000       2019-11-14
+ 2 1480020        56 롯데백화점  대형마트    중구           306 배(신고, 600g)     1개       4000       2019-11-14
+ 3 1480021        56 롯데백화점  대형마트    중구           307 배추(2.5~3kg)      1포기     12000      2019-11-14
+ 4 1480022        56 롯데백화점  대형마트    중구           282 무(세척무)         1개       3980       2019-11-14
+ 5 1480023        56 롯데백화점  대형마트    중구           309 양파(1.5kg망)      1망       4980       2019-11-14
+ 6 1480024        56 롯데백화점  대형마트    중구            23 상추               100g      1986       2019-11-14
+ 7 1480025        56 롯데백화점  대형마트    중구           311 오이(다다기)       1개       1290       2019-11-14
+ 8 1480026        56 롯데백화점  대형마트    중구           312 애호박             1개       2580       2019-11-14
+ 9 1480027        56 롯데백화점  대형마트    중구           278 쇠고기             600g1등급 40800      2019-11-14
+10 1480028        56 롯데백화점  대형마트    중구            99 돼지고기(생삼겹살) 600g      23940      2019-11-14
+# ... with 113,629 more rows
 ```
 
 

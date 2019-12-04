@@ -13,7 +13,7 @@
 #'
 #' @examples
 #'  key <- 'your key issued from data.go.kr'
-#'  data <- meDust(key, verbose = T)
+#'  data <- meDust(key)
 #'
 #' @export
 

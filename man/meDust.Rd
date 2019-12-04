@@ -26,6 +26,6 @@ The Contidion arguments should be set as "HOUR" or "DAILY".
 }
 \examples{
  key <- 'your key issued from data.go.kr'
- data <- meDust(key, verbose = T)
+ data <- meDust(key)
 
 }

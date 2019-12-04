@@ -32,7 +32,7 @@
 #'                         type = "Asthma", slow = T)
 #'
 #'  # example 2 searching by localeName
-#'  data <- kmaHealthIndex(key, localeName = c("수원"), type = "possible", slow = T)
+#'  data <- kmaHealthIndex(key, localeName = c(enc2utf8("수원")), type = "possible", slow = T)
 #'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr as.tbl

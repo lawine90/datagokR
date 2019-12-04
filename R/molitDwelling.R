@@ -27,7 +27,7 @@
 #'                         houseType = "apart", tradeType = "trade", slow = T, viz = F)
 #'
 #'  # example 2 searching by localeName
-#'  data <- molitDwelling(key = "my_key", year = 2018, month = 1:6, localeName = "서울",
+#'  data <- molitDwelling(key = "my_key", year = 2018, month = 1:6, localeName = enc2utf8("서울"),
 #'                         houseType = "apart", tradeType = "rent", slow = F, viz = T)
 #'
 #' @importFrom dplyr %>%

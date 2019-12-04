@@ -47,6 +47,6 @@ nhisDiseaseForcast function import forcasted count of treatment and risk of five
  data <- nhisDiseaseForcast(key, localeCode = c(11, 41), type = "Asthma", slow = T)
 
  # example 2 searching by localeName
- data <- nhisDiseaseForcast(key, localeName = c("\\\\uc218\\\\uc6d0"), type = "All", slow = T)
+ data <- nhisDiseaseForcast(key, localeName = c(enc2utf8('수원')), type = "All", slow = T)
 
 }

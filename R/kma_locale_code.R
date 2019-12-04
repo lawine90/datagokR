@@ -1,6 +1,6 @@
 #' Data for kmaHealthIndex and kmaLifeIndex function.
 #'
-#' A dataset containing the legal location code and the name of locations.
+#' A dataset contain the legal location code and the name of locations.
 #'  It is tbl_df type object so "dplyr" library is recommended.
 #'  The variables are as follow.
 #'

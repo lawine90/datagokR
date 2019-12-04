@@ -1,6 +1,6 @@
 datagokR
 ========
-[**공공데이터포털**](https://www.data.go.kr/)에서 REST API를 이용하여 데이터를 받을 수 있는 패키지입니다. 공공데이터포털에서 API 키를 발급받고 API 사용 승인을 받아야 사용하실 수 있습니다. API 사용 승인의 경우 자동승인과 심의승인이 있으며 datagokR에서는 자동승인만을 수집 대상으로 합니다.
+[**공공데이터포털**](https://www.data.go.kr/)에서 REST API를 이용하여 데이터를 받을 수 있는 패키지입니다. 공공데이터포털에서 API 키를 발급받고 API 사용 승인을 받아야 사용하실 수 있습니다. API 사용 승인의 경우 자동승인과 심의승인이 있으며 datagokR에서는 자동승인만을 수집 대상으로 합니다. 대부분의 함수 실행 결과는 dplyr의 tbl_df 타입으로 제공되므로 dplyr 라이브러리를 load한 후 데이터를 수집하시기를 권장합니다.
 
 
 # 1. 패키지 설치 방법
@@ -22,6 +22,7 @@ devtools::install_github('lawine90/datagokR')
   - 식품의약품안전처: [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)
   - 식품의약품안전처: [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)
   - 농림축산식품부: [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)
+  - 안전행정부: [**농수축산물 가격조사**](https://www.data.go.kr/dataset/15012298/openapi.do)
   - 국회사무처: [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
   - 국회사무처: [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
   - 국회사무처: [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
@@ -477,7 +478,54 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **7-1) [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+> **7-1) [**농수축산물 가격조사**](https://www.data.go.kr/dataset/15012298/openapi.do)(episPrice)**
+>
+> 안전행정부 농림수산식품교육문화정보원의 데이터로, 전국에서 거래되는 농산물, 수산물, 축산물 중 국민들의 삶에 영향을 미치는 주요 품목들에 대하여 한국농수산식품유통공사, 농업협동조합중앙회, 수산업협동조합중앙회 및 축산물품질평가원에 소속된 조사원들이 조사한 가격 정보와 거래되는 상품들의 상세 정보를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012298/openapi.do)의 참고문서로 확인하시기 바라며 가격조사 방법에 대한 자세한 사항은 [링크](https://www.kamis.or.kr/customer/price/knowhow/knowhow.do?action=methodList)에서 확인하시기 바랍니다. 참고로 농수축산물 가격조사는 주말 및 휴일에는 실시하지 않으니 데이터 또한 주말 및 휴일의 가격은 없으므로 이를 유의하여 date를 입력하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+> - date: (필수, 문자). 데이터를 수집하려는 날짜로, YYYYMMDD 형식으로 입력 ex) '20191203'
+> - items: (필수, 정수). 데이터를 수집하려는 품목의 코드로, library에 내장된 epis_items 데이터의 itemCode 참조
+> - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
+
+```
+# example
+> key <- 'your key from data.go.kr'
+> epis_items <- datagokR::epis_items
+> epis_items
+# A tibble: 351 x 4
+   itemCode itemName speciesCode speciesName
+      <int> <chr>          <int> <chr>      
+ 1      112 찹쌀               1 일반찹쌀   
+ 2      112 찹쌀               2 통일계     
+ 3      121 보리쌀             1 일반       
+ 4      121 보리쌀             2 과맥       
+ 5      121 보리쌀             3 정부방출맥 
+ 6      122 밀                 0 일반       
+ 7      131 좁쌀               0 메조       
+ 8      132 옥수수             0 일반       
+ 9      141 콩                 1 백태(국산) 
+10      141 콩                 2 콩나물콩   
+# ... with 341 more rows
+> 
+> data <- episPrice(key, date = '20191203', items = head(unique(epis_items$itemCode)))
+> data
+# A tibble: 99 x 13
+   locCode locName  mrkCode mrkName           itmCode itmName spcCode spcName yesPrice todPrice unit  exmGradeCode exmGradeName
+   <chr>   <chr>    <chr>   <chr>             <chr>   <chr>   <chr>   <chr>      <int>    <int> <chr> <chr>        <chr>       
+ 1 1102    서울서부 4002513 경동시장          0104    찹쌀    010401  일반계      3400     3400 1KG   1            상(1등급)   
+ 2 1102    서울서부 4004522 복조리시장        0104    찹쌀    010401  일반계      4830     4830 1KG   1            상(1등급)   
+ 3 1102    서울서부 4007308 영등포 유통상가   0104    찹쌀    010401  일반계      4160     4160 1KG   1            상(1등급)   
+ 4 1104    서울     7005601 롯데마트 잠실점   0104    찹쌀    010401  일반계      4700     4700 1KG   1            상(1등급)   
+ 5 1104    서울     7008501 홈플러스 금천점   0104    찹쌀    010401  일반계      3150     3150 1KG   1            상(1등급)   
+ 6 1104    서울     7003402 이마트 수색점     0104    찹쌀    010401  일반계      6450     6450 1KG   1            상(1등급)   
+ 7 1104    서울     7006708 하나로클럽 양재점 0104    찹쌀    010401  일반계      3730     3730 1KG   1            상(1등급)   
+ 8 1104    서울     7002502 롯데마트 청량리점 0104    찹쌀    010401  일반계      4700     4700 1KG   1            상(1등급)   
+ 9 2100    부산     4047203 부전시장          0104    찹쌀    010401  일반계      4000     4000 1KG   1            상(1등급)   
+10 2104    부산     7047203 홈플러스 가야점   0104    찹쌀    010401  일반계      3150     3150 1KG   1            상(1등급)   
+# ... with 89 more rows
+```
+
+
+> **8-1) [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
 >
 > 국회사무처가 제공하는 간략한 국회의원 정보를 제공합니다. 특정 국회의원의 상세한 정보는 nasCongressman2 함수를 사용하시기 바랍니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -505,7 +553,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **7-2) [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+> **8-2) [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
 >
 > 국회사무처가 제공하는 상세한 국회의원 정보를 제공합니다. nasCongressman1 함수로 얻을 수 있는 부서코드(code_dept)와 식별코드(code_numb)가 필요합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -524,7 +572,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **7-3) [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPassedBill)**
+> **8-3) [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPassedBill)**
 >
 > 최근 6개월간 통과된 의안 목록을 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -552,7 +600,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **7-4) [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasBillSearch)**
+> **8-4) [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasBillSearch)**
 >
 > 법률안 발의자의 이름을 조건으로 발의 의안의 목록과 결과를 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -581,7 +629,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **7-5) [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPetitionSearch)**
+> **8-5) [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPetitionSearch)**
 >
 > 소개 의원의 이름을 조건으로 청원 목록과 그 결과를 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -610,7 +658,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **8-1) [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)(hiraCancerAssess)**
+> **9-1) [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)(hiraCancerAssess)**
 >
 > 수술, 질병, 약제사용 등 병원의 의료서비스를 의·약학적 측면과 비용효과적 측면에서 평가한 결과 정보를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3048126/openapi.do)의 참고문서로 확인하시기 바랍니다. 현재는 간암, 위암 수술 사망률에 대한 평가 정보만을 제공하고 있으며 평가 등급은 1(좋음) ~ 5(나쁨), NA는 수술건수가 10건 미만으로 평가대상에서 제외되는 병원입니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -638,7 +686,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **9-1) [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)(seoulBike)**
+> **10-1) [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)(seoulBike)**
 >
 > 서울특별시 공공자전거 실시간 대여정보로, 대여소별 실시간 자전거 대여가능 건수, 거치율, 대여소 위치정보를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
@@ -666,7 +714,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **9-2) [**서울시 버스정류장별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)(seoulBusCount)**
+> **10-2) [**서울시 버스정류장별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)(seoulBusCount)**
 >
 > 교통카드(선후불교통카드)를 이용한 서울버스 노선별/정류장별 승하차인원을 나타내는 정보로, 일별 버스노선마다 각 정류장에 승/하차한 데이터의 합입니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
@@ -697,7 +745,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **9-3) [**서울시 지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)(seoulTubeCount)**
+> **10-3) [**서울시 지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)(seoulTubeCount)**
 >
 > 교통카드(선후불교통카드 및 1회용 교통카드)를 이용한 지하철호선별 역별(서울교통공사, 한국철도공사, 공항철도, 9호선) 승하차인원을 나타내는 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
@@ -726,7 +774,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **9-4) [**서울시 생필품 농수축산물 가격 정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-1170&srvType=S&serviceKind=1)(seoulNecessaries)**
+> **10-4) [**서울시 생필품 농수축산물 가격 정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-1170&srvType=S&serviceKind=1)(seoulNecessaries)**
 >
 > 주 2회(화, 금) 자치구별 전통시장과 대형마트의 농수축산물 16개 품목의 가격을 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키

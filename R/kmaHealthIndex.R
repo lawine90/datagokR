@@ -35,26 +35,6 @@
 #'  data <- kmaHealthIndex(key, localeName = c(enc2utf8("수원")), type = "possible", slow = T)
 #'
 #' @importFrom dplyr %>%
-#' @importFrom dplyr as.tbl
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr filter
-#' @importFrom dplyr group_by
-#' @importFrom dplyr inner_join
-#' @importFrom dplyr left_join
-#' @importFrom dplyr right_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr n
-#' @importFrom dplyr select
-#' @importFrom dplyr summarise
-#' @importFrom dplyr ungroup
-#' @importFrom utils txtProgressBar
-#' @importFrom utils setTxtProgressBar
-#' @importFrom utils globalVariables
-#' @importFrom utils data
-#' @importFrom magrittr set_colnames
-#' @importFrom stats runif
-#' @importFrom XML xmlToList
-#'
 #' @export
 
 # utils::globalVariables(c(".data", "code", "kma_locale_code", "kma_healthIndex_type_check", "locale"), add = F)
@@ -108,7 +88,7 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
     localeCode <- datagokR::kma_locale_code[grepl(localeName,
                                                   paste(datagokR::kma_locale_code$name1,
                                                   datagokR::kma_locale_code$name2, sep = " ")),] %>%
-      select("code") %>% unlist
+      dplyr::select("code") %>% unlist
   }else if(!is.null(localeCode)){
     localeCode <- format(localeCode, scientific = FALSE)
   }
@@ -128,9 +108,9 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
   errors <- list(); length(errors) <- length(urls)
   suc <- character(length(urls))
   meta <- data.frame(url = urls, success = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
-    as.tbl
+    dplyr::as.tbl()
 
-  if(verbose == T){pb <- txtProgressBar(min = 1, length(urls), style = 3)}
+  if(verbose == T){pb <- utils::txtProgressBar(min = 1, length(urls), style = 3)}
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
@@ -140,14 +120,14 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
       ii <- ii + 1
       tmp.xml <- tryCatch(
         {
-          xmlToList(urls[[i]])
+          XML::xmlToList(urls[[i]])
         }, error = function(e){
           NULL
         }
       )
 
       if(slow){
-        Sys.sleep(runif(1, 0, 2.5))
+        Sys.sleep(stats::runif(1, 0, 2.5))
       }
       if(!is.null(tmp.xml) | ii >= 15) break
     }
@@ -164,7 +144,7 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
                                "error", suc[i])
 
     if(slow){
-      Sys.sleep(runif(1, 0, 1.5))
+      Sys.sleep(stats::runif(1, 0, 1.5))
     }
 
     # if suc is "N", skip.
@@ -172,7 +152,7 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
       all.error[[i]] <- tmp.xml$Header$ErrMsg
       errors[[i]] <- urls[[i]]
 
-      if(verbose == T){setTxtProgressBar(pb, value = i)}
+      if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
 
       next
     }else if(suc[i] =="Y"){
@@ -189,21 +169,21 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
           stringsAsFactors = F
       )
     } # if statement regarding to SuccessYN.
-    if(verbose == T){setTxtProgressBar(pb, value = i)}
+    if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
   } # end of loop i.
 
   ### 4. merge data by index type.
   data <- list(); length(data) <- length(type)
   for(i in 1:length(data)){
-    tmp.d <- bind_rows(all.data[lapply(all.data, function(x)
-      x$type == type[i]) %>% unlist %>% which]) %>% as.tbl
+    tmp.d <- dplyr::bind_rows(all.data[lapply(all.data, function(x)
+      x$type == type[i]) %>% unlist %>% which]) %>% dplyr::as.tbl()
 
     if(nrow(tmp.d) == 0){
       next
     }
 
     data[[i]] <- tmp.d %>%
-      mutate("time" = strptime(.data$time, format='%Y%m%d%H') %>% as.character,
+      dplyr::mutate("time" = strptime(.data$time, format='%Y%m%d%H') %>% as.character,
              "locale" = .data$locale)
 
     data[[i]] <- data[[i]][!duplicated(data[[i]]),] %>% arrange(.data$locale, .data$time)

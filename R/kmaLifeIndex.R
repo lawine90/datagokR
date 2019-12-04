@@ -33,7 +33,7 @@
 #'
 #'  # example 2 searching by localeName
 #'  data <- kmaLifeIndex(key, time = seq(0, 21, 3),
-#'                       localeName = c("수원"), type = "possible", slow = T)
+#'                       localeName = c(enc2utf8("수원")), type = "possible", slow = T)
 #'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr as.tbl

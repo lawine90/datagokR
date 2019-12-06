@@ -58,6 +58,9 @@ episPrice <- function(key, date, items, verbose = F){
     if(is.null(tmp_xml)){
       stop('XML parsing fail.Please try again.')
     }
+    if(!is.null(tmp_xml$cmmMsgHeader)){
+      return(tmp_xml$cmmMsgHeader$returnAuthMsg)
+    }
 
     all_data[[i]] <- data.frame(
       locCode = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"areaCode"), '', x$"areaCode")) ),

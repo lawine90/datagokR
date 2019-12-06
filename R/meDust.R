@@ -3,7 +3,7 @@
 #' meDust function import real-time air polution data like so2, co, o3, no2, pm10, pm25.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>. no default.
-#' @param localeName character value. SiDo name in Korean character. Default is set as enc2utf8('서울')
+#' @param localName character value. SiDo name in Korean character. Default is set as enc2utf8('서울')
 #' @param condition character value. Refer details. Default is set as 'HOUR'
 #' @param verbose logical value. If TRUE, show process bar. Default is set as FALSE.
 #'
@@ -23,10 +23,11 @@ meDust <- function(key, localName = enc2utf8('서울'), condition = 'HOUR', verb
   if(is.null(key)){ stop("Invalid key. \n Please issue API key first and insert it to \"key\" param.") }
   if(!(condition %in% c('HOUR', 'DAILY'))){ stop("Invalid condition. \n Please insert right condition. It should be \"HOUR\" or \"DAILY\"") }
 
-  locations <- c("서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기",
-                 "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주")
+  locations <- enc2utf8(c("서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기",
+                          "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"))
   if(!any(localName %in% locations)){
-    stop("Invalid localName. \n Please insert right localName. It should be one of ")
+    stop(sprintf("Invalid localName. \n Please insert right localName. It should be one of %s",
+         paste0(locations, collapse = ', ')))
   }else{
     localenc <- c()
     for(i in 1:length(localName)){

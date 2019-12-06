@@ -36,9 +36,11 @@ If month value is NULL, all data of the year will imported.\cr
 }
 \examples{
  # example 1 searching by localeCode.
- data <- molitLand(key = "my_key", year = 2018, month = 1, localeCode = 11110, slow = T, viz = F)
+ data <- molitLand(key = "my_key", year = 2018, month = 1,
+                   localeCode = 11110, slow = T, viz = F)
 
  # example 2 searching by localeName
- data <- molitLand(key = "my_key", year = 2018, month = 1:6, localeName = enc2utf8("서울"), slow = F, viz = T)
+ data <- molitLand(key = "my_key", year = 2018, month = 1:6,
+                   localeName = enc2utf8("서울"), slow = F, viz = T)
 
 }

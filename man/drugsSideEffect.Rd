@@ -14,8 +14,6 @@ drugsSideEffect function import the side effects of drugs.
 }
 \examples{
  key <- 'your key issued from data.go.kr'
-
- # example.
  data <- drugsSideEffect(key)
 
 }

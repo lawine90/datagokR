@@ -10,11 +10,11 @@ meDust(key, localName = enc2utf8("서울"), condition = "HOUR",
 \arguments{
 \item{key}{character value. API key issued from <www.data.go.kr>. no default.}
 
+\item{localName}{character value. SiDo name in Korean character. Default is set as enc2utf8('서울')}
+
 \item{condition}{character value. Refer details. Default is set as 'HOUR'}
 
 \item{verbose}{logical value. If TRUE, show process bar. Default is set as FALSE.}
-
-\item{localeName}{character value. SiDo name in Korean character. Default is set as enc2utf8('서울')}
 }
 \description{
 meDust function import real-time air polution data like so2, co, o3, no2, pm10, pm25.

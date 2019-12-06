@@ -38,8 +38,8 @@ ASOS is an observation conducted at the same time at all
  Importing data from KMA is very unstable that it is recommended to checking error urls in result.
 }
 \examples{
- # example 1 searching by branchCode.
- data <- kmaASOS(key, branchCode = c(108), fromDate = as.date("2010-01-01"),
-                 toDate = as.date("2010-01-10"), slow = T)
+ key <- 'your key issued from data.kma.go.kr'
+ data <- kmaASOS(key, branchCode = c(108), fromDate = as.Date("2010-01-01"),
+                 toDate = as.Date("2010-01-10"), slow = TRUE)
 
 }

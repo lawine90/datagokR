@@ -28,7 +28,7 @@ hiraCancerAssess <- function(key){
   ii <- 0
   repeat{
     ii <- ii + 1
-    tmp_xml <- tryCatch({httr::GET(url) %>% httr::content(as = "parsed", encoding = 'UTF-8')},
+    tmp_xml <- tryCatch({XML::xmlToList(url)},
                         error = function(e){NULL})
     if(!is.null(tmp_xml) | ii == 15) break
   }
@@ -37,8 +37,11 @@ hiraCancerAssess <- function(key){
   if(is.null(tmp_xml)){
     stop('XML parsing fail.Please try again.')
   }
+  if(!is.null(tmp_xml$cmmMsgHeader)){
+    return(tmp_xml$cmmMsgHeader$returnAuthMsg)
+  }
 
-  location <- tmp_xml$response$body$items$item
+  location <- tmp_xml$body$items
   data <- data.frame(
     type_code = lapply(location, function(x) ifelse(is.null(x$clCd), "NA", x$clCd)) %>% unlist,
     type = lapply(location, function(x) ifelse(is.null(x$clCdNm), "NA", x$clCdNm)) %>% unlist,

@@ -27,13 +27,14 @@
 #'  Importing data from KMA is so unstable that it is recommended to checking error urls in result.
 #'
 #' @examples
-#'  # example 1 searching by localeCode.
-#'  data <- kmaLifeIndex(key, time = seq(0, 21, 3), localeCode = c(4111100000, 4111156600),
-#'                       type = "fp", slow = T)
+#'  # example 1 searching by localeCode
+#'  key <- 'your key issued from data.go.kr'
+#'  data <- kmaLifeIndex(key, localeCode = c(4111100000, 4111156600),
+#'                       type = "fp", slow = TRUE)
 #'
 #'  # example 2 searching by localeName
-#'  data <- kmaLifeIndex(key, time = seq(0, 21, 3),
-#'                       localeName = c(enc2utf8("수원")), type = "possible", slow = T)
+#'  data <- kmaLifeIndex(key, localeName = c(enc2utf8("수원")),
+#'                       type = "possible", slow = TRUE)
 #'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr as.tbl

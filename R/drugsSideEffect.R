@@ -6,8 +6,6 @@
 #'
 #' @examples
 #'  key <- 'your key issued from data.go.kr'
-#'
-#'  # example.
 #'  data <- drugsSideEffect(key)
 #'
 #' @export
@@ -40,8 +38,7 @@ drugsSideEffect <- function(key){
     stop('XML parsing fail.Please try again.')
   }
   if(!is.null(tmp_xml$cmmMsgHeader)){
-    stop(paste(tmp_xml$cmmMsgHeader$returnAuthMsg, ".\nError Code: ",
-               tmp_xml$cmmMsgHeader$returnReasonCode, sep = ""))
+    return(tmp_xml$cmmMsgHeader$returnAuthMsg)
   }
 
   all_data <- data.frame(

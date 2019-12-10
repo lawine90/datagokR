@@ -1,6 +1,8 @@
 #' Ministry of Agriculture Food and Rural Affairs, Livestock's disease information.
 #'
-#' livestockDisease function import data about livestock's disease information. It provide name of disease, location of farm, the number of livestocks which get disease, and so on.
+#' livestockDisease function import data about livestock's disease information.
+#'   It provide name of disease, location of farm, the number of livestocks which get disease, and so on.
+#'   This function need API key issued from 'data.mafra.go.kr', not 'data.go.kr'.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>. no default.
 #' @param fromDate date value. 8-digits date that start of searching period.

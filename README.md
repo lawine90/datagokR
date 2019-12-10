@@ -23,6 +23,7 @@ devtools::install_github('lawine90/datagokR')
   - 식품의약품안전처: [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)
   - 농림축산식품부: [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)
   - 안전행정부: [**농수축산물 가격조사**](https://www.data.go.kr/dataset/15012298/openapi.do)
+  - 안전행정부: [**농협산지공판장 경락가격**](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20160624000000000586&filter_ty=O&getBack=&sort_id=&s_data_nm=&instt_id=&cl_code=&shareYn=)
   - 국회사무처: [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
   - 국회사무처: [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
   - 국회사무처: [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
@@ -522,6 +523,37 @@ devtools::install_github('lawine90/datagokR')
  9 2100    부산     4047203 부전시장          0104    찹쌀    010401  일반계      4000     4000 1KG   1            상(1등급)   
 10 2104    부산     7047203 홈플러스 가야점   0104    찹쌀    010401  일반계      3150     3150 1KG   1            상(1등급)   
 # ... with 89 more rows
+```
+
+
+> **7-2) 안전행정부: [**농협산지공판장 경락가격**](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20160624000000000586&filter_ty=O&getBack=&sort_id=&s_data_nm=&instt_id=&cl_code=&shareYn=)(episJoint)**
+>
+> 안전행정부 농림수산식품교육문화정보원의 데이터로, 농수축산물 경락가격정보를 조회하기 위한 서비스로서 농산물, 축산물, 수산물, 화훼류에 대한 도매시장, 산지공판장, 종합유통센터 별로 농수축산물 경락가격을 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **농림축산식품 공공데이터 포털에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20160624000000000586&filter_ty=O&getBack=&sort_id=&s_data_nm=&instt_id=&cl_code=&shareYn=)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+> - date: (필수, 문자). 데이터를 수집하려는 날짜로, YYYYMMDD 형식으로 입력 ex) '20191203'
+> - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
+
+```
+# example
+> key <- 'your key issued from data.mafra.go.kr'
+> 
+> data <- episJoint(key, '20191207', T)
+  |==============================================================================================| 100%
+> data
+# A tibble: 14,701 x 19
+   date  jmrkName jmrkCode jmrkType orgName orgCode itmName itmCode spcName spcCode grdName grdCode unit  stdd  minPrice avgPrice
+   <chr> <chr>    <chr>    <chr>    <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr> <chr> <chr>    <chr>   
+ 1 2019~ 광주공판장(공~ 8808990~ 산지     전남 진도군~ 539000  보리    0201    기타    020199  특      11      1     "kg ~ 8000     8000    
+ 2 2019~ 광주공판장(공~ 8808990~ 산지     전남 나주시~ 520951  보리    0201    기타    020199  특      11      4     "kg ~ 5000     5000    
+ 3 2019~ 광주공판장(공~ 8808990~ 산지     전남 진도군~ 539000  보리    0201    기타    020199  특      11      4     "kg ~ 6600     6600    
+ 4 2019~ 광주원예농업협~ 8808990~ 산지     전남 나주시~ 520951  보리    0201    기타    020199  특      11      4     "kg ~ 5000     6400    
+ 5 2019~ 인천원예농협(~ 8808990~ 산지     충남 예산군~ 340860  콩      0301    콩(일반)~ 030101  특      11      4     kg 그~ 12000    12000   
+ 6 2019~ 인천원예농협(~ 8808990~ 산지     충남 부여군~ 323871  콩      0301    서리태  030107  특      11      1     kg 상~ 7200     7200    
+ 7 2019~ 인천원예농협(~ 8808990~ 산지     충남 예산군~ 340860  콩      0301    서리태  030107  특      11      1     kg 상~ 7000     7000    
+ 8 2019~ 인천원예농협구~ 8808990~ 산지     충남 당진군~ 343000  콩      0301    서리태  030107  특      11      10    "kg ~ 77000    77000   
+ 9 2019~ 전주원예농협(~ 8808990~ 산지     전북 전주시~ 561302  콩      0301    서리태  030107  특      11      1     "kg ~ 7800     7800    
+10 2019~ 구미농협공판장~ 8808990~ 산지     경북 김천시~ 740890  콩      0301    백태    030118  특      11      1     "kg ~ 5000     5000    
+# ... with 14,691 more rows, and 3 more variables: maxPrice <chr>, vol <chr>, cnt <chr>
 ```
 
 

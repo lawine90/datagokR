@@ -16,7 +16,9 @@ livestockDisease(key, fromDate = NULL, toDate = NULL, verbose = F)
 \item{verbose}{logical value. if TRUE, provide process bar. Default value set as false.}
 }
 \description{
-livestockDisease function import data about livestock's disease information. It provide name of disease, location of farm, the number of livestocks which get disease, and so on.
+livestockDisease function import data about livestock's disease information.
+  It provide name of disease, location of farm, the number of livestocks which get disease, and so on.
+  This function need API key issued from 'data.mafra.go.kr', not 'data.go.kr'.
 }
 \examples{
  key <- 'your key issued from data.go.kr'

@@ -1,6 +1,7 @@
 #' Korea Agency of Education, Promotion and Informaion Service in Food, Agriculture, Forestry and Fisheries. Price of food, agriculture, forestry and fisheries.
 #'
-#' episPrice function import price of food, agriculture, forestry and fisheries..
+#' episPrice function import price of food, agriculture, forestry and fisheries.
+#'   It provide similar data to atPrice function but have different survey source.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>. no default.
 #' @param date character value. date which expressed like YYYYMMDD. no default.
@@ -10,7 +11,6 @@
 #' @details The date arguments should be set as YYYYMMDD type like '20181203'.
 #'   The survey of food, agriculture, forestry and fisheries is not excuted on weekend.
 #'   So if you insert sunday, saturday or holiday date in date argument, there will be no return.
-#'   If it is set 'HOUR', function import near window data.
 #'
 #' @examples
 #'  key <- 'your key issued from data.go.kr'

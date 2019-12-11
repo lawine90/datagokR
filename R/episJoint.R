@@ -8,7 +8,7 @@
 #' @param verbose logical value. If TRUE, show process bar. Default is set as FALSE.
 #'
 #' @details The date arguments should be set as YYYYMMDD type like '20181203'.
-#'   The API key issued from 'data.mafra.go.kr' is needed, not 'data.go.kr'.
+#'   The API key issued from 'data.mafra.go.kr' is needed, not from 'data.go.kr'.
 #'
 #' @examples
 #'  key <- 'your key issued from data.mafra.go.kr'

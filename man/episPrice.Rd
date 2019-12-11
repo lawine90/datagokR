@@ -16,13 +16,13 @@ episPrice(key, date, items, verbose = F)
 \item{verbose}{logical value. If TRUE, show process bar. Default is set as FALSE.}
 }
 \description{
-episPrice function import price of food, agriculture, forestry and fisheries..
+episPrice function import price of food, agriculture, forestry and fisheries.
+  It provide similar data to atPrice function but have different survey source.
 }
 \details{
 The date arguments should be set as YYYYMMDD type like '20181203'.
   The survey of food, agriculture, forestry and fisheries is not excuted on weekend.
   So if you insert sunday, saturday or holiday date in date argument, there will be no return.
-  If it is set 'HOUR', function import near window data.
 }
 \examples{
  key <- 'your key issued from data.go.kr'

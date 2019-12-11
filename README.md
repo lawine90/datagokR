@@ -22,8 +22,9 @@ devtools::install_github('lawine90/datagokR')
   - 식품의약품안전처: [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)
   - 식품의약품안전처: [**의약외품 제품**](https://www.data.go.kr/dataset/15028967/openapi.do)
   - 농림축산식품부: [**가축질병발생정보**](https://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20151204000000000563&service_ty=O)
-  - 안전행정부: [**농수축산물 가격조사**](https://www.data.go.kr/dataset/15012298/openapi.do)
-  - 안전행정부: [**농협산지공판장 경락가격**](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20160624000000000586&filter_ty=O&getBack=&sort_id=&s_data_nm=&instt_id=&cl_code=&shareYn=)
+  - 농림수산식품교육문화정보원: [**농수축산물 가격조사**](https://www.data.go.kr/dataset/15012298/openapi.do)
+  - 농림수산식품교육문화정보원: [**농협산지공판장 경락가격**](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20160624000000000586&filter_ty=O&getBack=&sort_id=&s_data_nm=&instt_id=&cl_code=&shareYn=)
+  - 한국농수산식품유통공사: [**농수축산물 소매가격**](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20141225000000000406&service_ty=O)
   - 국회사무처: [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
   - 국회사무처: [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)
   - 국회사무처: [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
@@ -526,7 +527,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **7-2) 안전행정부: [**농협산지공판장 경락가격**](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20160624000000000586&filter_ty=O&getBack=&sort_id=&s_data_nm=&instt_id=&cl_code=&shareYn=)(episJoint)**
+> **7-2) [**농협산지공판장 경락가격**](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20160624000000000586&filter_ty=O&getBack=&sort_id=&s_data_nm=&instt_id=&cl_code=&shareYn=)(episJoint)**
 >
 > 안전행정부 농림수산식품교육문화정보원의 데이터로, 농수축산물 경락가격정보를 조회하기 위한 서비스로서 농산물, 축산물, 수산물, 화훼류에 대한 도매시장, 산지공판장, 종합유통센터 별로 농수축산물 경락가격을 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **농림축산식품 공공데이터 포털에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20160624000000000586&filter_ty=O&getBack=&sort_id=&s_data_nm=&instt_id=&cl_code=&shareYn=)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -557,7 +558,38 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **8-1) [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+> **8-1) [**농수축산물 소매가격**](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20141225000000000406&service_ty=O)(atPrice)**
+>
+> 한국농수산식품유통공사의 데이터로, 농수축산물 도소매가격을 정보수요자에게 제공하여 시장출하 및 매매에 관한 의사결정, 원활한 수급조절 유도 및 가격안정대책 추진을 위한 기초자료를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **농림축산식품 공공데이터 포털에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.mafra.go.kr/opendata/data/indexOpenDataDetail.do?data_id=20141225000000000406&service_ty=O)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+> - date: (필수, 문자). 데이터를 수집하려는 날짜로, YYYYMMDD 형식으로 입력 ex) '20191203'
+> - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
+
+```
+# example
+> key <- 'your key issued from data.mafra.go.kr'
+> 
+> data <- atPrice(key, date = '20191210')
+  |==============================================================================================| 100%
+> data
+# A tibble: 4,064 x 15
+   date     locName locCode mrkName mrkCode catName  catCode itmName    itmCode spcName       spcCode grdName grdCode unit  price
+   <chr>    <chr>   <chr>   <chr>   <chr>   <chr>    <chr>   <chr>      <chr>   <chr>         <chr>   <chr>   <chr>   <chr> <dbl>
+ 1 20191210 인천    2300    E-유통  0230401 특용작물 300     아몬드     319     수입          00      중품    05      100g   1430
+ 2 20191210 인천    2300    E-유통  0230401 과일류   400     사과       411     후지          05      상품    04      10개  17500
+ 3 20191210 인천    2300    E-유통  0230401 과일류   400     배         412     신고          01      상품    04      10개  29930
+ 4 20191210 인천    2300    E-유통  0230401 과일류   400     배         412     신고          01      중품    05      10개  22450
+ 5 20191210 인천    2300    E-유통  0230401 과일류   400     감귤       415     노지          01      M과     15      10개   2980
+ 6 20191210 인천    2300    E-유통  0230401 과일류   400     단감       416     단감          00      상품    04      10개  11960
+ 7 20191210 인천    2300    E-유통  0230401 과일류   400     바나나     418     수입          02      상품    04      100g    268
+ 8 20191210 인천    2300    E-유통  0230401 과일류   400     참다래     419     그린 뉴질랜드 02      상품    04      10개   6980
+ 9 20191210 인천    2300    E-유통  0230401 과일류   400     파인애플   420     수입          02      중품    05      1개    2980
+10 20191210 인천    2300    E-유통  0230401 채소류   200     방울토마토 422     방울토마토    01      상품    04      1kg    7980
+# ... with 4,054 more rows
+```
+
+
+> **9-1) [**국회의원 정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
 >
 > 국회사무처가 제공하는 간략한 국회의원 정보를 제공합니다. 특정 국회의원의 상세한 정보는 nasCongressman2 함수를 사용하시기 바랍니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -585,7 +617,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **8-2) [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
+> **9-2) [**국회의원 상세정보**](https://www.data.go.kr/dataset/15012647/openapi.do)(nasCongressman1)**
 >
 > 국회사무처가 제공하는 상세한 국회의원 정보를 제공합니다. nasCongressman1 함수로 얻을 수 있는 부서코드(code_dept)와 식별코드(code_numb)가 필요합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15012647/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -604,7 +636,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **8-3) [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPassedBill)**
+> **9-3) [**최근 통과의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPassedBill)**
 >
 > 최근 6개월간 통과된 의안 목록을 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -632,7 +664,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **8-4) [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasBillSearch)**
+> **9-4) [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasBillSearch)**
 >
 > 법률안 발의자의 이름을 조건으로 발의 의안의 목록과 결과를 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -661,7 +693,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **8-5) [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPetitionSearch)**
+> **9-5) [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPetitionSearch)**
 >
 > 소개 의원의 이름을 조건으로 청원 목록과 그 결과를 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -690,7 +722,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **9-1) [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)(hiraCancerAssess)**
+> **10-1) [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)(hiraCancerAssess)**
 >
 > 수술, 질병, 약제사용 등 병원의 의료서비스를 의·약학적 측면과 비용효과적 측면에서 평가한 결과 정보를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3048126/openapi.do)의 참고문서로 확인하시기 바랍니다. 현재는 간암, 위암 수술 사망률에 대한 평가 정보만을 제공하고 있으며 평가 등급은 1(좋음) ~ 5(나쁨), NA는 수술건수가 10건 미만으로 평가대상에서 제외되는 병원입니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
@@ -718,7 +750,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **10-1) [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)(seoulBike)**
+> **11-1) [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)(seoulBike)**
 >
 > 서울특별시 공공자전거 실시간 대여정보로, 대여소별 실시간 자전거 대여가능 건수, 거치율, 대여소 위치정보를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
@@ -746,7 +778,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **10-2) [**서울시 버스정류장별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)(seoulBusCount)**
+> **11-2) [**서울시 버스정류장별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)(seoulBusCount)**
 >
 > 교통카드(선후불교통카드)를 이용한 서울버스 노선별/정류장별 승하차인원을 나타내는 정보로, 일별 버스노선마다 각 정류장에 승/하차한 데이터의 합입니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
@@ -777,7 +809,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **10-3) [**서울시 지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)(seoulTubeCount)**
+> **11-3) [**서울시 지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)(seoulTubeCount)**
 >
 > 교통카드(선후불교통카드 및 1회용 교통카드)를 이용한 지하철호선별 역별(서울교통공사, 한국철도공사, 공항철도, 9호선) 승하차인원을 나타내는 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
@@ -806,7 +838,7 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **10-4) [**서울시 생필품 농수축산물 가격 정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-1170&srvType=S&serviceKind=1)(seoulNecessaries)**
+> **11-4) [**서울시 생필품 농수축산물 가격 정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-1170&srvType=S&serviceKind=1)(seoulNecessaries)**
 >
 > 주 2회(화, 금) 자치구별 전통시장과 대형마트의 농수축산물 16개 품목의 가격을 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키

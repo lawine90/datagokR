@@ -47,29 +47,29 @@ nasCongressman2 <- function(key, code_dept, code_numb){
   }
 
   data <- data.frame(
-    name_kr = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//empNm')),
-    name_en = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//engNm')),
-    name_ch = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//hjNm')),
-    birth = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//bthDate')),
-    hobby = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//hbbyCd')),
-    able = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//examCd')),
+    name_kr = datagokR::find_xml(tmp_xml, '//empNm'),
+    name_en = datagokR::find_xml(tmp_xml, '//engNm'),
+    name_ch = datagokR::find_xml(tmp_xml, '//hjNm'),
+    birth = datagokR::find_xml(tmp_xml, '//bthDate'),
+    hobby = datagokR::find_xml(tmp_xml, '//hbbyCd'),
+    able = datagokR::find_xml(tmp_xml, '//examCd'),
 
-    title = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//memTitle')),
+    title = datagokR::find_xml(tmp_xml, '//memTitle'),
 
-    party = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//polyNm')),
-    csty = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//origNm')),
-    board = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//shrtNm')),
+    party = datagokR::find_xml(tmp_xml, '//polyNm'),
+    csty = datagokR::find_xml(tmp_xml, '//origNm'),
+    board = datagokR::find_xml(tmp_xml, '//shrtNm'),
 
-    elec_numb = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//reeleGbnNm')),
-    elec_vol = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//electionNum')),
+    elec_numb = datagokR::find_xml(tmp_xml, '//reeleGbnNm'),
+    elec_vol = datagokR::find_xml(tmp_xml, '//electionNum'),
 
-    off_tel = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//assemTel')),
-    off_web = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//assemHomep')),
-    off_mail = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//assemEmail')),
+    off_tel = datagokR::find_xml(tmp_xml, '//assemTel'),
+    off_web = datagokR::find_xml(tmp_xml, '//assemHomep'),
+    off_mail = datagokR::find_xml(tmp_xml, '//assemEmail'),
 
-    staf_adv = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//staff')),
-    staf_sec1 = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//secretary2')),
-    staf_sec2 = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//secretary')),
+    staf_adv = datagokR::find_xml(tmp_xml, '//staff'),
+    staf_sec1 = datagokR::find_xml(tmp_xml, '//secretary2'),
+    staf_sec2 = datagokR::find_xml(tmp_xml, '//secretary'),
     stringsAsFactors = F
   )
 

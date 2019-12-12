@@ -85,24 +85,24 @@ atPrice <- function(key, date, verbose = F){
     all_data[[i]] <- data.frame(
       date = date,
 
-      locName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//AREA_NM')),
-      locCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//AREA_CD')),
+      locName = datagokR::find_xml(tmp_xml, '//AREA_NM'),
+      locCode = datagokR::find_xml(tmp_xml, '//AREA_CD'),
 
-      mrkName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//MRKT_NM')),
-      mrkCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//MRKT_CD')),
+      mrkName = datagokR::find_xml(tmp_xml, '//MRKT_NM'),
+      mrkCode = datagokR::find_xml(tmp_xml, '//MRKT_CD'),
 
-      catName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//FRMPRD_CATGORY_NM')),
-      catCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//FRMPRD_CATGORY_CD')),
-      itmName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//PRDLST_NM')),
-      itmCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//PRDLST_CD')),
-      spcName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//SPCIES_NM')),
-      spcCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//SPCIES_CD')),
+      catName = datagokR::find_xml(tmp_xml, '//FRMPRD_CATGORY_NM'),
+      catCode = datagokR::find_xml(tmp_xml, '//FRMPRD_CATGORY_CD'),
+      itmName = datagokR::find_xml(tmp_xml, '//PRDLST_NM'),
+      itmCode = datagokR::find_xml(tmp_xml, '//PRDLST_CD'),
+      spcName = datagokR::find_xml(tmp_xml, '//SPCIES_NM'),
+      spcCode = datagokR::find_xml(tmp_xml, '//SPCIES_CD'),
 
-      grdName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//GRAD_NM')),
-      grdCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//GRAD_CD')),
+      grdName = datagokR::find_xml(tmp_xml, '//GRAD_NM'),
+      grdCode = datagokR::find_xml(tmp_xml, '//GRAD_CD'),
 
-      unit = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//EXAMIN_UNIT')),
-      price = as.numeric(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//AMT'))),
+      unit = datagokR::find_xml(tmp_xml, '//EXAMIN_UNIT'),
+      price = as.numeric(datagokR::find_xml(tmp_xml, '//AMT')),
 
       stringsAsFactors = F
     )

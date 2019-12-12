@@ -65,18 +65,18 @@ livestockDisease <- function(key, fromDate = NULL, toDate = NULL, verbose = F){
     }
 
     all_data[[i]] <- data.frame(
-      occr_no = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//ICTSD_OCCRRNC_NO')),
-      dizz_name = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//LKNTS_NM')),
-      farm_name = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//FARM_NM')),
-      farm_code = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//FARM_LOCPLC_LEGALDONG_CODE')),
-      farm_addr = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//FARM_LOCPLC')),
-      occr_date = as.Date(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//OCCRRNC_DE')), '%Y%m%d'),
-      occr_n = as.numeric(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//OCCRRNC_LVSTCKCNT'))),
-      lvst_code = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//LVSTCKSPC_CODE')),
-      lvst_type = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//LVSTCKSPC_NM')),
-      diag_code = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//DGNSS_ENGN_CODE')),
-      diag_name = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//DGNSS_ENGN_NM')),
-      clos_date = as.Date(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//CESSATION_DE')), '%Y%m%d'),
+      occr_no = datagokR::find_xml(tmp_xml, '//ICTSD_OCCRRNC_NO'),
+      dizz_name = datagokR::find_xml(tmp_xml, '//LKNTS_NM'),
+      farm_name = datagokR::find_xml(tmp_xml, '//FARM_NM'),
+      farm_code = datagokR::find_xml(tmp_xml, '//FARM_LOCPLC_LEGALDONG_CODE'),
+      farm_addr = datagokR::find_xml(tmp_xml, '//FARM_LOCPLC'),
+      occr_date = as.Date(datagokR::find_xml(tmp_xml, '//OCCRRNC_DE'), '%Y%m%d'),
+      occr_n = as.numeric(datagokR::find_xml(tmp_xml, '//OCCRRNC_LVSTCKCNT')),
+      lvst_code = datagokR::find_xml(tmp_xml, '//LVSTCKSPC_CODE'),
+      lvst_type = datagokR::find_xml(tmp_xml, '//LVSTCKSPC_NM'),
+      diag_code = datagokR::find_xml(tmp_xml, '//DGNSS_ENGN_CODE'),
+      diag_name = datagokR::find_xml(tmp_xml, '//DGNSS_ENGN_NM'),
+      clos_date = as.Date(datagokR::find_xml(tmp_xml, '//CESSATION_DE'), '%Y%m%d'),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

@@ -45,17 +45,17 @@ nasBillSearch <- function(key, name = NULL){
   }
 
   data <- data.frame(
-    id = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//billId')),
-    no = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//billNo')),
-    name = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//billName')),
+    id = datagokR::find_xml(tmp_xml, '//billId'),
+    no = datagokR::find_xml(tmp_xml, '//billNo'),
+    name = datagokR::find_xml(tmp_xml, '//billName'),
 
-    proposer = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//proposer')),
-    propose_type = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//coactKind')),
-    propose_date = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//proposeDt')),
+    proposer = datagokR::find_xml(tmp_xml, '//proposer'),
+    propose_type = datagokR::find_xml(tmp_xml, '//coactKind'),
+    propose_date = datagokR::find_xml(tmp_xml, '//proposeDt'),
 
-    vote_date = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//procDt')),
-    vote_result = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//generalResult')),
-    condition = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//procStageCd')),
+    vote_date = datagokR::find_xml(tmp_xml, '//procDt'),
+    vote_result = datagokR::find_xml(tmp_xml, '//generalResult'),
+    condition = datagokR::find_xml(tmp_xml, '//procStageCd'),
     stringsAsFactors = F
   )
 

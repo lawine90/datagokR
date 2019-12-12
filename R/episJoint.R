@@ -81,29 +81,29 @@ episJoint <- function(key, date, verbose = F){
 
     all_data[[i]] <- data.frame(
       date = date,
-      jmrkName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//CPR_NM')),
-      jmrkCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//CPR_CD')),
-      jmrkType = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//CPR_TYPE_NM')),
-      orgName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//SANNM')),
-      orgCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//SANCO')),
+      jmrkName = datagokR::find_xml(tmp_xml, '//CPR_NM'),
+      jmrkCode = datagokR::find_xml(tmp_xml, '//CPR_CD'),
+      jmrkType = datagokR::find_xml(tmp_xml, '//CPR_TYPE_NM'),
+      orgName = datagokR::find_xml(tmp_xml, '//SANNM'),
+      orgCode = datagokR::find_xml(tmp_xml, '//SANCO'),
 
-      itmName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//PRDLST_NM')),
-      itmCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//PRDLST_CD')),
-      spcName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//SPCIES_NM')),
-      spcCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//SPCIES_CD')),
+      itmName = datagokR::find_xml(tmp_xml, '//PRDLST_NM'),
+      itmCode = datagokR::find_xml(tmp_xml, '//PRDLST_CD'),
+      spcName = datagokR::find_xml(tmp_xml, '//SPCIES_NM'),
+      spcCode = datagokR::find_xml(tmp_xml, '//SPCIES_CD'),
 
-      grdName = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//GRAD')),
-      grdCode = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//GRAD_CD')),
+      grdName = datagokR::find_xml(tmp_xml, '//GRAD'),
+      grdCode = datagokR::find_xml(tmp_xml, '//GRAD_CD'),
 
-      unit = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//DELNGBUNDLE_QY')),
-      stdd = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//STNDRD')),
+      unit = datagokR::find_xml(tmp_xml, '//DELNGBUNDLE_QY'),
+      stdd = datagokR::find_xml(tmp_xml, '//STNDRD'),
 
-      minPrice = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//MUMM_AMT')),
-      avgPrice = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//AVRG_AMT')),
-      maxPrice = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//MXMM_AMT')),
+      minPrice = datagokR::find_xml(tmp_xml, '//MUMM_AMT'),
+      avgPrice = datagokR::find_xml(tmp_xml, '//AVRG_AMT'),
+      maxPrice = datagokR::find_xml(tmp_xml, '//MXMM_AMT'),
 
-      vol = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//DELNG_QY')),
-      cnt = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//AUC_CO')),
+      vol = datagokR::find_xml(tmp_xml, '//DELNG_QY'),
+      cnt = datagokR::find_xml(tmp_xml, '//AUC_CO'),
 
       stringsAsFactors = F
     )

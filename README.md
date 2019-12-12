@@ -5,7 +5,7 @@ datagokR
 
 # 1. 패키지 설치 방법
 ```
-devtools::install_github('lawine90/datagokR')
+> devtools::install_github('lawine90/datagokR')
 ```
 
 
@@ -693,7 +693,36 @@ devtools::install_github('lawine90/datagokR')
 ```
 
 
-> **9-5) [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPetitionSearch)**
+> **9-5) [**의안 국회의원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasBillProposer)**
+>
+> 법률안의 고유 id를 조건으로 의안을 제안한 국회의원의 목록을 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+> - id: (필수, 문자). 의안의 고유 id. nasBillSearch 함수에서 의안의 id을 확인 후 사용
+
+
+```
+# example
+> key <- 'your key'
+> data <- nasBillProposer(key, id = 'PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3')
+> data
+# A tibble: 30 x 6
+   id                                 type1 type2              conType name   party       
+   <chr>                              <chr> <chr>              <chr>   <chr>  <chr>       
+ 1 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 의안  접수정보목록       발의자  박홍근 더불어민주당
+ 2 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 청원  접수정보목록       발의자  박홍근 더불어민주당
+ 3 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 의안  본회의 수정안 목록 발의자  박홍근 더불어민주당
+ 4 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 의안  접수정보목록       발의자  서영교 더불어민주당
+ 5 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 의안  본회의 수정안 목록 발의자  서영교 더불어민주당
+ 6 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 청원  접수정보목록       발의자  서영교 더불어민주당
+ 7 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 의안  본회의 수정안 목록 발의자  유인태 더불어민주당
+ 8 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 의안  접수정보목록       발의자  유인태 더불어민주당
+ 9 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 청원  접수정보목록       발의자  유인태 더불어민주당
+10 PRC_L1E6Z0K1F2V8U1N7M3V5N1Y6V6G5U3 의안  본회의 수정안 목록 발의자  이원욱 더불어민주당
+# ... with 20 more rows
+```
+
+
+> **9-6) [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)(nasPetitionSearch)**
 >
 > 소개 의원의 이름을 조건으로 청원 목록과 그 결과를 조회하는 기능을 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3037286/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키

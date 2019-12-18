@@ -4,11 +4,9 @@
 #' @param tag tag which you want to find.
 #'
 find_xml <- function(xml, tag){
-  return(
-    ifelse(
-      length(xml2::xml_text(xml2::xml_find_all(xml, tag))) != 0,
-      xml2::xml_text(xml2::xml_find_all(xml, tag)),
-      NA
-    )
-  )
+  if(length(xml2::xml_text(xml2::xml_find_all(xml, tag))) != 0){
+    return(xml2::xml_text(xml2::xml_find_all(xml, tag)))
+  }else{
+    return(NA)
+  }
 }

@@ -31,6 +31,9 @@ datagokR
   - 국회사무처: [**발의자별 의안 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
   - 국회사무처: [**청원 목록**](https://www.data.go.kr/dataset/3037286/openapi.do)
   - 건강보험심사평가원: [**병원평가**](https://www.data.go.kr/dataset/3048126/openapi.do)
+  - 국민연금공단: [**사업장 조회**](https://www.data.go.kr/dataset/3046071/openapi.do)
+  - 국민연금공단: [**사업장 상세**](https://www.data.go.kr/dataset/3046071/openapi.do)
+  - 국민연금공단: [**기간별 취업/퇴직자 조회**](https://www.data.go.kr/dataset/3046071/openapi.do)
   - 서울시열린데이터광장: [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)
   - 서울시열린데이터광장: [**버스정류장별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)
   - 서울시열린데이터광장: [**지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)
@@ -779,7 +782,79 @@ datagokR
 ```
 
 
-> **11-1) [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)(seoulBike)**
+> **11-1) [**사업장 조회**](https://www.data.go.kr/dataset/3046071/openapi.do)**
+>
+> 국민연금에 가입한 사업장에 대한 간략한 정보를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3046071/openapi.do)의 참고문서로 확인하시기 바랍니다. 사업자 등록번호의 일부(사업자 등록번호 앞 6자리)를 이용하여 회사를 검색하기 때문에 정확한 사업자는 함수 실행 후 사업자명(name)에서 다시 필터링 하시기 바랍니다. 해당 데이터는 국민연금공단에서 매달 15일 업데이트 합니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+> - regist_numb: (필수, 문자). 검색하려는 사업자의 사업자등록번호 앞 6자리
+> - vebose: (옵션, T/F) 다운로드 진행상황의 콘솔 출력여부. 기본값은 False
+
+
+```
+# example
+> key <- 'your key'
+> data <- npsCorp(key, regist_numb = '208812')
+> 
+> data
+# A tibble: 1,900 x 10
+   upDate registNumb id     name             join  type  addr                             addrCode1 addrCode2 addrCode3
+   <chr>  <chr>      <chr>  <chr>            <chr> <chr> <chr>                            <chr>     <chr>     <chr>    
+ 1 201906 208812**** 174464 서울다비산업(주) 등록  법인  서울특별시 중구 난계로           11        140       165      
+ 2 201906 208812**** 174473 정우씨엘에스(주) 등록  법인  경기도 의정부시 오목로225번길    41        150       106      
+ 3 201906 208812**** 174478 한독콘트롤즈(주) 등록  법인  서울특별시 구로구 구로중앙로     11        530       102      
+ 4 201906 208812**** 174480 효다섬유(주)     등록  법인  서울특별시 종로구 종로           11        110       164      
+ 5 201906 208812**** 174489 진화섬유(주)     등록  법인  서울특별시 종로구 율곡로14길     11        110       166      
+ 6 201906 208812**** 174492 (주)아람플러스   등록  법인  서울특별시 종로구 종로56길       11        110       175      
+ 7 201906 208812**** 174496 태두합성(주)     등록  법인  서울특별시 성동구 성수이로       11        200       115      
+ 8 201906 208812**** 174504 강성전기(주)     등록  법인  서울특별시 중구 청계천로         11        140       152      
+ 9 201906 208812**** 174512 주식회사비원섬유 등록  법인  서울특별시 동대문구 왕산로19가길 11        230       102      
+10 201906 208812**** 174514 주식회사더블유투 등록  법인  울산광역시 남구 삼산로383번길    31        140       106      
+# ... with 1,890 more rows
+```
+
+
+> **11-2) [**사업장 상세**](https://www.data.go.kr/dataset/3046071/openapi.do)**
+>
+> 국민연금에 가입한 사업장에 대한 상세한 정보를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3046071/openapi.do)의 참고문서로 확인하시기 바랍니다. npsCorp 함수 실행 결과에 포함되어 있는 'id'를 사용합니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+> - id: (필수, 문자). 사업자의 고유 id. npsCorp 함수 실행 결과에 포함된 id column의 값.
+
+
+```
+# example
+> key <- 'your key'
+> data <- npsPension(key, id = '174489')
+> 
+> data
+# A tibble: 1 x 14
+  registNumb name     wrkCode wrkName      join  inDate outDate type  member amnt  addr          addrCode1 addrCode2 addrCode3
+  <chr>      <chr>    <chr>   <chr>        <chr> <chr>  <chr>   <chr> <chr>  <chr> <chr>         <chr>     <chr>     <chr>    
+1 208812**** 진화섬유(주)~ 171109  화학섬유직물 직조업~ 등록  20041~ 000101~ 법인  3      7025~ 서울특별시 종로구 율곡~ 11        110       166   
+```
+
+
+> **11-3) [**기간별 취업/퇴직자 조회**](https://www.data.go.kr/dataset/3046071/openapi.do)**
+>
+> 국민연금에 가입한 사업장의 월별 국민연금 가입자, 탈퇴자 수를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/3046071/openapi.do)의 참고문서로 확인하시기 바랍니다. npsCorp 함수 실행 결과에 포함되어 있는 'id'를 사용합니다. 또한 같은 사업장이라 할지라도 국민연금공단에서 조사한 달(npsCorp 함수 실행 결과에 포함되어 있는 'upDate')에 다라 'id'가 다르기 때문에 정확한 가입자/탈퇴자 수의 확인을 위해선 npsCorp 함수의 upDate와 id column을 매칭하여 입력하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 공공데이터 포털에서 발급받은 API 키
+> - id: (필수, 문자). 사업자의 고유 id. npsCorp 함수 실행 결과에 포함된 id column의 값.
+> - month: (필수, 문자). 가입자/탈퇴자 수를 확인하려는 달. npsCorp 함수 실행 결과에 포함된 upDate column의 값.
+
+
+```
+# example
+> key <- 'your key'
+> data <- npsPensionInOut(key, id = '674474', month = '201905')
+> 
+> data
+# A tibble: 1 x 3
+  month  memberIn memberOut
+  <chr>     <dbl>     <dbl>
+1 201905       13         7
+```
+
+
+> **12-1) [**공공자전거 실시간 대여정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)(seoulBike)**
 >
 > 서울특별시 공공자전거 실시간 대여정보로, 대여소별 실시간 자전거 대여가능 건수, 거치율, 대여소 위치정보를 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-15493&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
@@ -807,7 +882,7 @@ datagokR
 ```
 
 
-> **11-2) [**서울시 버스정류장별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)(seoulBusCount)**
+> **12-2) [**서울시 버스정류장별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)(seoulBusCount)**
 >
 > 교통카드(선후불교통카드)를 이용한 서울버스 노선별/정류장별 승하차인원을 나타내는 정보로, 일별 버스노선마다 각 정류장에 승/하차한 데이터의 합입니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12912&srvType=S&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
@@ -838,7 +913,7 @@ datagokR
 ```
 
 
-> **11-3) [**서울시 지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)(seoulTubeCount)**
+> **12-3) [**서울시 지하철호선별 역별 승하차 인원**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)(seoulTubeCount)**
 >
 > 교통카드(선후불교통카드 및 1회용 교통카드)를 이용한 지하철호선별 역별(서울교통공사, 한국철도공사, 공항철도, 9호선) 승하차인원을 나타내는 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키
@@ -867,7 +942,7 @@ datagokR
 ```
 
 
-> **11-4) [**서울시 생필품 농수축산물 가격 정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-1170&srvType=S&serviceKind=1)(seoulNecessaries)**
+> **12-4) [**서울시 생필품 농수축산물 가격 정보**](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-1170&srvType=S&serviceKind=1)(seoulNecessaries)**
 >
 > 주 2회(화, 금) 자치구별 전통시장과 대형마트의 농수축산물 16개 품목의 가격을 제공합니다. 공공데이터 포털에서 발급받은 API키가 아닌, **서울열린데이터광장에서 발급받은 별도의 API키가 필요**합니다. 자세한 사항은 [링크](http://data.seoul.go.kr/dataList/datasetView.do?infId=OA-12914&srvType=A&serviceKind=1)를 확인하시기 바랍니다. 함수 실행 결과는 R의 data.frame 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 서울열린데이터광장에서 발급받은 API 키

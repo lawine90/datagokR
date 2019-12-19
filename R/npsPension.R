@@ -52,13 +52,5 @@ npsPension <- function(key = NULL, id = NULL){
 
     stringsAsFactors = F
   )
-
-  for(col in colnames(data)){
-    if(class(data[[col]]) == 'character'){
-      Encoding(data[[col]]) <- 'UTF-8'
-      data[[col]][data[[col]] == ''] <- NA
-    }
-  }
-
   return(dplyr::as.tbl(data))
 }

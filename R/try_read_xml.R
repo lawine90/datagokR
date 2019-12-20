@@ -12,5 +12,5 @@ try_read_xml <- function(url, times = 5){
       error = function(e){e}
     )
     if(!any(class(xml) == 'error') | ii == times) break
-  }; return(xml)
+  }; closeAllConnections(); gc(); return(xml)
 }

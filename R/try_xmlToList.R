@@ -8,7 +8,7 @@ try_xmlToList <- function(url, times = 5){
   repeat{
     ii <- ii + 1
     xml <- tryCatch(
-      {XML::xmlToList(url, encoding = 'UTF-8')},
+      {XML::xmlToList(url)},
       error = function(e){e}
     )
     if(!any(class(xml) == 'error') | ii == times) break

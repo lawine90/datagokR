@@ -48,35 +48,31 @@ episPrice <- function(key, date, items, verbose = F){
   ### 3. urls's xml parsing.
   all_data <- list()
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({XML::xmlToList(urls[i])}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
+    tmp_xml <- datagokR:::try_read_xml(urls[i])
+    total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCount'))
 
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
-    }
-    if(!is.null(tmp_xml$cmmMsgHeader)){
-      return(tmp_xml$cmmMsgHeader$returnAuthMsg)
+    if(is.na(total)){
+      warning(datagokR:::find_xml(tmp_xml, '//returnAuthMsg'))
+    }else if(total == 0){
+      next()
     }
 
     all_data[[i]] <- data.frame(
-      locCode = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"areaCode"), '', x$"areaCode")) ),
-      locName = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"areaNm"), '', x$"areaNm")) ),
-      mrkCode = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"stdMrktCode"), '', x$"stdMrktCode")) ),
-      mrkName = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"stdMrktNm"), '', x$"stdMrktNm")) ),
-      itmCode = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"stdPrdlstCode"), '', x$"stdPrdlstCode")) ),
-      itmName = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"stdPrdlstNm"), '', x$"stdPrdlstNm")) ),
-      spcCode = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"stdSpciesCode"), '', x$"stdSpciesCode")) ),
-      spcName = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"stdSpciesNm"), '', x$"stdSpciesNm")) ),
-      yesPrice = as.integer( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"bfrtPric"), '', x$"bfrtPric")) ),
-      todPrice = as.integer( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"todayPric"), '', x$"todayPric")) ),
-      unit = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"examinUnitNm"), '', x$"examinUnitNm")) ),
+      locCode = datagokR:::find_xml(tmp_xml, '//areaCode'),
+      locName = datagokR:::find_xml(tmp_xml, "//areaNm"),
+      mrkCode = datagokR:::find_xml(tmp_xml, "//stdMrktCode"),
+      mrkName = datagokR:::find_xml(tmp_xml, "//stdMrktNm"),
+      itmCode = datagokR:::find_xml(tmp_xml, "//stdPrdlstCode"),
+      itmName = datagokR:::find_xml(tmp_xml, "//stdPrdlstNm"),
+      spcCode = datagokR:::find_xml(tmp_xml, "//stdSpciesCode"),
+      spcName = datagokR:::find_xml(tmp_xml, "//stdSpciesNm"),
 
-      exmGradeCode = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"examinGradCode"), '', x$"examinGradCode")) ),
-      exmGradeName = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"examinGradNm"), '', x$"examinGradNm")) ),
+      yesPrice = as.integer(datagokR:::find_xml(tmp_xml, "//bfrtPric")),
+      todPrice = as.integer(datagokR:::find_xml(tmp_xml, "//todayPric")),
+      unit = datagokR:::find_xml(tmp_xml, "//examinUnitNm"),
+
+      exmGradeCode = datagokR:::find_xml(tmp_xml, "//examinGradCode"),
+      exmGradeName = datagokR:::find_xml(tmp_xml, "//examinGradNm"),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

@@ -25,34 +25,28 @@ hiraCancerAssess <- function(key){
 
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({XML::xmlToList(url)},
-                        error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
+  tmp_xml <- datagokR:::try_xmlToList(url)
+  total <- as.numeric(tmp_xml$body$totalCount)
 
-  # if access fail, stop it.
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
-  }
   if(!is.null(tmp_xml$cmmMsgHeader)){
-    return(tmp_xml$cmmMsgHeader$returnAuthMsg)
+    warning(tmp_xml$cmmMsgHeader$returnAuthMsg, '\nThe function return NULL')
+    return(NULL)
+  }else if(total == 0){
+    print('There is no data. Please check regist_numb')
+    return(NULL)
   }
 
-  location <- tmp_xml$body$items
   data <- data.frame(
-    type_code = lapply(location, function(x) ifelse(is.null(x$clCd), "NA", x$clCd)) %>% unlist,
-    type = lapply(location, function(x) ifelse(is.null(x$clCdNm), "NA", x$clCdNm)) %>% unlist,
-    name = lapply(location, function(x) ifelse(is.null(x$yadmNm), "NA", x$yadmNm)) %>% unlist,
+    type_code = datagokR:::find_xmlList(tmp_xml$body$items, 'clCd'),
+    type = datagokR:::find_xmlList(tmp_xml$body$items, 'clCdNm'),
+    name = datagokR:::find_xmlList(tmp_xml$body$items, 'yadmNm'),
 
-    addr_code = lapply(location, function(x) ifelse(is.null(x$sgguCd), "NA", x$sgguCd)) %>% unlist,
-    addr_name1 = lapply(location, function(x) ifelse(is.null(x$sidoCdNm), "NA", x$sidoCdNm)) %>% unlist,
-    addr_name2 = lapply(location, function(x) ifelse(is.null(x$sgguCdNm), "NA", x$sgguCdNm)) %>% unlist,
+    addr_code = datagokR:::find_xmlList(tmp_xml$body$items, 'sgguCd'),
+    addr_name1 = datagokR:::find_xmlList(tmp_xml$body$items, 'sidoCdNm'),
+    addr_name2 = datagokR:::find_xmlList(tmp_xml$body$items, 'sgguCdNm'),
 
-    liver = lapply(location, function(x) ifelse(is.null(x$asmGrd1), NA, x$asmGrd1)) %>% unlist,
-    gastric = lapply(location, function(x) ifelse(is.null(x$asmGrd2), NA, x$asmGrd2)) %>% unlist,
+    liver = datagokR:::find_xmlList(tmp_xml$body$items, 'asmGrd1', 'num'),
+    gastric = datagokR:::find_xmlList(tmp_xml$body$items, 'asmGrd2', 'num'),
     stringsAsFactors = F
   )
 

@@ -7,7 +7,7 @@
 livestockDisease(key, fromDate = NULL, toDate = NULL, verbose = F)
 }
 \arguments{
-\item{key}{character value. API key issued from <www.data.go.kr>. no default.}
+\item{key}{character value. API key issued from <data.mafra.go.kr>. no default.}
 
 \item{fromDate}{date value. 8-digits date that start of searching period.}
 

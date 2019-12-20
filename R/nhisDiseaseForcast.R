@@ -88,42 +88,23 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
   meta <- data.frame(url = urls, count = "", message = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
     dplyr::as.tbl()
 
+  if(length(urls) == 1){verbose <- FALSE}
   if(verbose == T){pb <- utils::txtProgressBar(min = 1, length(urls), style = 3)}
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
     # parsing xml codes with repeat and trycatch.
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp.xml <- tryCatch(
-        {
-          XML::xmlToList(urls[[i]])
-        }, error = function(e){
-          NULL
-        }
-      )
+    tmp_xml <- datagokR:::try_xmlToList(urls[i])
 
-      if(slow){
-        Sys.sleep(stats::runif(1, 0, 2.5))
-      }
-      if(!is.null(tmp.xml) | ii == 15) break
-    }
-
-    # if tmp.xml is error, go next.
-    if(is.null(tmp.xml)) {
+    # if tmp_xml is error, go next.
+    if(!is.null(tmp_xml$cmmMsgHeader$returnAuthMsg)){
       meta[i,]$count <- "error"
-      meta[i,]$message <- "xml_null"
-      next
+      meta[i,]$message <- tmp_xml$cmmMsgHeader$returnAuthMsg
+      next()
     }
 
     # meta-data.
-    meta[i,]$count <- ifelse(is.null(tmp.xml$body$totalCount)|
-                               is.na(tmp.xml$body$totalCount),
-                             "error", tmp.xml$body$totalCount)
-    meta[i,]$message <- ifelse(is.null(tmp.xml$header$resultMsg)|
-                                 is.na(tmp.xml$header$resultMsg),
-                               "error", tmp.xml$header$resultMsg)
+    meta[i,]$count <- tmp_xml$body$totalCount
 
     if(slow){
       Sys.sleep(stats::runif(1, 0, 1.5))
@@ -134,29 +115,26 @@ nhisDiseaseForcast <- function(key, localeCode = NULL, localeName = NULL, type, 
       if(verbose == T){setTxtProgressBar(pb, value = i)}
       next
     }else{
-      location <- tmp.xml$body$items
+      location <- tmp_xml$body$items
 
       all.data[[i]] <- data.frame(
-        diss = unlist( lapply(location, function(x) ifelse(is.null(x$"dissCd"), NA, x$"dissCd")) ),
-        date = unlist( lapply(location, function(x) ifelse(is.null(x$"dt"), NA, x$"dt")) ),
-        locale = unlist( lapply(location, function(x) ifelse(is.null(x$"lowrnkZnCd"), NA, x$"lowrnkZnCd")) ),
-        cnt = unlist( lapply(location, function(x) ifelse(is.null(x$"cnt"), NA, x$"cnt")) ),
-        risk = unlist( lapply(location, function(x) ifelse(is.null(x$"risk"), NA, x$"risk")) ),
+        diss = datagokR:::find_xmlList(tmp_xml$body$items, 'dissCd'),
+        date = datagokR:::find_xmlList(tmp_xml$body$items, 'dt'),
+        locale = datagokR:::find_xmlList(tmp_xml$body$items, 'lowrnkZnCd'),
+        cnt = datagokR:::find_xmlList(tmp_xml$body$items, 'cnt', 'num'),
+        risk = datagokR:::find_xmlList(tmp_xml$body$items, 'risk', 'num'),
         stringsAsFactors = F
       ) %>% dplyr::as.tbl()
 
       recomand[[i]] <- data.frame(
-        diss = unlist( lapply(location, function(x) ifelse(is.null(x$"dissCd"), NA, x$"dissCd")) ),
-        risk = unlist( lapply(location, function(x) ifelse(is.null(x$"risk"), NA, x$"risk")) ),
-        rcmd = unlist( lapply(location, function(x) ifelse(is.null(x$"dissRiskXpln"), NA, x$"dissRiskXpln")) ),
+        diss = datagokR:::find_xmlList(tmp_xml$body$items, 'dissCd'),
+        risk = datagokR:::find_xmlList(tmp_xml$body$items, 'risk'),
+        rcmd = datagokR:::find_xmlList(tmp_xml$body$items, 'dissRiskXpln'),
         stringsAsFactors = F
       ) %>% dplyr::as.tbl()
-
-      recomand[[i]] <- recomand[[i]][!duplicated(recomand[[i]]),]
     } # if statement regarding to count.
     if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
   } # end of loop i.
-
 
   ### 4. merge data by index type.
   data <- dplyr::bind_rows(all.data)

@@ -33,26 +33,22 @@ nasBillProposer <- function(key, id = NULL, verbose = FALSE){
   # parsing xml codes with repeat and trycatch.
   all_data <- list()
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({xml2::read_xml(urls[i], encoding = 'UTF-8')}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
+    tmp_xml <- datagokR:::try_read_xml(urls[i])
 
     # if access fail, stop it.
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
+    if(is.na(datagokR:::find_xml(tmp_xml, '//resultCode'))){
+      warning(datagokR:::find_xml(tmp_xml, '//returnAuthMsg'))
+      next()
     }
 
     all_data[[i]] <- data.frame(
       id = id[i],
-      type1 = datagokR::find_xml(tmp_xml, '//gbn1'),
-      type2 = datagokR::find_xml(tmp_xml, '//gbn2'),
+      type1 = datagokR:::find_xml(tmp_xml, '//gbn1'),
+      type2 = datagokR:::find_xml(tmp_xml, '//gbn2'),
 
-      conType = datagokR::find_xml(tmp_xml, '//gbnCd'),
-      name = datagokR::find_xml(tmp_xml, '//memName'),
-      party = datagokR::find_xml(tmp_xml, '//polyNm'),
+      conType = datagokR:::find_xml(tmp_xml, '//gbnCd'),
+      name = datagokR:::find_xml(tmp_xml, '//memName'),
+      party = datagokR:::find_xml(tmp_xml, '//polyNm'),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

@@ -4,7 +4,7 @@
 #'   It provide name of disease, location of farm, the number of livestocks which get disease, and so on.
 #'   This function need API key issued from 'data.mafra.go.kr', not 'data.go.kr'.
 #'
-#' @param key character value. API key issued from <www.data.go.kr>. no default.
+#' @param key character value. API key issued from <data.mafra.go.kr>. no default.
 #' @param fromDate date value. 8-digits date that start of searching period.
 #' @param toDate date value. 8-digits date that end of searching period.
 #' @param verbose logical value. if TRUE, provide process bar. Default value set as false.
@@ -32,51 +32,41 @@ livestockDisease <- function(key, fromDate = NULL, toDate = NULL, verbose = F){
   # 1st, (url + key)
   # 2nd, (url + key) + fromDate, toDate
   base <- sprintf('http://211.237.50.150:7080/openapi/%s/xml/Grid_20151204000000000316_1/1/200', key)
-
-  period <- gsub('-', '', seq.Date(fromDate, toDate, by = 'day'))
-  urls <- paste(base, sprintf('OCCRRNC_DE=%s', period), sep = '?')
+  urls <- paste(base, sprintf('OCCRRNC_DE=%s', gsub('-', '', seq.Date(fromDate, toDate, by = 'day'))), sep = '?')
 
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
+  if(length(urls) == 1){verbose <- FALSE}
   if(verbose == T){pb <- txtProgressBar(min = 1, length(urls), style = 3)}
 
   all_data <- list()
   for(i in 1:length(urls)){
     # try access to url.
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({xml2::read_xml(urls[i], encoding = 'UTF-8')}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
+    tmp_xml <- datagokR:::try_read_xml(urls[i])
+    total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCnt'))
 
     # if access fail, stop it.
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
-    }else{
-      count <- xml2::xml_text(xml2::xml_find_all(tmp_xml, '//totalCnt'))
-      count <- as.numeric(count)
-    }
-
-    # if total count is zero, skip
-    if(count == 0){
+    if(is.na(total)){
+      warning(datagokR:::find_xml(tmp_xml, '//message'))
+      next()
+    }else if(total == 0){
       if(verbose == T){setTxtProgressBar(pb, value = i)}
-      next
+      print('There is no data.'); next()
     }
 
     all_data[[i]] <- data.frame(
-      occr_no = datagokR::find_xml(tmp_xml, '//ICTSD_OCCRRNC_NO'),
-      dizz_name = datagokR::find_xml(tmp_xml, '//LKNTS_NM'),
-      farm_name = datagokR::find_xml(tmp_xml, '//FARM_NM'),
-      farm_code = datagokR::find_xml(tmp_xml, '//FARM_LOCPLC_LEGALDONG_CODE'),
-      farm_addr = datagokR::find_xml(tmp_xml, '//FARM_LOCPLC'),
-      occr_date = as.Date(datagokR::find_xml(tmp_xml, '//OCCRRNC_DE'), '%Y%m%d'),
-      occr_n = as.numeric(datagokR::find_xml(tmp_xml, '//OCCRRNC_LVSTCKCNT')),
-      lvst_code = datagokR::find_xml(tmp_xml, '//LVSTCKSPC_CODE'),
-      lvst_type = datagokR::find_xml(tmp_xml, '//LVSTCKSPC_NM'),
-      diag_code = datagokR::find_xml(tmp_xml, '//DGNSS_ENGN_CODE'),
-      diag_name = datagokR::find_xml(tmp_xml, '//DGNSS_ENGN_NM'),
-      clos_date = as.Date(datagokR::find_xml(tmp_xml, '//CESSATION_DE'), '%Y%m%d'),
+      occr_no = datagokR:::find_xml(tmp_xml, '//ICTSD_OCCRRNC_NO'),
+      dizz_name = datagokR:::find_xml(tmp_xml, '//LKNTS_NM'),
+      farm_name = datagokR:::find_xml(tmp_xml, '//FARM_NM'),
+      farm_code = datagokR:::find_xml(tmp_xml, '//FARM_LOCPLC_LEGALDONG_CODE'),
+      farm_addr = datagokR:::find_xml(tmp_xml, '//FARM_LOCPLC'),
+      occr_date = as.Date(datagokR:::find_xml(tmp_xml, '//OCCRRNC_DE'), '%Y%m%d'),
+      occr_n = as.numeric(datagokR:::find_xml(tmp_xml, '//OCCRRNC_LVSTCKCNT')),
+      lvst_code = datagokR:::find_xml(tmp_xml, '//LVSTCKSPC_CODE'),
+      lvst_type = datagokR:::find_xml(tmp_xml, '//LVSTCKSPC_NM'),
+      diag_code = datagokR:::find_xml(tmp_xml, '//DGNSS_ENGN_CODE'),
+      diag_name = datagokR:::find_xml(tmp_xml, '//DGNSS_ENGN_NM'),
+      clos_date = as.Date(datagokR:::find_xml(tmp_xml, '//CESSATION_DE'), '%Y%m%d'),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

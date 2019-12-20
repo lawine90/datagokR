@@ -3,7 +3,7 @@
 #' episJoint function import food, agriculture, forestry and fisheries price in joint market.
 #'   This function need API key issued from 'data.mafra.go.kr', not 'data.go.kr'.
 #'
-#' @param key character value. API key issued from <www.data.go.kr>. no default.
+#' @param key character value. API key issued from <data.mafra.go.kr>. no default.
 #' @param date character value. date which expressed like YYYYMMDD. no default.
 #' @param verbose logical value. If TRUE, show process bar. Default is set as FALSE.
 #'
@@ -34,18 +34,15 @@ episJoint <- function(key, date, verbose = F){
   url <- sprintf('http://211.237.50.150:7080/openapi/%s/xml/%s/1/1?AUCNG_DE=%s',
                   key, 'Grid_20160624000000000349_1', date)
 
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({XML::xmlToList(url)}, error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
+  tmp_xml <- datagokR:::try_read_xml(url)
+  total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCnt'))
 
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
-  }
-  if(!is.null(tmp_xml)){
-    total <- as.numeric(tmp_xml$totalCnt)
+  if(is.na(total)){
+    warning(datagokR:::find_xml(tmp_xml, '//message'), '\nThe function return NULL')
+    return(NULL)
+  }else if(total == 0){
+    print('There is no data. Please check regist_numb')
+    return(NULL)
   }
 
   if(total == 0){
@@ -65,45 +62,38 @@ episJoint <- function(key, date, verbose = F){
   ### 3. urls's xml parsing.
   all_data <- list()
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({xml2::read_xml(urls[i], encoding = 'UTF-8')}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
+    tmp_xml <- datagokR:::try_read_xml(urls[i])
 
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
-    }
-    if(!is.null(tmp_xml$cmmMsgHeader)){
-      return(tmp_xml$cmmMsgHeader$returnAuthMsg)
+    if(is.na(as.numeric(datagokR:::find_xml(tmp_xml, '//totalCnt')))){
+      warning(datagokR:::find_xml(tmp_xml, '//message'))
+      next()
     }
 
     all_data[[i]] <- data.frame(
       date = date,
-      jmrkName = datagokR::find_xml(tmp_xml, '//CPR_NM'),
-      jmrkCode = datagokR::find_xml(tmp_xml, '//CPR_CD'),
-      jmrkType = datagokR::find_xml(tmp_xml, '//CPR_TYPE_NM'),
-      orgName = datagokR::find_xml(tmp_xml, '//SANNM'),
-      orgCode = datagokR::find_xml(tmp_xml, '//SANCO'),
+      jmrkName = datagokR:::find_xml(tmp_xml, '//CPR_NM'),
+      jmrkCode = datagokR:::find_xml(tmp_xml, '//CPR_CD'),
+      jmrkType = datagokR:::find_xml(tmp_xml, '//CPR_TYPE_NM'),
+      orgName = datagokR:::find_xml(tmp_xml, '//SANNM'),
+      orgCode = datagokR:::find_xml(tmp_xml, '//SANCO'),
 
-      itmName = datagokR::find_xml(tmp_xml, '//PRDLST_NM'),
-      itmCode = datagokR::find_xml(tmp_xml, '//PRDLST_CD'),
-      spcName = datagokR::find_xml(tmp_xml, '//SPCIES_NM'),
-      spcCode = datagokR::find_xml(tmp_xml, '//SPCIES_CD'),
+      itmName = datagokR:::find_xml(tmp_xml, '//PRDLST_NM'),
+      itmCode = datagokR:::find_xml(tmp_xml, '//PRDLST_CD'),
+      spcName = datagokR:::find_xml(tmp_xml, '//SPCIES_NM'),
+      spcCode = datagokR:::find_xml(tmp_xml, '//SPCIES_CD'),
 
-      grdName = datagokR::find_xml(tmp_xml, '//GRAD'),
-      grdCode = datagokR::find_xml(tmp_xml, '//GRAD_CD'),
+      grdName = datagokR:::find_xml(tmp_xml, '//GRAD'),
+      grdCode = datagokR:::find_xml(tmp_xml, '//GRAD_CD'),
 
-      unit = datagokR::find_xml(tmp_xml, '//DELNGBUNDLE_QY'),
-      stdd = datagokR::find_xml(tmp_xml, '//STNDRD'),
+      unit = datagokR:::find_xml(tmp_xml, '//DELNGBUNDLE_QY'),
+      stdd = datagokR:::find_xml(tmp_xml, '//STNDRD'),
 
-      minPrice = datagokR::find_xml(tmp_xml, '//MUMM_AMT'),
-      avgPrice = datagokR::find_xml(tmp_xml, '//AVRG_AMT'),
-      maxPrice = datagokR::find_xml(tmp_xml, '//MXMM_AMT'),
+      minPrice = datagokR:::find_xml(tmp_xml, '//MUMM_AMT'),
+      avgPrice = datagokR:::find_xml(tmp_xml, '//AVRG_AMT'),
+      maxPrice = datagokR:::find_xml(tmp_xml, '//MXMM_AMT'),
 
-      vol = datagokR::find_xml(tmp_xml, '//DELNG_QY'),
-      cnt = datagokR::find_xml(tmp_xml, '//AUC_CO'),
+      vol = datagokR:::find_xml(tmp_xml, '//DELNG_QY'),
+      cnt = datagokR:::find_xml(tmp_xml, '//AUC_CO'),
 
       stringsAsFactors = F
     )

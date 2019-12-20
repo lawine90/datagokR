@@ -34,42 +34,38 @@ nasCongressman2 <- function(key, code_dept, code_numb){
 
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({xml2::read_xml(url, encoding = 'UTF-8')}, error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
+  tmp_xml <- datagokR:::try_read_xml(url)
+  msg <- datagokR:::find_xml(tmp_xml, '//returnAuthMsg')
 
-  # if access fail, stop it.
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
+  if(!is.na(msg)){
+    warning(msg, '\nThe function return NULL')
+    return(NULL)
   }
 
   data <- data.frame(
-    name_kr = datagokR::find_xml(tmp_xml, '//empNm'),
-    name_en = datagokR::find_xml(tmp_xml, '//engNm'),
-    name_ch = datagokR::find_xml(tmp_xml, '//hjNm'),
-    birth = datagokR::find_xml(tmp_xml, '//bthDate'),
-    hobby = datagokR::find_xml(tmp_xml, '//hbbyCd'),
-    able = datagokR::find_xml(tmp_xml, '//examCd'),
+    name_kr = datagokR:::find_xml(tmp_xml, '//empNm'),
+    name_en = datagokR:::find_xml(tmp_xml, '//engNm'),
+    name_ch = datagokR:::find_xml(tmp_xml, '//hjNm'),
+    birth = datagokR:::find_xml(tmp_xml, '//bthDate'),
+    hobby = datagokR:::find_xml(tmp_xml, '//hbbyCd'),
+    able = datagokR:::find_xml(tmp_xml, '//examCd'),
 
-    title = datagokR::find_xml(tmp_xml, '//memTitle'),
+    title = datagokR:::find_xml(tmp_xml, '//memTitle'),
 
-    party = datagokR::find_xml(tmp_xml, '//polyNm'),
-    csty = datagokR::find_xml(tmp_xml, '//origNm'),
-    board = datagokR::find_xml(tmp_xml, '//shrtNm'),
+    party = datagokR:::find_xml(tmp_xml, '//polyNm'),
+    csty = datagokR:::find_xml(tmp_xml, '//origNm'),
+    board = datagokR:::find_xml(tmp_xml, '//shrtNm'),
 
-    elec_numb = datagokR::find_xml(tmp_xml, '//reeleGbnNm'),
-    elec_vol = datagokR::find_xml(tmp_xml, '//electionNum'),
+    elec_numb = datagokR:::find_xml(tmp_xml, '//reeleGbnNm'),
+    elec_vol = datagokR:::find_xml(tmp_xml, '//electionNum'),
 
-    off_tel = datagokR::find_xml(tmp_xml, '//assemTel'),
-    off_web = datagokR::find_xml(tmp_xml, '//assemHomep'),
-    off_mail = datagokR::find_xml(tmp_xml, '//assemEmail'),
+    off_tel = datagokR:::find_xml(tmp_xml, '//assemTel'),
+    off_web = datagokR:::find_xml(tmp_xml, '//assemHomep'),
+    off_mail = datagokR:::find_xml(tmp_xml, '//assemEmail'),
 
-    staf_adv = datagokR::find_xml(tmp_xml, '//staff'),
-    staf_sec1 = datagokR::find_xml(tmp_xml, '//secretary2'),
-    staf_sec2 = datagokR::find_xml(tmp_xml, '//secretary'),
+    staf_adv = datagokR:::find_xml(tmp_xml, '//staff'),
+    staf_sec1 = datagokR:::find_xml(tmp_xml, '//secretary2'),
+    staf_sec2 = datagokR:::find_xml(tmp_xml, '//secretary'),
     stringsAsFactors = F
   )
 

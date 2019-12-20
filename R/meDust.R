@@ -42,30 +42,31 @@ meDust <- function(key, localName = enc2utf8('서울'), condition = 'HOUR', verb
 
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
+  if(length(urls) == 1){verbose <- FALSE}
   if(verbose == T){pb <- txtProgressBar(min = 1, length(urls), style = 3)}
 
   all_data <- list()
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({XML::xmlToList(urls[i])}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
+    tmp_xml <- datagokR:::try_xmlToList(urls[i])
+    total <- as.numeric(tmp_xml$body$totalCount)
 
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
+    if(length(total) == 0){
+      warning(tmp_xml$header$resultMsg)
+      next()
+    }else if(total == 0){
+      if(verbose == T){setTxtProgressBar(pb, value = i)}
+      print('There is no data.'); next()
     }
 
     all_data[[i]] <- data.frame(
-      time = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"dataTime"), '', x$"dataTime")) ),
-      city = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"cityName"), '', x$"cityName")) ),
-      so2 = as.numeric( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"so2Value"), '', x$"so2Value")) ),
-      co = as.numeric( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"coValue"), '', x$"coValue")) ),
-      o3 = as.numeric( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"o3Value"), '', x$"o3Value")) ),
-      no2 = as.numeric( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"no2Value"), '', x$"no2Value")) ),
-      pm10 = as.numeric( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"pm10Value"), '', x$"pm10Value")) ),
-      pm25 = as.numeric( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"pm25Value"), '', x$"pm25Value")) ),
+      time = datagokR:::find_xmlList(tmp_xml$body$items, 'dataTime'),
+      city = datagokR:::find_xmlList(tmp_xml$body$items, 'cityName'),
+      so2 = datagokR:::find_xmlList(tmp_xml$body$items, 'so2Value', 'num'),
+      co = datagokR:::find_xmlList(tmp_xml$body$items, 'coValue', 'num'),
+      o3 = datagokR:::find_xmlList(tmp_xml$body$items, 'o3Value', 'num'),
+      no2 = datagokR:::find_xmlList(tmp_xml$body$items, 'no2Value', 'num'),
+      pm10 = datagokR:::find_xmlList(tmp_xml$body$items, 'pm10Value', 'num'),
+      pm25 = datagokR:::find_xmlList(tmp_xml$body$items, 'pm25Value', 'num'),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

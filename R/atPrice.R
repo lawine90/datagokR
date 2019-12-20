@@ -3,7 +3,7 @@
 #' atPrice function import price of food, agriculture, forestry and fisheries.
 #'   It provide similar data to episPrice function but have different survey source.
 #'
-#' @param key character value. API key issued from <www.data.go.kr>. no default.
+#' @param key character value. API key issued from <data.mafra.go.kr>. no default.
 #' @param date character value. date which expressed like YYYYMMDD. no default.
 #' @param verbose logical value. If TRUE, show process bar. Default is set as FALSE.
 #'
@@ -37,22 +37,14 @@ atPrice <- function(key, date, verbose = F){
   url <- sprintf('http://211.237.50.150:7080/openapi/%s/xml/%s/1/1?EXAMIN_DE=%s',
                  key, 'Grid_20141225000000000163_1', date)
 
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({XML::xmlToList(url)}, error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
+  tmp_xml <- datagokR:::try_read_xml(url)
+  total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCnt'))
 
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
-  }
-  if(!is.null(tmp_xml)){
-    total <- as.numeric(tmp_xml$totalCnt)
-  }
-
-  if(total == 0){
-    print(sprintf('There is no data at %s', as.Date(date, '%Y%m%d')))
+  if(is.na(total)){
+    warning(datagokR:::find_xml(tmp_xml, '//message'), '\nThe function return NULL')
+    return(NULL)
+  }else if(total == 0){
+    warning(sprintf('There is no data at %s', as.Date(date, '%Y%m%d')))
     return(NULL)
   }
 
@@ -68,41 +60,34 @@ atPrice <- function(key, date, verbose = F){
   ### 3. urls's xml parsing.
   all_data <- list()
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({xml2::read_xml(urls[i], encoding = 'UTF-8')}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
+    tmp_xml <- datagokR:::try_read_xml(urls[i])
 
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
-    }
-    if(!is.null(tmp_xml$cmmMsgHeader)){
-      return(tmp_xml$cmmMsgHeader$returnAuthMsg)
+    if(!is.na(datagokR:::find_xml(tmp_xml, '//cmmMsgHeader'))){
+      warning(datagokR:::find_xml(tmp_xml, '//message'), '\nThe function return NULL')
+      next()
     }
 
     all_data[[i]] <- data.frame(
       date = date,
 
-      locName = datagokR::find_xml(tmp_xml, '//AREA_NM'),
-      locCode = datagokR::find_xml(tmp_xml, '//AREA_CD'),
+      locName = datagokR:::find_xml(tmp_xml, '//AREA_NM'),
+      locCode = datagokR:::find_xml(tmp_xml, '//AREA_CD'),
 
-      mrkName = datagokR::find_xml(tmp_xml, '//MRKT_NM'),
-      mrkCode = datagokR::find_xml(tmp_xml, '//MRKT_CD'),
+      mrkName = datagokR:::find_xml(tmp_xml, '//MRKT_NM'),
+      mrkCode = datagokR:::find_xml(tmp_xml, '//MRKT_CD'),
 
-      catName = datagokR::find_xml(tmp_xml, '//FRMPRD_CATGORY_NM'),
-      catCode = datagokR::find_xml(tmp_xml, '//FRMPRD_CATGORY_CD'),
-      itmName = datagokR::find_xml(tmp_xml, '//PRDLST_NM'),
-      itmCode = datagokR::find_xml(tmp_xml, '//PRDLST_CD'),
-      spcName = datagokR::find_xml(tmp_xml, '//SPCIES_NM'),
-      spcCode = datagokR::find_xml(tmp_xml, '//SPCIES_CD'),
+      catName = datagokR:::find_xml(tmp_xml, '//FRMPRD_CATGORY_NM'),
+      catCode = datagokR:::find_xml(tmp_xml, '//FRMPRD_CATGORY_CD'),
+      itmName = datagokR:::find_xml(tmp_xml, '//PRDLST_NM'),
+      itmCode = datagokR:::find_xml(tmp_xml, '//PRDLST_CD'),
+      spcName = datagokR:::find_xml(tmp_xml, '//SPCIES_NM'),
+      spcCode = datagokR:::find_xml(tmp_xml, '//SPCIES_CD'),
 
-      grdName = datagokR::find_xml(tmp_xml, '//GRAD_NM'),
-      grdCode = datagokR::find_xml(tmp_xml, '//GRAD_CD'),
+      grdName = datagokR:::find_xml(tmp_xml, '//GRAD_NM'),
+      grdCode = datagokR:::find_xml(tmp_xml, '//GRAD_CD'),
 
-      unit = datagokR::find_xml(tmp_xml, '//EXAMIN_UNIT'),
-      price = as.numeric(datagokR::find_xml(tmp_xml, '//AMT')),
+      unit = datagokR:::find_xml(tmp_xml, '//EXAMIN_UNIT'),
+      price = as.numeric(datagokR:::find_xml(tmp_xml, '//AMT')),
 
       stringsAsFactors = F
     )

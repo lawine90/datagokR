@@ -25,30 +25,25 @@ drugsSideEffect <- function(key){
 
   ### 3. urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({XML::xmlToList(urls)}, error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
+  tmp_xml <- datagokR:::try_read_xml(urls)
+  total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCount'))
 
-  ## error checking part.
-  # if tmp_xml is null, stop function.
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
-  }
-  if(!is.null(tmp_xml$cmmMsgHeader)){
-    return(tmp_xml$cmmMsgHeader$returnAuthMsg)
+  if(is.na(total)){
+    warning(datagokR:::find_xml(tmp_xml, '//returnAuthMsg'), '\nThe function return NULL')
+    return(NULL)
+  }else if(total == 0){
+    print('There is no data. Please check regist_numb')
+    return(NULL)
   }
 
   all_data <- data.frame(
-    name_kor = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"COL_001"), '', x$"COL_001")) ),
-    name_eng = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"COL_002"), '', x$"COL_002")) ),
-    type = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"COL_003"), '', x$"COL_003")) ),
-    period = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"COL_004"), '', x$"COL_004")) ),
-    effect_kor = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"COL_005"), '', x$"COL_005")) ),
-    effect_eng = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"COL_006"), '', x$"COL_006")) ),
-    etc = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"COL_007"), '', x$"COL_007")) ),
+    name_kor = datagokR:::find_xml(tmp_xml, '//COL_001'),
+    name_eng = datagokR:::find_xml(tmp_xml, '//COL_002'),
+    type = datagokR:::find_xml(tmp_xml, '//COL_003'),
+    period = datagokR:::find_xml(tmp_xml, '//COL_004'),
+    effect_kor = datagokR:::find_xml(tmp_xml, '//COL_005'),
+    effect_eng = datagokR:::find_xml(tmp_xml, '//COL_006'),
+    etc = datagokR:::find_xml(tmp_xml, '//COL_007'),
     stringsAsFactors = F
   )
 

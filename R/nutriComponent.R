@@ -20,66 +20,47 @@ nutriComponent <- function(key, verbose = F){
 
   ### 2. REST url for get n of pages
   ## End Point.
-  base <- "http://apis.data.go.kr/1470000/FoodNtrIrdntInfoService/getFoodNtrItdntList?"
+  url <- sprintf("http://apis.data.go.kr/1470000/%s/%s?serviceKey=%s&numOfRows=100&pageNo=%s",
+                 'FoodNtrIrdntInfoService', 'getFoodNtrItdntList', key, '1')
 
-  ## generate list of urls(fxxking so many limitations...).
-  # 1st, (url + key)
-  url <- sprintf("%sserviceKey=%s&numOfRows=100&pageNo=%s", base, key, '1')
-
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({XML::xmlToList(url)}, error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
-
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
-  }
-
-  # if(!is.null(tmp_xml$cmmMsgHeader)){
-  #   stop(paste(tmp_xml$cmmMsgHeader$returnAuthMsg, ".\nError Code: ",
-  #              tmp_xml$cmmMsgHeader$returnReasonCode, sep = ""))
-  # }
-
-  # the number of pages.
+  tmp_xml <- datagokR:::try_xmlToList(url)
   nofpage <- (as.numeric(tmp_xml$body$totalCount)/as.numeric(tmp_xml$body$numOfRows))
   nofpage <- ceiling(nofpage)
 
-  urls <- lapply(1:nofpage, function(x) sprintf("%sserviceKey=%s&numOfRows=100&pageNo=%s", base, key, x))
-  urls <- unlist(urls)
+  if(length(nofpage) == 0){
+    warning(tmp_xml$cmmMsgHeader$returnAuthMsg)
+  }
+
+  # the number of pages.
+  urls <- unlist(lapply(1:nofpage, function(x) sprintf("%sserviceKey=%s&numOfRows=100&pageNo=%s", base, key, x)))
 
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
+  if(length(urls) == 1){verbose <- FALSE}
   if(verbose == T){pb <- txtProgressBar(min = 1, length(urls), style = 3)}
 
   all_data <- list()
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({XML::xmlToList(urls[i])}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
-
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
+    tmp_xml <- datagokR:::try_xmlToList(urls[i])
+    if(is.null(tmp_xml$body$totalCount)){
+      warning(tmp_xml$cmmMsgHeader$returnAuthMsg)
+      next()
     }
 
     all_data[[i]] <- data.frame(
-      name_kor = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"DESC_KOR"), '', x$"DESC_KOR")) ),
-      serving_wt = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"SERVING_WT"), '', x$"SERVING_WT")) ),
-      kcal = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"NUTR_CONT1"), '', x$"NUTR_CONT1")) ),
-      carbohydrate = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"NUTR_CONT2"), '', x$"NUTR_CONT2")) ),
-      protein = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"NUTR_CONT3"), '', x$"NUTR_CONT3")) ),
-      fat = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"NUTR_CONT4"), '', x$"NUTR_CONT4")) ),
-      sugar = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"NUTR_CONT5"), '', x$"NUTR_CONT5")) ),
-      sodium = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"NUTR_CONT6"), '', x$"NUTR_CONT6")) ),
-      cholesterol = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"NUTR_CONT7"), '', x$"NUTR_CONT7")) ),
-      saturated_fatty_acid = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"NUTR_CONT8"), '', x$"NUTR_CONT8")) ),
-      trans_fatty_acid = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"NUTR_CONT9"), '', x$"NUTR_CONT9")) ),
-      year = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"BGN_YEAR"), '', x$"BGN_YEAR")) ),
-      factory = unlist( lapply(tmp_xml$body$items, function(x) ifelse(is.null(x$"ANIMAL_PLANT"), '', x$"ANIMAL_PLANT")) ),
+      name_kor = datagokR:::find_xmlList(tmp_xml$body$items, "DESC_KOR"),
+      serving_wt = datagokR:::find_xmlList(tmp_xml$body$items, "SERVING_WT"),
+      kcal = datagokR:::find_xmlList(tmp_xml$body$items, "NUTR_CONT1"),
+      carbohydrate = datagokR:::find_xmlList(tmp_xml$body$items, "NUTR_CONT2"),
+      protein = datagokR:::find_xmlList(tmp_xml$body$items, "NUTR_CONT3"),
+      fat = datagokR:::find_xmlList(tmp_xml$body$items, "NUTR_CONT4"),
+      sugar = datagokR:::find_xmlList(tmp_xml$body$items, "NUTR_CONT5"),
+      sodium = datagokR:::find_xmlList(tmp_xml$body$items, "NUTR_CONT6"),
+      cholesterol = datagokR:::find_xmlList(tmp_xml$body$items, "NUTR_CONT7"),
+      saturated_fatty_acid = datagokR:::find_xmlList(tmp_xml$body$items, "NUTR_CONT8"),
+      trans_fatty_acid = datagokR:::find_xmlList(tmp_xml$body$items, "NUTR_CONT9"),
+      year = datagokR:::find_xmlList(tmp_xml$body$items, "BGN_YEAR"),
+      factory = datagokR:::find_xmlList(tmp_xml$body$items, "ANIMAL_PLANT"),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

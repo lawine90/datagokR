@@ -31,6 +31,7 @@ npsCorp <- function(key, regist_numb = NULL, verbose = FALSE){
   url <- sprintf('http://apis.data.go.kr/B552015/%s/%s?serviceKey=%s&bzowr_rgst_no=%s',
                  'NpsBplcInfoInqireService', 'getBassInfoSearch', key, regist_numb)
 
+  ### 3-1. get total count.
   tmp_xml <- datagokR:::try_read_xml(url)
   total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCount'))
 
@@ -49,7 +50,7 @@ npsCorp <- function(key, regist_numb = NULL, verbose = FALSE){
   if(length(urls) == 1){verbose <- F}
   if(verbose == T){pb <- txtProgressBar(min = 1, length(urls), style = 3)}
 
-  ### 3. urls's xml parsing.
+  ### 3-2. all urls xml parsing.
   all_data <- list()
   for(i in 1:length(urls)){
     tmp_xml <- datagokR:::try_read_xml(urls[i])

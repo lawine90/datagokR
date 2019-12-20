@@ -88,11 +88,14 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
   meta <- data.frame(url = urls, success = "", message = "", stringsAsFactors = F)
   meta <- dplyr::as.tbl(meta)
 
+  if(length(urls) == 1){verbose <- F}
   if(verbose == T){pb <- utils::txtProgressBar(min = 0, length(urls), style = 3)}
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
     # parsing xml codes with repeat and trycatch.
+    tmp_xml <- datagokR:::try_xmlToList(urls[[i]])
+
     ii <- 0
     repeat{
       ii <- ii + 1

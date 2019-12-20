@@ -20,63 +20,45 @@ quasiDrugs <- function(key, verbose = F){
 
   ### 2. REST url for get n of pages
   ## End Point.
-  base <- "http://apis.data.go.kr/1471057/NonMdcinPrductPrmisnInfoService/getNonMdcinPrductPrmisnInfoList?"
+  url <- sprintf("http://apis.data.go.kr/1471057/%s/%s?serviceKey=%s&numOfRows=100&pageNo=%s",
+                 'NonMdcinPrductPrmisnInfoService', 'getNonMdcinPrductPrmisnInfoList', key, '1')
 
-  ## generate list of urls(fxxking so many limitations...).
-  # 1st, (url + key)
-  url <- sprintf("%sserviceKey=%s&numOfRows=100&pageNo=%s", base, key, '1')
-
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({XML::xmlToList(url)}, error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
-
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
-  }
-
-  # if(!is.null(tmp_xml$cmmMsgHeader)){
-  #   stop(paste(tmp_xml$cmmMsgHeader$returnAuthMsg, ".\nError Code: ",
-  #              tmp_xml$cmmMsgHeader$returnReasonCode, sep = ""))
-  # }
-
-  # the number of pages.
+  tmp_xml <- datagokR:::try_xmlToList(url)
   nofpage <- (as.numeric(tmp_xml$body$totalCount)/as.numeric(tmp_xml$body$numOfRows))
   nofpage <- ceiling(nofpage)
 
-  urls <- lapply(1:nofpage, function(x) sprintf("%sserviceKey=%s&numOfRows=100&pageNo=%s", base, key, x))
+  if(length(nofpage) == 0){
+    warning(tmp_xml$cmmMsgHeader$returnAuthMsg)
+    return(NULL)
+  }
+
+  urls <- lapply(1:nofpage, function(x) sprintf("http://apis.data.go.kr/1471057/%s/%s?serviceKey=%s&numOfRows=100&pageNo=%s",
+                                                'NonMdcinPrductPrmisnInfoService', 'getNonMdcinPrductPrmisnInfoList', key, x))
   urls <- unlist(urls)
 
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
+  if(length(urls) == 1){verbose <- FALSE}
   if(verbose == T){pb <- txtProgressBar(min = 1, length(urls), style = 3)}
 
   all_data <- list()
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({xml2::read_xml(urls[i], encoding = 'UTF-8')}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
+    tmp_xml <- datagokR:::try_read_xml(urls[i])
 
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
+    if(is.null(datagokR:::find_xml(tmp_xml, '//totalCount'))){
+      warning(datagokR:::find_xml(tmp_xml, '//returnAuthMsg'))
+      next()
     }
-    #children <- read_xml(urls[i], encoding = 'UTF-8') %>% xml_find_all('//NB_DOC_DATA//SECTION')
-    #children <- lapply(children, function(x) html_nodes(x, 'ARTICLE') %>% xml_attrs('title') %>% unlist %>% unname)
 
     all_data[[i]] <- data.frame(
-      item_code = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//ITEM_SEQ')),
-      item_name = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//ITEM_NAME')),
-      effect = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//EE_DOC_DATA')),
-      usage = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//UD_DOC_DATA')),
-      notice = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//NB_DOC_DATA')),
-      type_code = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//CLASS_NO')),
-      type_name = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//CLASS_NO_NAME')),
-      firm = xml2::xml_text(xml2::xml_find_all(tmp_xml, '//ENTP_NAME')),
+      item_code = datagokR:::find_xml(tmp_xml, '//ITEM_SEQ'),
+      item_name = datagokR:::find_xml(tmp_xml, '//ITEM_NAME'),
+      effect = datagokR:::find_xml(tmp_xml, '//EE_DOC_DATA'),
+      usage = datagokR:::find_xml(tmp_xml, '//UD_DOC_DATA'),
+      notice = datagokR:::find_xml(tmp_xml, '//NB_DOC_DATA'),
+      type_code = datagokR:::find_xml(tmp_xml, '//CLASS_NO'),
+      type_name = datagokR:::find_xml(tmp_xml, '//CLASS_NO_NAME'),
+      firm = datagokR:::find_xml(tmp_xml, '//ENTP_NAME'),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

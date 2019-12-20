@@ -7,7 +7,7 @@
 episJoint(key, date, verbose = F)
 }
 \arguments{
-\item{key}{character value. API key issued from <www.data.go.kr>. no default.}
+\item{key}{character value. API key issued from <data.mafra.go.kr>. no default.}
 
 \item{date}{character value. date which expressed like YYYYMMDD. no default.}
 

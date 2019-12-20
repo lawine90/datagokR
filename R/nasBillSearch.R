@@ -32,39 +32,28 @@ nasBillSearch <- function(key, name = NULL){
 
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({xml2::read_xml(url, encoding = 'UTF-8')}, error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
+  tmp_xml <- datagokR:::try_read_xml(url)
 
   # if access fail, stop it.
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
+  if(is.na(datagokR:::find_xml(tmp_xml, '//resultCode'))){
+    warning(datagokR:::find_xml(tmp_xml, '//returnAuthMsg'))
+    return(NULL)
   }
 
   data <- data.frame(
-    id = datagokR::find_xml(tmp_xml, '//billId'),
-    no = datagokR::find_xml(tmp_xml, '//billNo'),
-    name = datagokR::find_xml(tmp_xml, '//billName'),
+    id = datagokR:::find_xml(tmp_xml, '//billId'),
+    no = datagokR:::find_xml(tmp_xml, '//billNo'),
+    name = datagokR:::find_xml(tmp_xml, '//billName'),
 
-    proposer = datagokR::find_xml(tmp_xml, '//proposer'),
-    propose_type = datagokR::find_xml(tmp_xml, '//coactKind'),
-    propose_date = datagokR::find_xml(tmp_xml, '//proposeDt'),
+    proposer = datagokR:::find_xml(tmp_xml, '//proposer'),
+    propose_type = datagokR:::find_xml(tmp_xml, '//coactKind'),
+    propose_date = datagokR:::find_xml(tmp_xml, '//proposeDt'),
 
-    vote_date = datagokR::find_xml(tmp_xml, '//procDt'),
-    vote_result = datagokR::find_xml(tmp_xml, '//generalResult'),
-    condition = datagokR::find_xml(tmp_xml, '//procStageCd'),
+    vote_date = datagokR:::find_xml(tmp_xml, '//procDt'),
+    vote_result = datagokR:::find_xml(tmp_xml, '//generalResult'),
+    condition = datagokR:::find_xml(tmp_xml, '//procStageCd'),
     stringsAsFactors = F
   )
-
-  for(col in colnames(data)){
-    if(class(data[[col]]) == 'character'){
-      Encoding(data[[col]]) <- 'UTF-8'
-      data[[col]][data[[col]] == ''] <- NA
-    }
-  }
 
   return(dplyr::as.tbl(data))
 }

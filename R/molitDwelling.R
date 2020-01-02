@@ -97,7 +97,7 @@ molitDwelling <- function(key, year, month = NULL, localeCode = NULL, localeName
     tmp.xml <- datagokR:::try_GET_content(urls[i])
 
     # if tmp.xml is error, go next.
-    if(tmp_xml$response$header$resultMsg != "NORMAL SERVICE."){
+    if(tmp.xml$response$header$resultMsg != "NORMAL SERVICE."){
       errors[[i]] <- urls[[i]]
       meta[i,]$count <- "error"
       next

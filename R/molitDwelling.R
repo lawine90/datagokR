@@ -31,29 +31,6 @@
 #'                         houseType = "apart", tradeType = "rent", slow = F, viz = T)
 #'
 #' @importFrom dplyr %>%
-#' @importFrom dplyr as.tbl
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr filter
-#' @importFrom dplyr group_by
-#' @importFrom dplyr if_else
-#' @importFrom dplyr inner_join
-#' @importFrom dplyr left_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr n
-#' @importFrom dplyr right_join
-#' @importFrom dplyr select
-#' @importFrom dplyr summarise
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr arrange
-#' @importFrom httr GET
-#' @importFrom httr content
-#' @importFrom utils txtProgressBar
-#' @importFrom utils setTxtProgressBar
-#' @importFrom utils globalVariables
-#' @importFrom utils data
-#' @importFrom stats runif
-#' @importFrom rlang .data
-#'
 #' @importFrom plotly plot_ly
 #' @importFrom plotly layout
 #'
@@ -100,7 +77,7 @@ molitDwelling <- function(key, year, month = NULL, localeCode = NULL, localeName
   if(is.null(localeCode) & !is.null(localeName)){
     localeName <- gsub("시\\b|도\\b", "", localeName) %>% paste(collapse = "|")
     localeCode <- datagokR::molit_locale_code[grepl(localeName, datagokR::molit_locale_code$name),]
-    localeCode <- localeCode[localeCode$exist == "존재",] %>% select("code") %>% unlist %>% as.numeric
+    localeCode <- localeCode[localeCode$exist == "존재",] %>% dplyr::select("code") %>% unlist %>% as.numeric
   }
 
   ## generate list of urls.
@@ -111,48 +88,32 @@ molitDwelling <- function(key, year, month = NULL, localeCode = NULL, localeName
   all.data <- list(); length(all.data) <- length(urls)                 # define data.frame for importing.
   errors <- list(); length(errors) <- length(urls)                     # define vector for error urls.
   meta <- data.frame(url = urls, count = "", stringsAsFactors = F) %>% # define data.frame for meta-data.
-    as.tbl
+    dplyr::as.tbl()
 
-  pb <- txtProgressBar(min = 1, length(urls), style = 3)
+  pb <- utils::txtProgressBar(min = 1, length(urls), style = 3)
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp.xml <- tryCatch(
-        {
-          httr::GET(urls[[i]]) %>% httr::content(as = "parsed", encoding = 'UTF-8')
-        }, error = function(e){
-          NULL
-        }
-      )
-
-      if(slow){
-        Sys.sleep(runif(1, 0, 2.5))
-      }
-      if(!is.null(tmp.xml)|ii >= 15) break
-    }
+    tmp.xml <- datagokR:::try_GET_content(urls[i])
 
     # if tmp.xml is error, go next.
-    if(is.null(tmp.xml)) {
+    if(tmp_xml$response$header$resultMsg != "NORMAL SERVICE."){
       errors[[i]] <- urls[[i]]
       meta[i,]$count <- "error"
       next
     }
 
     Count <- tmp.xml$response$body$totalCount
-    meta[i,]$count <- ifelse(is.null(Count)|is.na(Count),
-                             "error", Count)
+    meta[i,]$count <- ifelse(is.null(Count)|is.na(Count),"error", Count)
 
     if(slow){
-      Sys.sleep(runif(1, 0, 1.5))
+      Sys.sleep(stats::runif(1, 0, 1.5))
     }
 
     # if the number of trade is 0, skip.
     # set location object differently according to the number of trade(1 or over.)
     if(Count == 0){
-      setTxtProgressBar(pb, value = i)
+      utils::setTxtProgressBar(pb, value = i)
       next
     }else if(Count == 1){
       location <- tmp.xml$response$body$items
@@ -169,65 +130,62 @@ molitDwelling <- function(key, year, month = NULL, localeCode = NULL, localeName
       stringsAsFactors = F
     )
 
-    # common variables(5).
-    tmp.data$Code <- unlist( lapply(location, function(x) ifelse(is.null(x$"지역코드"), NA, x$"지역코드")) )
-    tmp.data$Dong <- unlist( lapply(location, function(x) ifelse(is.null(x$"법정동"), NA, trimws(x$"법정동"))) )
-    tmp.data$Trade_year <- unlist( lapply(location, function(x) ifelse(is.null(x$"년"), NA, x$"년")) )
-    tmp.data$Trade_month <- unlist( lapply(location, function(x) ifelse(is.null(x$"월"), NA, x$"월")) )
-    tmp.data$Trade_day <- unlist( lapply(location, function(x) ifelse(is.null(x$"일"), NA, x$"일")) )
-    tmp.data$consYear <- unlist( lapply(location, function(x) ifelse(is.null(x$"건축년도"), NA, x$"건축년도")) )
+    # common variables for all houseType and tradeType(5 variables).
+    tmp.data$Code <- datagokR:::find_xmlList(location, '지역코드')
+    tmp.data$Dong <- datagokR:::find_xmlList(location, '법정동')
+    tmp.data$Trade_year <- datagokR:::find_xmlList(location, '년')
+    tmp.data$Trade_month <- datagokR:::find_xmlList(location, '월')
+    tmp.data$Trade_day <- datagokR:::find_xmlList(location, '일')
+    tmp.data$consYear <- datagokR:::find_xmlList(location, '건축년도')
 
     if(tradeType == "trade"){
       # sub-common variables by trade type(2).
-      tmp.data$Price <- unlist( lapply(location, function(x)
-        ifelse(is.null(x$"거래금액"), NA, as.numeric(trimws(gsub(",", "", x$"거래금액"))))) )
+      tmp.data$Price <- as.numeric(trimws(gsub(",", "", datagokR:::find_xmlList(location, '거래금액'))))
 
       # particular variables by house type.
       if(houseType == 'apart'){ # (11)
-        tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
-        tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"아파트"), NA, trimws(x$"아파트"))) )
-        tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )
-        tmp.data$Floor <- unlist( lapply(location, function(x) ifelse(is.null(x$"층"), NA, trimws(x$"층"))) )
+        tmp.data$addCode <- trimws(datagokR:::find_xmlList(location, '지번'))
+        tmp.data$Name <- trimws(datagokR:::find_xmlList(location, '아파트'))
+        tmp.data$excArea <- trimws(datagokR:::find_xmlList(location, '전용면적'))
+        tmp.data$Floor <- trimws(datagokR:::find_xmlList(location, '층'))
       }else if(houseType == 'multi'){ # (12)
-        tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
-        tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"연립다세대"), NA, trimws(x$"연립다세대"))) )
-        tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )
-        tmp.data$grdArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"대지권면적"), NA, trimws(x$"대지권면적"))) )
-        tmp.data$Floor <- unlist( lapply(location, function(x) ifelse(is.null(x$"층"), NA, trimws(x$"층"))) )
+        tmp.data$addCode <- trimws(datagokR:::find_xmlList(location, '지번'))
+        tmp.data$Name <- trimws(datagokR:::find_xmlList(location, '연립다세대'))
+        tmp.data$excArea <- trimws(datagokR:::find_xmlList(location, '전용면적'))
+        tmp.data$grdArea <- trimws(datagokR:::find_xmlList(location, '대지권면적'))
+        tmp.data$Floor <- trimws(datagokR:::find_xmlList(location, '층'))
       }else if(houseType == 'detached'){ # (10)
-        tmp.data$Type <- unlist( lapply(location, function(x) ifelse(is.null(x$"주택유형"), NA, trimws(x$"주택유형"))) )
-        tmp.data$totArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"연면적"), NA, trimws(x$"연면적"))) )
-        tmp.data$plottage <- unlist( lapply(location, function(x) ifelse(is.null(x$"대지면적"), NA, trimws(x$"대지면적"))) )
+        tmp.data$Type <- trimws(datagokR:::find_xmlList(location, '주택유형'))
+        tmp.data$totArea <- trimws(datagokR:::find_xmlList(location, '연면적'))
+        tmp.data$plottage <- trimws(datagokR:::find_xmlList(location, '대지면적'))
       } # end of if statement.
     }else{
       # sub-common variables by trade type(2).
-      tmp.data$rentPrice <- unlist( lapply(location, function(x)
-        ifelse(is.null(x$"월세금액"), NA, as.numeric(trimws(gsub(",", "", x$"월세금액"))))) )
-      tmp.data$depoPrice <- unlist( lapply(location, function(x)
-        ifelse(is.null(x$"보증금액"), NA, as.numeric(trimws(gsub(",", "", x$"보증금액"))))) )
+      tmp.data$rentPrice <- as.numeric(trimws(gsub(",", "", datagokR:::find_xmlList(location, '월세금액'))))
+      tmp.data$depoPrice <- as.numeric(trimws(gsub(",", "", datagokR:::find_xmlList(location, '보증금액'))))
 
       if(houseType == 'apart'){
-        tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
-        tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"아파트"), NA, trimws(x$"아파트"))) )
-        tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )
-        tmp.data$Floor <- unlist( lapply(location, function(x) ifelse(is.null(x$"층"), NA, trimws(x$"층"))) )
+        tmp.data$addCode <- trimws(datagokR:::find_xmlList(location, '지번'))
+        tmp.data$Name <- trimws(datagokR:::find_xmlList(location, '아파트'))
+        tmp.data$excArea <- trimws(datagokR:::find_xmlList(location, '전용면적'))
+        tmp.data$Floor <- trimws(datagokR:::find_xmlList(location, '층'))
       }else if(houseType == 'multi'){
-        tmp.data$addCode <- unlist( lapply(location, function(x) ifelse(is.null(x$"지번"), NA, trimws(x$"지번"))) )
-        tmp.data$Name <- unlist( lapply(location, function(x) ifelse(is.null(x$"연립다세대"), NA, trimws(x$"연립다세대"))) )
-        tmp.data$excArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"전용면적"), NA, trimws(x$"전용면적"))) )
-        tmp.data$Floor <- unlist( lapply(location, function(x) ifelse(is.null(x$"층"), NA, trimws(x$"층"))) )
+        tmp.data$addCode <- trimws(datagokR:::find_xmlList(location, '지번'))
+        tmp.data$Name <- trimws(datagokR:::find_xmlList(location, '연립다세대'))
+        tmp.data$excArea <- trimws(datagokR:::find_xmlList(location, '전용면적'))
+        tmp.data$Floor <- trimws(datagokR:::find_xmlList(location, '층'))
       }else if(houseType == 'detached'){
-        tmp.data$contArea <- unlist( lapply(location, function(x) ifelse(is.null(x$"계약면적"), NA, trimws(x$"계약면적"))) )
+        tmp.data$contArea <- trimws(datagokR:::find_xmlList(location, '계약면적'))
       } # end of if statement.
     }
 
     if(is.null(all.data[[i]])){
       all.data[[i]] <- tmp.data
     }else{
-      all.data[[i]] <- bind_rows(all.data[[i]], tmp.data)
+      all.data[[i]] <- dplyr::bind_rows(all.data[[i]], tmp.data)
     } # end of if statement.
 
-    setTxtProgressBar(pb, value = i)
+    utils::setTxtProgressBar(pb, value = i)
   } # end of loop i.
 
   result <- list(
@@ -259,17 +217,17 @@ molitDwelling <- function(key, year, month = NULL, localeCode = NULL, localeName
 
       if(tradeType == "trade"){
         tmp.m.g <- tmp.m %>% dplyr::group_by(.data$Location, .data$Date) %>%
-          dplyr::summarise("Price" = mean(.data$Price)*10000, "Contract" = n()) %>% dplyr::ungroup
+          dplyr::summarise("Price" = mean(.data$Price)*10000, "Contract" = dplyr::n()) %>% dplyr::ungroup
 
         result$plot <- list(
-          price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$Price, z = ~tmp.m.g$Contract,
+          price = plotly::plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$Price, z = ~tmp.m.g$Contract,
                           color = ~tmp.m.g$Location, size = ~tmp.m.g$Price,
                           text = ~paste("Address: ", tmp.m.g$Location, "<br>Price: ",
                                         round(tmp.m.g$Price), "<br>Count: ", tmp.m.g$Contract)) %>%
-            layout(title = paste(year, "molit Trade Data(from data.go.kr)"),
-                   scene = list(xaxis = list(title = "Date"),
-                                yaxis = list(title = "Price"),
-                                zaxis = list(title = "N")))
+            plotly::layout(title = paste(year, "molit Trade Data(from data.go.kr)"),
+                          scene = list(xaxis = list(title = "Date"),
+                                       yaxis = list(title = "Price"),
+                                        zaxis = list(title = "N")))
         )
       }else{
         tmp.m.g <- tmp.m %>% dplyr::group_by(.data$Location, .data$Date) %>%
@@ -278,23 +236,23 @@ molitDwelling <- function(key, year, month = NULL, localeCode = NULL, localeName
                            "Contract" = n()) %>% dplyr::ungroup
 
         result$plot <- list(
-          price = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$rentPrice, z = ~tmp.m.g$Contract,
+          price = plotly::plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$rentPrice, z = ~tmp.m.g$Contract,
                           color = ~tmp.m.g$Location, size = ~tmp.m.g$rentPrice,
                           text = ~paste("Address: ", tmp.m.g$Location, "<br>Rental Price: ",
                                         round(tmp.m.g$rentPrice), "<br>Count: ", tmp.m.g$Contract)) %>%
-            layout(title = paste(year, "molit Rental Price Data(from data.go.kr)"),
-                   scene = list(xaxis = list(title = "Date"),
-                                yaxis = list(title = "Rental Price"),
-                                zaxis = list(title = "N"))),
+            plotly::layout(title = paste(year, "molit Rental Price Data(from data.go.kr)"),
+                           scene = list(xaxis = list(title = "Date"),
+                                        yaxis = list(title = "Rental Price"),
+                                        zaxis = list(title = "N"))),
 
-          deposit = plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$depoPrice, z = ~tmp.m.g$Contract,
+          deposit = plotly::plot_ly(data = tmp.m.g, x = ~tmp.m.g$Date, y = ~tmp.m.g$depoPrice, z = ~tmp.m.g$Contract,
                             color = ~tmp.m.g$Location, size = ~tmp.m.g$depoPrice,
                             text = ~paste("Address: ", tmp.m.g$Location, "<br>Deposit: ",
                                           round(tmp.m.g$depoPrice), "<br>Count: ", tmp.m.g$Contract)) %>%
-            layout(title = paste(year, "molit Deposit Data(from data.go.kr)"),
-                   scene = list(xaxis = list(title = "Date"),
-                                yaxis = list(title = "Deposit"),
-                                zaxis = list(title = "N")))
+            plotly::layout(title = paste(year, "molit Deposit Data(from data.go.kr)"),
+                           scene = list(xaxis = list(title = "Date"),
+                                       yaxis = list(title = "Deposit"),
+                                       zaxis = list(title = "N")))
         )
       } # if tradeType == "trade
     } # if viz == T

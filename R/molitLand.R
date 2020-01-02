@@ -75,25 +75,10 @@ molitLand <- function(key, year, month = NULL, localeCode = NULL, localeName = N
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp.xml <- tryCatch(
-        {
-          httr::GET(urls[[i]]) %>% httr::content(as = "parsed", encoding = 'UTF-8')
-        }, error = function(e){
-          NULL
-        }
-      )
-
-      if(slow){
-        Sys.sleep(stats::runif(1, 0, 2.5))
-      }
-      if(!is.null(tmp.xml)|ii >= 15) break
-    }
+    tmp.xml <- datagokR:::try_GET_content(urls[[i]])
 
     # if tmp.xml is error, go next.
-    if(is.null(tmp.xml)) {
+    if(tmp_xml$response$header$resultMsg != "NORMAL SERVICE."){
       next
     }
 
@@ -114,21 +99,20 @@ molitLand <- function(key, year, month = NULL, localeCode = NULL, localeName = N
     } # end of if statement.
 
     all.data[[i]] <- data.frame(
-      code = unlist( lapply(location, function(x) ifelse(is.null(x$"지역코드"), NA, trimws(x$"지역코드"))) ) %>% as.character,
-      gu = unlist( lapply(location, function(x) ifelse(is.null(x$"시군구"), NA, trimws(x$"시군구"))) ) %>% as.character,
-      dong = unlist( lapply(location, function(x) ifelse(is.null(x$"법정동"), NA, trimws(x$"법정동"))) ) %>% as.character,
+      code = trimws(datagokR:::find_xmlList(location, '지역코드')),
+      gu = trimws(datagokR:::find_xmlList(location, '시군구')),
+      dong = trimws(datagokR:::find_xmlList(location, '법정동')),
 
-      tradeYear = unlist( lapply(location, function(x) ifelse(is.null(x$"년"), NA, x$"년")) ),
-      tradeMonth = unlist( lapply(location, function(x) ifelse(is.null(x$"월"), NA, x$"월")) ),
-      tradeDay = unlist( lapply(location, function(x) ifelse(is.null(x$"일"), NA, x$"일")) ),
-      tradeType = unlist( lapply(location, function(x) ifelse(is.null(x$"지분거래구분"), NA, x$"지분거래구분")) ),
-      price = unlist( lapply(location, function(x)
-        ifelse(is.null(x$"거래금액"), NA, as.numeric(trimws(gsub(",", "", x$"거래금액"))))) ),
+      tradeYear = trimws(datagokR:::find_xmlList(location, '년')),
+      tradeMonth = trimws(datagokR:::find_xmlList(location, '월')),
+      tradeDay = trimws(datagokR:::find_xmlList(location, '일')),
+      tradeType = trimws(datagokR:::find_xmlList(location, '구분')),
+      price = as.numeric(trimws(gsub(",", "", datagokR:::find_xmlList(location, '거래금액')))),
 
-      landUsage = unlist( lapply(location, function(x) ifelse(is.null(x$"지목"), NA, x$"지목")) ),
+      landUsage = trimws(datagokR:::find_xmlList(location, '지목')),
 
-      area = unlist( lapply(location, function(x) ifelse(is.null(x$"거래면적"), NA, trimws(x$"거래면적"))) ),
-      type = unlist( lapply(location, function(x) ifelse(is.null(x$"용도지역"), NA, trimws(x$"용도지역"))) ) %>% as.character,
+      area = trimws(datagokR:::find_xmlList(location, '거래면적')),
+      type = trimws(datagokR:::find_xmlList(location, '용도지역')),
       stringsAsFactors = F
     )
 

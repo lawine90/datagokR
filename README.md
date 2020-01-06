@@ -16,7 +16,8 @@ datagokR
   - 기상청: [**생활기상지수**](https://www.data.go.kr/dataset/15000232/openapi.do)
   - 기상청: [**보건기상지수**](https://www.data.go.kr/dataset/15000154/openapi.do)
   - 기상청: [**종관기상관측**](https://data.kma.go.kr/data/grnd/selectAsosRltmList.do)
-  - 환경부: [**시군구별 실시간 대기오염**](https://www.data.go.kr/dataset/15000581/openapi.do)
+  - 환경부/한국환경공단: [**시군구별 실시간 평균 대기오염**](https://www.data.go.kr/dataset/15000581/openapi.do)
+  - 환경부/한국환경공단: [**시도별 실시간 대기오염 측정**](https://www.data.go.kr/dataset/15000581/openapi.do)
   - 국민건강보험공단: [**예측진료정보**](https://www.data.go.kr/dataset/15028050/openapi.do)
   - 식품의약품안전처: [**의약품 부작용**](https://www.data.go.kr/dataset/15020627/openapi.do)
   - 식품의약품안전처: [**식품 영양성분**](https://www.data.go.kr/dataset/15020625/openapi.do)
@@ -284,7 +285,7 @@ datagokR
 
 > **3-1) [**시군구별 실시간 대기오염**](https://www.data.go.kr/dataset/15000581/openapi.do)(meDust)**
 > 
-> 시도의 각 시군구별 측정소목록의 일반 항목(아황산가스, 일산화탄소, 오존, 이산화질소, 미세먼지 등)에 대한 시간대별 평균농도를 제공합니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15000581/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 dataframe 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> 시도의 각 시군구별 측정소목록의 일반 항목(아황산가스, 일산화탄소, 오존, 이산화질소, 미세먼지 등)에 대한 시간대별 평균농도를 제공합니다. 데이터는 실시간 관측된 자료이며 측정소 현지 사정이나 데이터의 수신상태에 따라 미수신될 수 있습니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15000581/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 dataframe 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
 > - key: (필수, 문자). 기상자료개방 포털에서 발급받은 API 키
 > - localeName: (필수, 문자). 시/도 이름. 서울, 경남, 충북 등과 같이 길이 2의 형태로 입력.
 > - condition: (필수, 문자). 데이터 수집 조건. 'HOUR'을 입력할 경우 함수를 실행한 시간대의 데이터를, 'DAILY'를 입력할 경우 함수를 실행한 시간대부터 24시간 전까지의 시간대별 데이터를 수집
@@ -294,6 +295,34 @@ datagokR
 # example
 > key <- 'your key from data.kma.go.kr'
 > data <- meDust(key, localName = c('서울', '경기', '세종'), condition = 'HOUR')
+# A tibble: 57 x 8
+   time             city     so2    co    o3   no2  pm10  pm25
+   <chr>            <chr>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+ 1 2019-11-26 16:00 강남구 0.003   0.4 0.012 0.036    17    11
+ 2 2019-11-26 16:00 강동구 0.003   0.4 0.02  0.025    21    10
+ 3 2019-11-26 16:00 강북구 0.002   0.4 0.014 0.032    19    10
+ 4 2019-11-26 16:00 강서구 0.005   0.4 0.011 0.039    29    NA
+ 5 2019-11-26 16:00 관악구 0.003   0.3 0.017 0.03     18     9
+ 6 2019-11-26 16:00 광진구 0.002   0.4 0.014 0.024    10     9
+ 7 2019-11-26 16:00 구로구 0.003   0.3 0.021 0.025    13    10
+ 8 2019-11-26 16:00 금천구 0.003   0.4 0.015 0.029    16    10
+ 9 2019-11-26 16:00 노원구 0.004   0.4 0.016 0.028    16    12
+10 2019-11-26 16:00 도봉구 0.002   0.6 0.014 0.028    13     8
+# ... with 47 more rows
+```
+
+
+> **3-2) [**시도별 실시간 대기오염 측정**](https://www.data.go.kr/dataset/15000581/openapi.do)(meDust2)**
+> 
+> 시도명을 검색조건으로 하여 해당 시간의 시도별 측정소목록에 대한 일반 항목과 CAI 최종 실시간 측정값(아황산가스, 일산화탄소, 오존, 이산화질소, 미세먼지 등)과 지수 정보 조회 기능을 제공합니다. 데이터는 실시간 관측된 자료이며 측정소 현지 사정이나 데이터의 수신상태에 따라 미수신될 수 있습니다. 자세한 사항은 [링크](https://www.data.go.kr/dataset/15000581/openapi.do)의 참고문서로 확인하시기 바랍니다. 함수 실행 결과는 R의 dataframe 타입입니다. 함수에서 사용하는 argument는 다음과 같습니다.
+> - key: (필수, 문자). 기상자료개방 포털에서 발급받은 API 키
+> - localeName: (필수, 문자). 시/도 이름. 서울, 경남, 충북 등과 같이 길이 2의 형태로 입력.
+> - vebose: (옵션, T/F) 다운로드의 진행상황의 콘솔 출력여부. 기본값은 False
+
+```
+# example
+> key <- 'your key from data.kma.go.kr'
+> data <- meDust2(key, localName = c('서울', '부산', '세종'), condition = 'HOUR')
 # A tibble: 57 x 8
    time             city     so2    co    o3   no2  pm10  pm25
    <chr>            <chr>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>

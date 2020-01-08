@@ -4,7 +4,7 @@
 \alias{find_xml}
 \title{Find text from xml2::read_xml object and if not exist, return NA.}
 \usage{
-find_xml(xml, tag)
+find_xml(xml, tag, type = "char")
 }
 \arguments{
 \item{xml}{result of xml2::read_xml function.}

@@ -68,12 +68,12 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
 
   ### 2. REST url
   ## End Point.
-  url <- paste("http://data.kma.go.kr/apiData/getData?type=json&dataCd=ASOS&dateCd=DAY&",
+  url <- paste("http://data.kma.go.kr/apiData/getData?type=xml&dataCd=ASOS&dateCd=DAY&",
                "pageIndex=1&apiKey=", key, sep = "")
 
   ## count.
-  listCnt <- ifelse(as.numeric(toDate-fromDate)*2 == 0, 2, as.numeric(toDate-fromDate)*2)
-  url <- paste(url, "&schListCnt=", listCnt, sep = "")
+  #listCnt <- ifelse(as.numeric(toDate-fromDate)*2 == 0, 2, as.numeric(toDate-fromDate)*2)
+  url <- paste(url, "&schListCnt=", 999, sep = "")
 
   ## from & end date.
   url <- paste(url, "&startDt=", gsub("\\D", "", fromDate),
@@ -94,111 +94,107 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
     # parsing xml codes with repeat and trycatch.
-    tmp_xml <- datagokR:::try_xmlToList(urls[[i]])
-
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp.xml <- tryCatch(
-        {
-          httr::GET(urls[[i]]) %>% httr::content(as = "parsed", encoding = 'UTF-8')
-          # read_xml(urls[[i]]) %>% xmlTreeParse %>% xmlToList
-        }, error = function(e){
-          NULL
-        }
-      )
-
-      if(slow){
-        Sys.sleep(stats::runif(1, 0, 2.5))
-      }
-      if(!is.null(tmp.xml) | ii >= 15) break
-    }
+    tmp.xml <- datagokR:::try_read_xml(urls[[i]])
+    msg <- xml2::xml_text(xml2::xml_find_all(tmp.xml, '//msg'))
 
     # if tmp.xml is error, go next.
-    if(is.null(tmp.xml)){
+    if(msg != 'success'){
+      if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
       meta[i,]$success <- "error"
       next
     }else{
-      meta[i,]$success <- tmp.xml[[lapply(tmp.xml, function(x) grepl("msg", names(x))) %>% unlist %>% which]] %>%
-        as.character
+      meta[i,]$success <- msg
     }
 
     if(slow){
       Sys.sleep(stats::runif(1, 0, 1.5))
-    }
+    }; location <- xml2::xml_find_all(tmp.xml, './/info')
 
-    # if suc is "N", skip.
-    if(meta[i,]$success != "success"){
-      meta[i,]$success <- "error"
+    all.data[[i]] <- data.frame(
+      "date" = datagokR:::find_xml(location, './TM'),
+      "id" = datagokR:::find_xml(location, './STN_ID'),
+      "name" = datagokR:::find_xml(location, './STN_NM'),
 
-      if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
+      # air temperature
+      "avg_ta" = datagokR:::find_xml(location, './AVG_TA', 'num'),
+      "max_ta" = datagokR:::find_xml(location, './MAX_TA', 'num'),
+      "max_ta_hrmt" = datagokR:::find_xml(location, './MAX_TA_HRMT'),
+      "min_ta" = datagokR:::find_xml(location, './MIN_TA', 'num'),
+      "min_ta_hrmt" = datagokR:::find_xml(location, './MIN_TA_HRMT'),
 
-      next
-    }else if(meta[i,]$success == "success"){
-      location <- tmp.xml[[lapply(tmp.xml, function(x) grepl("info", names(x))) %>% unlist %>% which]][[1]]
+      # sea-level pressure
+      "avg_ps" = datagokR:::find_xml(location, './AVG_PS', 'num'),
+      "max_ps" = datagokR:::find_xml(location, './MAX_PS', 'num'),
+      "max_ps_hrmt" = datagokR:::find_xml(location, './MAX_PS_HRMT'),
+      "min_ps" = datagokR:::find_xml(location, './MIN_PS', 'num'),
+      "min_ps_hrmt" = datagokR:::find_xml(location, './MIN_PS_HRMT'),
 
-      all.data[[i]] <- data.frame(
-        "date" = lapply(location, function(x) ifelse(is.null(x$TM), "NA", x$TM)) %>% as.character,
-        "brch" = lapply(location, function(x) ifelse(is.null(x$STN_ID), "NA", x$STN_ID)) %>% as.numeric,
-        "brch_nme" = lapply(location, function(x) ifelse(is.null(x$STN_NM), "NA", x$STN_NM)) %>% as.character,
-        "ertTmp_1.5m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M1_5_TE), "NA", x$AVG_M1_5_TE)) %>% as.numeric,
-        "rain_9_9" = lapply(location, function(x) ifelse(is.null(x$N9_9_RN), "NA", x$N9_9_RN)) %>% as.numeric,
-        "seaPrs_min" = lapply(location, function(x) ifelse(is.null(x$MIN_PS), "NA", x$MIN_PS)) %>% as.numeric,
-        "hum_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_RHM), "NA", x$AVG_RHM)) %>% as.numeric,
-        "insWdSpDrc_max" = lapply(location, function(x) ifelse(is.null(x$MAX_INS_WS_WD), "NA", x$MAX_INS_WS_WD)) %>% as.numeric,
-        "surfTmp_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_TS), "NA", x$AVG_TS)) %>% as.numeric,
-        "vapPrs_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_PV), "NA", x$AVG_PV)) %>% as.numeric,
-        "hum_min" = lapply(location, function(x) ifelse(is.null(x$MIN_RHM), "NA", x$MIN_RHM)) %>% as.numeric,
-        "sunDurTm_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_SS_HR), "NA", x$SUM_SS_HR)) %>% as.numeric,
-        "sunDur_sum" = lapply(location, function(x) ifelse(is.null(x$SS_DUR), "NA", x$SS_DUR)) %>% as.numeric,
-        "seaPrs_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_PS), "NA", x$AVG_PS)) %>% as.numeric,
-        "ertTmp_5cm_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_CM5_TE), "NA", x$AVG_CM5_TE)) %>% as.numeric,
-        "wdSp_max" = lapply(location, function(x) ifelse(is.null(x$MAX_WS), "NA", x$MAX_WS)) %>% as.numeric,
-        "grsTmp_min" = lapply(location, function(x) ifelse(is.null(x$MIN_TG), "NA", x$MIN_TG)) %>% as.numeric,
-        "wdSpDrc_max" = lapply(location, function(x) ifelse(is.null(x$MAX_WS_WD), "NA", x$MAX_WS_WD)) %>% as.numeric,
-        "smlEpr_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_SML_EV), "NA", x$SUM_SML_EV)) %>% as.numeric,
-        "ttlCld_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_TCA), "NA", x$AVG_TCA)) %>% as.numeric,
-        "slr_1hr_max" = lapply(location, function(x) ifelse(is.null(x$HR1_MAX_ICSR), "NA", x$HR1_MAX_ICSR)) %>% as.numeric,
-        "dewTmp_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_TD), "NA", x$AVG_TD)) %>% as.numeric,
-        "seaPrs_max" = lapply(location, function(x) ifelse(is.null(x$MAX_PS), "NA", x$MAX_PS)) %>% as.numeric,
-        "ertTmp_20cm_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_CM20_TE), "NA", x$AVG_CM20_TE)) %>% as.numeric,
-        "extmSnw_day" = lapply(location, function(x) ifelse(is.null(x$DD_MES), "NA", x$DD_MES)) %>% as.numeric,
-        "arTmp_min" = lapply(location, function(x) ifelse(is.null(x$MIN_TA), "NA", x$MIN_TA)) %>% as.numeric,
-        "ertTmp_5m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M5_0_TE), "NA", x$AVG_M5_0_TE)) %>% as.numeric,
-        "arTmp_max" = lapply(location, function(x) ifelse(is.null(x$MAX_TA), "NA", x$MAX_TA)) %>% as.numeric,
-        "wdRun_sum" = lapply(location, function(x) ifelse(is.null(x$HR24_SUM_RWS), "NA", x$HR24_SUM_RWS)) %>% as.numeric,
-        "ertTmp_3m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M3_0_TE), "NA", x$AVG_M3_0_TE)) %>% as.numeric,
-        "ertTmp_10cm_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_CM10_TE), "NA", x$AVG_CM10_TE)) %>% as.numeric,
-        "ertTmp_0.5m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M0_5_TE), "NA", x$AVG_M0_5_TE)) %>% as.numeric,
-        "insWdSp_max" = lapply(location, function(x) ifelse(is.null(x$MAX_INS_WS), "NA", x$MAX_INS_WS)) %>% as.numeric,
-        "cldAmt_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_TCA), "NA", x$AVG_TCA)) %>% as.numeric,
-        "ertTmp_30cm_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_CM30_TE), "NA", x$AVG_CM30_TE)) %>% as.numeric,
-        "ertTmp_1m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M1_0_TE), "NA", x$AVG_M1_0_TE)) %>% as.numeric,
-        "grsSun_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_GSR), "NA", x$SUM_GSR)) %>% as.numeric,
-        "araPrs_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_PA), "NA", x$AVG_PA)) %>% as.numeric,
-        "wdSp_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_WS), "NA", x$AVG_WS)) %>% as.numeric,
-        "fogDur_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_FOG_DUR), "NA", x$SUM_FOG_DUR)) %>% as.numeric,
-        "lrgEpr_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_LRG_EV), "NA", x$SUM_LRG_EV)) %>% as.numeric,
-        "frsSnw_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_DPTH_FHSC), "NA", x$SUM_DPTH_FHSC)) %>% as.numeric,
-        "frsSnw_day" = lapply(location, function(x) ifelse(is.null(x$DD_MEFS), "NA", x$DD_MEFS)) %>% as.numeric,
-        "rain_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_RN), "NA", x$SUM_RN)) %>% as.numeric,
-        "rain_1hr_max" = lapply(location, function(x) ifelse(is.null(x$HR1_MAX_RN), "NA", x$HR1_MAX_RN)) %>% as.numeric,
-        "rain_10mts_max" = lapply(location, function(x) ifelse(is.null(x$mi10_MAX_RN), "NA", x$mi10_MAX_RN)) %>% as.numeric,
-        stringsAsFactors = F
-      ) %>% dplyr::as.tbl()
+      # wind speed
+      "avg_ws" = datagokR:::find_xml(location, './AVG_WS', 'num'),
+      "max_wd" = datagokR:::find_xml(location, './MAX_WD', 'num'),
+      "max_ws" = datagokR:::find_xml(location, './MAX_WS', 'num'),
+      "max_ws_wd" = datagokR:::find_xml(location, './MAX_WS_WD', 'num'),
+      "max_ws_hrmt" = datagokR:::find_xml(location, './MAX_WS_HRMT'),
+      "max_ins_ws" = datagokR:::find_xml(location, './MAX_INS_WS', 'num'),
+      "max_ins_ws_wd" = datagokR:::find_xml(location, './MAX_INS_WS_WD', 'num'),
+      "max_ins_ws_hrmt" = datagokR:::find_xml(location, './MAX_INS_WS_HRMT'),
 
-      all.data[[i]] <- all.data[[i]] %>% dplyr::select(c("date", "brch", "brch_nme", sort(colnames(all.data[[i]])[-(1:3)])))
+      # earth temperature
+      "avg_cm10_te" = datagokR:::find_xml(location, './AVG_CM10_TE', 'num'),
+      "avg_cm20_te" = datagokR:::find_xml(location, './AVG_CM20_TE', 'num'),
+      "avg_cm30_te" = datagokR:::find_xml(location, './AVG_CM30_TE', 'num'),
+      "avg_cm5_te" = datagokR:::find_xml(location, './AVG_CM5_TE', 'num'),
+      "avg_m0_5_te" = datagokR:::find_xml(location, './AVG_M0_5_TE', 'num'),
+      "avg_m1_0_te" = datagokR:::find_xml(location, './AVG_M1_0_TE', 'num'),
+      "avg_m1_5_te" = datagokR:::find_xml(location, './AVG_M1_5_TE', 'num'),
+      "avg_m3_0_te" = datagokR:::find_xml(location, './AVG_M3_0_TE', 'num'),
+      "avg_m5_0_te" = datagokR:::find_xml(location, './AVG_M5_0_TE', 'num'),
 
-      # Encoding(all.data[[i]]$brch_nme) <- rep("UTF-8", nrow(all.data[[i]]))
-      # all.data[[i]]$brch_nme <- enc2utf8(all.data[[i]]$brch_nme)
-    } # if statement regarding to SuccessYN.
+      # rain
+      "n9_9_rn" = datagokR:::find_xml(location, './N9_9_RN', 'num'),
+      "mi10_max_rn" = datagokR:::find_xml(location, './MI10_MAX_RN', 'num'),
+      "mi10_max_rn_hrmt" = datagokR:::find_xml(location, './MI10_MAX_RN_HRMT', 'num'),
+      "hr1_max_rn" = datagokR:::find_xml(location, './HR1_MAX_RN', 'num'),
+      "hr1_max_rn_hrmt" = datagokR:::find_xml(location, './HR1_MAX_RN_HRMT', 'num'),
+      "sum_rn" = datagokR:::find_xml(location, './SUM_RN', 'num'),
+      "sum_rn_dur" = datagokR:::find_xml(location, './SUM_RN_DUR', 'num'),
 
+      # snow
+      "dd_mefs" = datagokR:::find_xml(location, './DD_MEFS', 'num'),
+      "dd_mefs_hrmt" = datagokR:::find_xml(location, './DD_MEFS_HRMT', 'num'),
+      "dd_mes" = datagokR:::find_xml(location, './DD_MES', 'num'),
+      "dd_mes_hrmt" = datagokR:::find_xml(location, './DD_MES_HRMT', 'num'),
+      "sum_dpth_fhsc" = datagokR:::find_xml(location, './SUM_DPTH_FHSC', 'num'),
+
+      # relative humidity
+      "avg_rhm" = datagokR:::find_xml(location, './AVG_RHM', 'num'),
+      "min_rhm" = datagokR:::find_xml(location, './MIN_RHM', 'num'),
+      "min_rhm_hrmt" = datagokR:::find_xml(location, './MIN_RHM_HRMT'),
+
+      # etc
+      "hr1_max_icsr" = datagokR:::find_xml(location, './HR1_MAX_ICSR', 'num'),
+      "hr1_max_icsr_hrmt" = datagokR:::find_xml(location, './HR1_MAX_ICSR_HRMT', 'num'),
+      "ss_dur" = datagokR:::find_xml(location, './SS_DUR', 'num'),
+
+      "min_tg" = datagokR:::find_xml(location, './MIN_TG', 'num'),
+      "avg_td" = datagokR:::find_xml(location, './AVG_TD', 'num'),
+      "avg_tca" = datagokR:::find_xml(location, './AVG_TCA', 'num'),
+      "avg_lmac" = datagokR:::find_xml(location, './AVG_LMAC', 'num'),
+      "avg_pv" = datagokR:::find_xml(location, './AVG_PV', 'num'),
+      "avg_ts" = datagokR:::find_xml(location, './AVG_TS', 'num'),
+      "avg_pa" = datagokR:::find_xml(location, './AVG_PA', 'num'),
+
+      "sum_lrg_ev" = datagokR:::find_xml(location, './SUM_LRG_EV', 'num'),
+      "sum_sml_ev" = datagokR:::find_xml(location, './SUM_SML_EV', 'num'),
+      "sum_fog_dur" = datagokR:::find_xml(location, './SUM_FOG_DUR', 'num'),
+      "sum_gsr" = datagokR:::find_xml(location, './SUM_GSR', 'num'),
+      "sum_ss_hr" = datagokR:::find_xml(location, './SUM_SS_HR', 'num'),
+      "sum_rws_hr24" = datagokR:::find_xml(location, './HR24_SUM_RWS', 'num'),
+      stringsAsFactors = F
+    ) %>% dplyr::as.tbl()
     if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
-
   } # end of loop i.
-
   data <- dplyr::bind_rows(all.data)
-
   ### 4. checking error retry.
   if(errorCheck & nrow(meta[meta$success != "success",]) != 0){
     errors <- meta[meta$success != "success",]
@@ -206,23 +202,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
 
     for(i in 1:nrow(errors)){
       # parsing xml codes with repeat and trycatch.
-      ii <- 0
-      repeat{
-        ii <- ii + 1
-        tmp.xml <- tryCatch(
-          {
-            httr::GET(errors$url[i]) %>%
-              httr::content(as = "parsed", encoding = 'UTF-8')
-          }, error = function(e){
-            NULL
-          }
-        )
-
-        if(slow){
-          Sys.sleep(stats::runif(1, 0, 2.5))
-        }
-        if(!is.null(tmp.xml) | ii >= 15) break
-      }
+      tmp.xml <- datagokR:::try_GET_content(errors$url[i])
 
       if(slow){
         Sys.sleep(stats::runif(1, 0, 1.5))
@@ -241,61 +221,91 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
         location <- tmp.xml[[lapply(tmp.xml, function(x) grepl("info", names(x))) %>% unlist %>% which]][[1]]
 
         re.data[[i]] <- data.frame(
-          "date" = lapply(location, function(x) ifelse(is.null(x$TM), "NA", x$TM)) %>% as.character,
-          "brch" = lapply(location, function(x) ifelse(is.null(x$STN_ID), "NA", x$STN_ID)) %>% as.numeric,
-          "brch_nme" = lapply(location, function(x) ifelse(is.null(x$STN_NM), "NA", x$STN_NM)) %>% as.character,
-          "ertTmp_1.5m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M1_5_TE), "NA", x$AVG_M1_5_TE)) %>% as.numeric,
-          "rain_9_9" = lapply(location, function(x) ifelse(is.null(x$N9_9_RN), "NA", x$N9_9_RN)) %>% as.numeric,
-          "seaPrs_min" = lapply(location, function(x) ifelse(is.null(x$MIN_PS), "NA", x$MIN_PS)) %>% as.numeric,
-          "hum_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_RHM), "NA", x$AVG_RHM)) %>% as.numeric,
-          "insWdSpDrc_max" = lapply(location, function(x) ifelse(is.null(x$MAX_INS_WS_WD), "NA", x$MAX_INS_WS_WD)) %>% as.numeric,
-          "surfTmp_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_TS), "NA", x$AVG_TS)) %>% as.numeric,
-          "vapPrs_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_PV), "NA", x$AVG_PV)) %>% as.numeric,
-          "hum_min" = lapply(location, function(x) ifelse(is.null(x$MIN_RHM), "NA", x$MIN_RHM)) %>% as.numeric,
-          "sunDurTm_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_SS_HR), "NA", x$SUM_SS_HR)) %>% as.numeric,
-          "sunDur_sum" = lapply(location, function(x) ifelse(is.null(x$SS_DUR), "NA", x$SS_DUR)) %>% as.numeric,
-          "seaPrs_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_PS), "NA", x$AVG_PS)) %>% as.numeric,
-          "ertTmp_5cm_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_CM5_TE), "NA", x$AVG_CM5_TE)) %>% as.numeric,
-          "wdSp_max" = lapply(location, function(x) ifelse(is.null(x$MAX_WS), "NA", x$MAX_WS)) %>% as.numeric,
-          "grsTmp_min" = lapply(location, function(x) ifelse(is.null(x$MIN_TG), "NA", x$MIN_TG)) %>% as.numeric,
-          "wdSpDrc_max" = lapply(location, function(x) ifelse(is.null(x$MAX_WS_WD), "NA", x$MAX_WS_WD)) %>% as.numeric,
-          "smlEpr_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_SML_EV), "NA", x$SUM_SML_EV)) %>% as.numeric,
-          "ttlCld_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_TCA), "NA", x$AVG_TCA)) %>% as.numeric,
-          "slr_1hr_max" = lapply(location, function(x) ifelse(is.null(x$HR1_MAX_ICSR), "NA", x$HR1_MAX_ICSR)) %>% as.numeric,
-          "dewTmp_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_TD), "NA", x$AVG_TD)) %>% as.numeric,
-          "seaPrs_max" = lapply(location, function(x) ifelse(is.null(x$MAX_PS), "NA", x$MAX_PS)) %>% as.numeric,
-          "ertTmp_20cm_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_CM20_TE), "NA", x$AVG_CM20_TE)) %>% as.numeric,
-          "extmSnw_day" = lapply(location, function(x) ifelse(is.null(x$DD_MES), "NA", x$DD_MES)) %>% as.numeric,
-          "arTmp_min" = lapply(location, function(x) ifelse(is.null(x$MIN_TA), "NA", x$MIN_TA)) %>% as.numeric,
-          "ertTmp_5m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M5_0_TE), "NA", x$AVG_M5_0_TE)) %>% as.numeric,
-          "arTmp_max" = lapply(location, function(x) ifelse(is.null(x$MAX_TA), "NA", x$MAX_TA)) %>% as.numeric,
-          "wdRun_sum" = lapply(location, function(x) ifelse(is.null(x$HR24_SUM_RWS), "NA", x$HR24_SUM_RWS)) %>% as.numeric,
-          "ertTmp_3m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M3_0_TE), "NA", x$AVG_M3_0_TE)) %>% as.numeric,
-          "ertTmp_10cm_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_CM10_TE), "NA", x$AVG_CM10_TE)) %>% as.numeric,
-          "ertTmp_0.5m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M0_5_TE), "NA", x$AVG_M0_5_TE)) %>% as.numeric,
-          "insWdSp_max" = lapply(location, function(x) ifelse(is.null(x$MAX_INS_WS), "NA", x$MAX_INS_WS)) %>% as.numeric,
-          "cldAmt_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_TCA), "NA", x$AVG_TCA)) %>% as.numeric,
-          "ertTmp_30cm_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_CM30_TE), "NA", x$AVG_CM30_TE)) %>% as.numeric,
-          "ertTmp_1m_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_M1_0_TE), "NA", x$AVG_M1_0_TE)) %>% as.numeric,
-          "grsSun_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_GSR), "NA", x$SUM_GSR)) %>% as.numeric,
-          "araPrs_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_PA), "NA", x$AVG_PA)) %>% as.numeric,
-          "wdSp_avg" = lapply(location, function(x) ifelse(is.null(x$AVG_WS), "NA", x$AVG_WS)) %>% as.numeric,
-          "fogDur_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_FOG_DUR), "NA", x$SUM_FOG_DUR)) %>% as.numeric,
-          "lrgEpr_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_LRG_EV), "NA", x$SUM_LRG_EV)) %>% as.numeric,
-          "frsSnw_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_DPTH_FHSC), "NA", x$SUM_DPTH_FHSC)) %>% as.numeric,
-          "frsSnw_day" = lapply(location, function(x) ifelse(is.null(x$DD_MEFS), "NA", x$DD_MEFS)) %>% as.numeric,
-          "rain_sum" = lapply(location, function(x) ifelse(is.null(x$SUM_RN), "NA", x$SUM_RN)) %>% as.numeric,
-          "rain_1hr_max" = lapply(location, function(x) ifelse(is.null(x$HR1_MAX_RN), "NA", x$HR1_MAX_RN)) %>% as.numeric,
-          "rain_10mts_max" = lapply(location, function(x) ifelse(is.null(x$mi10_MAX_RN), "NA", x$mi10_MAX_RN)) %>% as.numeric,
+          "date" = datagokR:::find_xml(location, './TM'),
+          "id" = datagokR:::find_xml(location, './STN_ID'),
+          "name" = datagokR:::find_xml(location, './STN_NM'),
+
+          # air temperature
+          "avg_ta" = datagokR:::find_xml(location, './AVG_TA', 'num'),
+          "max_ta" = datagokR:::find_xml(location, './MAX_TA', 'num'),
+          "max_ta_hrmt" = datagokR:::find_xml(location, './MAX_TA_HRMT'),
+          "min_ta" = datagokR:::find_xml(location, './MIN_TA', 'num'),
+          "min_ta_hrmt" = datagokR:::find_xml(location, './MIN_TA_HRMT'),
+
+          # sea-level pressure
+          "avg_ps" = datagokR:::find_xml(location, './AVG_PS', 'num'),
+          "max_ps" = datagokR:::find_xml(location, './MAX_PS', 'num'),
+          "max_ps_hrmt" = datagokR:::find_xml(location, './MAX_PS_HRMT'),
+          "min_ps" = datagokR:::find_xml(location, './MIN_PS', 'num'),
+          "min_ps_hrmt" = datagokR:::find_xml(location, './MIN_PS_HRMT'),
+
+          # wind speed
+          "avg_ws" = datagokR:::find_xml(location, './AVG_WS', 'num'),
+          "max_wd" = datagokR:::find_xml(location, './MAX_WD', 'num'),
+          "max_ws" = datagokR:::find_xml(location, './MAX_WS', 'num'),
+          "max_ws_wd" = datagokR:::find_xml(location, './MAX_WS_WD', 'num'),
+          "max_ws_hrmt" = datagokR:::find_xml(location, './MAX_WS_HRMT'),
+          "max_ins_ws" = datagokR:::find_xml(location, './MAX_INS_WS', 'num'),
+          "max_ins_ws_wd" = datagokR:::find_xml(location, './MAX_INS_WS_WD', 'num'),
+          "max_ins_ws_hrmt" = datagokR:::find_xml(location, './MAX_INS_WS_HRMT'),
+
+          # earth temperature
+          "avg_cm10_te" = datagokR:::find_xml(location, './AVG_CM10_TE', 'num'),
+          "avg_cm20_te" = datagokR:::find_xml(location, './AVG_CM20_TE', 'num'),
+          "avg_cm30_te" = datagokR:::find_xml(location, './AVG_CM30_TE', 'num'),
+          "avg_cm5_te" = datagokR:::find_xml(location, './AVG_CM5_TE', 'num'),
+          "avg_m0_5_te" = datagokR:::find_xml(location, './AVG_M0_5_TE', 'num'),
+          "avg_m1_0_te" = datagokR:::find_xml(location, './AVG_M1_0_TE', 'num'),
+          "avg_m1_5_te" = datagokR:::find_xml(location, './AVG_M1_5_TE', 'num'),
+          "avg_m3_0_te" = datagokR:::find_xml(location, './AVG_M3_0_TE', 'num'),
+          "avg_m5_0_te" = datagokR:::find_xml(location, './AVG_M5_0_TE', 'num'),
+
+          # rain
+          "n9_9_rn" = datagokR:::find_xml(location, './N9_9_RN', 'num'),
+          "mi10_max_rn" = datagokR:::find_xml(location, './MI10_MAX_RN', 'num'),
+          "mi10_max_rn_hrmt" = datagokR:::find_xml(location, './MI10_MAX_RN_HRMT', 'num'),
+          "hr1_max_rn" = datagokR:::find_xml(location, './HR1_MAX_RN', 'num'),
+          "hr1_max_rn_hrmt" = datagokR:::find_xml(location, './HR1_MAX_RN_HRMT', 'num'),
+          "sum_rn" = datagokR:::find_xml(location, './SUM_RN', 'num'),
+          "sum_rn_dur" = datagokR:::find_xml(location, './SUM_RN_DUR', 'num'),
+
+          # snow
+          "dd_mefs" = datagokR:::find_xml(location, './DD_MEFS', 'num'),
+          "dd_mefs_hrmt" = datagokR:::find_xml(location, './DD_MEFS_HRMT', 'num'),
+          "dd_mes" = datagokR:::find_xml(location, './DD_MES', 'num'),
+          "dd_mes_hrmt" = datagokR:::find_xml(location, './DD_MES_HRMT', 'num'),
+          "sum_dpth_fhsc" = datagokR:::find_xml(location, './SUM_DPTH_FHSC', 'num'),
+
+          # relative humidity
+          "avg_rhm" = datagokR:::find_xml(location, './AVG_RHM', 'num'),
+          "min_rhm" = datagokR:::find_xml(location, './MIN_RHM', 'num'),
+          "min_rhm_hrmt" = datagokR:::find_xml(location, './MIN_RHM_HRMT'),
+
+          # etc
+          "hr1_max_icsr" = datagokR:::find_xml(location, './HR1_MAX_ICSR', 'num'),
+          "hr1_max_icsr_hrmt" = datagokR:::find_xml(location, './HR1_MAX_ICSR_HRMT', 'num'),
+          "ss_dur" = datagokR:::find_xml(location, './SS_DUR', 'num'),
+
+          "min_tg" = datagokR:::find_xml(location, './MIN_TG', 'num'),
+          "avg_td" = datagokR:::find_xml(location, './AVG_TD', 'num'),
+          "avg_tca" = datagokR:::find_xml(location, './AVG_TCA', 'num'),
+          "avg_lmac" = datagokR:::find_xml(location, './AVG_LMAC', 'num'),
+          "avg_pv" = datagokR:::find_xml(location, './AVG_PV', 'num'),
+          "avg_ts" = datagokR:::find_xml(location, './AVG_TS', 'num'),
+          "avg_pa" = datagokR:::find_xml(location, './AVG_PA', 'num'),
+
+          "sum_lrg_ev" = datagokR:::find_xml(location, './SUM_LRG_EV', 'num'),
+          "sum_sml_ev" = datagokR:::find_xml(location, './SUM_SML_EV', 'num'),
+          "sum_fog_dur" = datagokR:::find_xml(location, './SUM_FOG_DUR', 'num'),
+          "sum_gsr" = datagokR:::find_xml(location, './SUM_GSR', 'num'),
+          "sum_ss_hr" = datagokR:::find_xml(location, './SUM_SS_HR', 'num'),
+          "sum_rws_hr24" = datagokR:::find_xml(location, './HR24_SUM_RWS', 'num'),
           stringsAsFactors = F
         ) %>% dplyr::as.tbl()
-
-        re.data[[i]] <- re.data[[i]] %>% dplyr::select(c("date", "brch", "brch_nme", sort(colnames(re.data[[i]])[-(1:3)])))
       } # if statement regarding to SuccessYN.
     } # end of loop i.
-
     eror.data <- dplyr::bind_rows(re.data)
-    data <- dplyr::bind_rows(data, re.data)
+    data <- dplyr::bind_rows(data, eror.data)
   } # end of errorCheck statement.
 
   result <- list(

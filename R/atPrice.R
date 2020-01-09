@@ -38,10 +38,11 @@ atPrice <- function(key, date, verbose = F){
                  key, 'Grid_20141225000000000163_1', date)
 
   tmp_xml <- datagokR:::try_read_xml(url)
-  total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCnt'))
+  total <- as.numeric(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//totalCnt')))
 
   if(is.na(total)){
-    warning(datagokR:::find_xml(tmp_xml, '//message'), '\nThe function return NULL')
+    warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//message')),
+            '\nThe function return NULL')
     return(NULL)
   }else if(total == 0){
     warning(sprintf('There is no data at %s', as.Date(date, '%Y%m%d')))
@@ -62,32 +63,33 @@ atPrice <- function(key, date, verbose = F){
   for(i in 1:length(urls)){
     tmp_xml <- datagokR:::try_read_xml(urls[i])
 
-    if(!is.na(datagokR:::find_xml(tmp_xml, '//cmmMsgHeader'))){
-      warning(datagokR:::find_xml(tmp_xml, '//message'), '\nThe function return NULL')
+    if(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//code')) != 'INFO-000'){
+      warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//message')))
       next()
     }
 
+    row <- xml2::xml_find_all(tmp_xml, '//row')
     all_data[[i]] <- data.frame(
       date = date,
 
-      locName = datagokR:::find_xml(tmp_xml, '//AREA_NM'),
-      locCode = datagokR:::find_xml(tmp_xml, '//AREA_CD'),
+      locName = datagokR:::find_xml(row, './AREA_NM'),
+      locCode = datagokR:::find_xml(row, './AREA_CD'),
 
-      mrkName = datagokR:::find_xml(tmp_xml, '//MRKT_NM'),
-      mrkCode = datagokR:::find_xml(tmp_xml, '//MRKT_CD'),
+      mrkName = datagokR:::find_xml(row, './MRKT_NM'),
+      mrkCode = datagokR:::find_xml(row, './MRKT_CD'),
 
-      catName = datagokR:::find_xml(tmp_xml, '//FRMPRD_CATGORY_NM'),
-      catCode = datagokR:::find_xml(tmp_xml, '//FRMPRD_CATGORY_CD'),
-      itmName = datagokR:::find_xml(tmp_xml, '//PRDLST_NM'),
-      itmCode = datagokR:::find_xml(tmp_xml, '//PRDLST_CD'),
-      spcName = datagokR:::find_xml(tmp_xml, '//SPCIES_NM'),
-      spcCode = datagokR:::find_xml(tmp_xml, '//SPCIES_CD'),
+      catName = datagokR:::find_xml(row, './FRMPRD_CATGORY_NM'),
+      catCode = datagokR:::find_xml(row, './FRMPRD_CATGORY_CD'),
+      itmName = datagokR:::find_xml(row, './PRDLST_NM'),
+      itmCode = datagokR:::find_xml(row, './PRDLST_CD'),
+      spcName = datagokR:::find_xml(row, './SPCIES_NM'),
+      spcCode = datagokR:::find_xml(row, './SPCIES_CD'),
 
-      grdName = datagokR:::find_xml(tmp_xml, '//GRAD_NM'),
-      grdCode = datagokR:::find_xml(tmp_xml, '//GRAD_CD'),
+      grdName = datagokR:::find_xml(row, './GRAD_NM'),
+      grdCode = datagokR:::find_xml(row, './GRAD_CD'),
 
-      unit = datagokR:::find_xml(tmp_xml, '//EXAMIN_UNIT'),
-      price = as.numeric(datagokR:::find_xml(tmp_xml, '//AMT')),
+      unit = datagokR:::find_xml(row, './EXAMIN_UNIT'),
+      price = datagokR:::find_xml(row, './AMT', 'num'),
 
       stringsAsFactors = F
     )

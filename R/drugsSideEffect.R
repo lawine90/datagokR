@@ -26,30 +26,31 @@ drugsSideEffect <- function(key){
   ### 3. urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
   tmp_xml <- datagokR:::try_read_xml(urls)
-  total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCount'))
+  total <- as.numeric(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//totalCount')))
 
   if(is.na(total)){
-    warning(datagokR:::find_xml(tmp_xml, '//returnAuthMsg'), '\nThe function return NULL')
+    warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//returnAuthMsg')),
+            '\nThe function return NULL')
     return(NULL)
   }else if(total == 0){
-    print('There is no data. Please check regist_numb')
+    print('There is no data.')
     return(NULL)
   }
 
+  item <- xml2::xml_find_all(tmp_xml, '//item')
   all_data <- data.frame(
-    name_kor = datagokR:::find_xml(tmp_xml, '//COL_001'),
-    name_eng = datagokR:::find_xml(tmp_xml, '//COL_002'),
-    type = datagokR:::find_xml(tmp_xml, '//COL_003'),
-    period = datagokR:::find_xml(tmp_xml, '//COL_004'),
-    effect_kor = datagokR:::find_xml(tmp_xml, '//COL_005'),
-    effect_eng = datagokR:::find_xml(tmp_xml, '//COL_006'),
-    etc = datagokR:::find_xml(tmp_xml, '//COL_007'),
+    name_kor = datagokR:::find_xml(item, './COL_001'),
+    name_eng = datagokR:::find_xml(item, './COL_002'),
+    type = datagokR:::find_xml(item, './COL_003'),
+    period = datagokR:::find_xml(item, './COL_004'),
+    effect_kor = datagokR:::find_xml(item, './COL_005'),
+    effect_eng = datagokR:::find_xml(item, './COL_006'),
+    etc = datagokR:::find_xml(item, './COL_007'),
     stringsAsFactors = F
   )
 
   for(col in colnames(all_data)){
     Encoding(all_data[[col]]) <- 'UTF-8'
   }
-
   return(dplyr::as.tbl(all_data))
 }

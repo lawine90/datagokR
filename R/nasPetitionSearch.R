@@ -33,25 +33,26 @@ nasPetitionSearch <- function(key, name = NULL){
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
   tmp_xml <- datagokR:::try_read_xml(url)
-  msg <- datagokR:::find_xml(tmp_xml, '//returnAuthMsg')
 
-  if(!is.na(msg)){
-    warning(msg, '\nThe function return NULL')
+  # if access fail, stop it.
+  if(length(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//errMsg'))) != 0){
+    warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//returnAuthMsg')))
     return(NULL)
   }
 
+  item <- xml2::xml_find_all(tmp_xml, '//item')
   data <- data.frame(
-    id = datagokR:::find_xml(tmp_xml, '//billId'),
-    no = datagokR:::find_xml(tmp_xml, '//billNo'),
-    name = datagokR:::find_xml(tmp_xml, '//billName'),
+    id = datagokR:::find_xml(item, './billId'),
+    no = datagokR:::find_xml(item, './billNo'),
+    name = datagokR:::find_xml(item, './billName'),
 
-    approver = datagokR:::find_xml(tmp_xml, '//approver'),
-    proposer = datagokR:::find_xml(tmp_xml, '//proposer'),
-    propose_date = datagokR:::find_xml(tmp_xml, '//proposeDt'),
+    approver = datagokR:::find_xml(item, './approver'),
+    proposer = datagokR:::find_xml(item, './proposer'),
+    propose_date = datagokR:::find_xml(item, './proposeDt'),
 
-    committee = datagokR:::find_xml(tmp_xml, '//committeeName'),
-    vote_date = datagokR:::find_xml(tmp_xml, '//procdt'),
-    vote_result = datagokR:::find_xml(tmp_xml, '//generalResult'),
+    committee = datagokR:::find_xml(item, './committeeName'),
+    vote_date = datagokR:::find_xml(item, './procdt'),
+    vote_result = datagokR:::find_xml(item, './generalResult'),
     stringsAsFactors = F
   )
 

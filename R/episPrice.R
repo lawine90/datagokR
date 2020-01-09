@@ -49,30 +49,32 @@ episPrice <- function(key, date, items, verbose = F){
   all_data <- list()
   for(i in 1:length(urls)){
     tmp_xml <- datagokR:::try_read_xml(urls[i])
-    total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCount'))
+    total <- as.numeric(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//totalCount')))
 
     if(is.na(total)){
-      warning(datagokR:::find_xml(tmp_xml, '//returnAuthMsg'))
+      warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//returnAuthMsg')))
     }else if(total == 0){
+      print('There is no data.')
       next()
     }
 
+    item <- xml2::xml_find_all(tmp_xml, '//item')
     all_data[[i]] <- data.frame(
-      locCode = datagokR:::find_xml(tmp_xml, '//areaCode'),
-      locName = datagokR:::find_xml(tmp_xml, "//areaNm"),
-      mrkCode = datagokR:::find_xml(tmp_xml, "//stdMrktCode"),
-      mrkName = datagokR:::find_xml(tmp_xml, "//stdMrktNm"),
-      itmCode = datagokR:::find_xml(tmp_xml, "//stdPrdlstCode"),
-      itmName = datagokR:::find_xml(tmp_xml, "//stdPrdlstNm"),
-      spcCode = datagokR:::find_xml(tmp_xml, "//stdSpciesCode"),
-      spcName = datagokR:::find_xml(tmp_xml, "//stdSpciesNm"),
+      locCode = datagokR:::find_xml(item, './areaCode'),
+      locName = datagokR:::find_xml(item, "./areaNm"),
+      mrkCode = datagokR:::find_xml(item, "./stdMrktCode"),
+      mrkName = datagokR:::find_xml(item, "./stdMrktNm"),
+      itmCode = datagokR:::find_xml(item, "./stdPrdlstCode"),
+      itmName = datagokR:::find_xml(item, "./stdPrdlstNm"),
+      spcCode = datagokR:::find_xml(item, "./stdSpciesCode"),
+      spcName = datagokR:::find_xml(item, "./stdSpciesNm"),
 
-      yesPrice = as.integer(datagokR:::find_xml(tmp_xml, "//bfrtPric")),
-      todPrice = as.integer(datagokR:::find_xml(tmp_xml, "//todayPric")),
-      unit = datagokR:::find_xml(tmp_xml, "//examinUnitNm"),
+      yesPrice = datagokR:::find_xml(item, "./bfrtPric", 'num'),
+      todPrice = datagokR:::find_xml(item, "./todayPric", 'num'),
+      unit = datagokR:::find_xml(item, "./examinUnitNm"),
 
-      exmGradeCode = datagokR:::find_xml(tmp_xml, "//examinGradCode"),
-      exmGradeName = datagokR:::find_xml(tmp_xml, "//examinGradNm"),
+      exmGradeCode = datagokR:::find_xml(item, "./examinGradCode", 'num'),
+      exmGradeName = datagokR:::find_xml(item, "./examinGradNm"),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

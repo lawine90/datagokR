@@ -24,31 +24,32 @@ npsPension <- function(key = NULL, id = NULL){
 
   ### 3. first urls's xml parsing.
   tmp_xml <- datagokR:::try_read_xml(url)
-  msg <- datagokR:::find_xml(tmp_xml, '//returnAuthMsg')
+  msg <- xml2::xml_text(xml2::xml_find_all(tmp_xml, '//returnAuthMsg'))
 
-  if(!is.na(msg)){
+  if(length(msg) != 0){
     warning(msg, '\nThe function return NULL')
     return(NULL)
   }
 
+  item <- xml2::xml_find_all(tmp_xml, '//item')
   data <- data.frame(
-    registNumb = datagokR:::find_xml(tmp_xml, '//bzowrRgstNo'),
-    name = datagokR:::find_xml(tmp_xml, '//wkplNm'),
-    wrkCode = datagokR:::find_xml(tmp_xml, '//wkplIntpCd'),
-    wrkName = datagokR:::find_xml(tmp_xml, '//vldtVlKrnNm'),
+    registNumb = datagokR:::find_xml(item, './bzowrRgstNo'),
+    name = datagokR:::find_xml(item, './wkplNm'),
+    wrkCode = datagokR:::find_xml(item, './wkplIntpCd'),
+    wrkName = datagokR:::find_xml(item, './vldtVlKrnNm'),
 
-    join = ifelse(datagokR:::find_xml(tmp_xml, '//wkplJnngStcd') == '1', '등록', '탈퇴'),
-    inDate = datagokR:::find_xml(tmp_xml, '//adptDt'),
-    outDate = datagokR:::find_xml(tmp_xml, '//scsnDt'),
-    type = ifelse(datagokR:::find_xml(tmp_xml, '//wkplStylDvcd') == '1', '법인', '개인'),
+    join = ifelse(datagokR:::find_xml(item, './wkplJnngStcd') == '1', '등록', '탈퇴'),
+    inDate = datagokR:::find_xml(item, './adptDt'),
+    outDate = datagokR:::find_xml(item, './scsnDt'),
+    type = ifelse(datagokR:::find_xml(item, './wkplStylDvcd') == '1', '법인', '개인'),
 
-    member = datagokR:::find_xml(tmp_xml, '//jnngpCnt'),
-    amnt = datagokR:::find_xml(tmp_xml, '//crrmmNtcAmt'),
+    member = datagokR:::find_xml(item, './jnngpCnt'),
+    amnt = datagokR:::find_xml(item, './crrmmNtcAmt'),
 
-    addr = datagokR:::find_xml(tmp_xml, '//wkplRoadNmDtlAddr'),
-    addrCode1 = datagokR::find_xml(tmp_xml, '//ldongAddrMgplDgCd'),
-    addrCode2 = datagokR::find_xml(tmp_xml, '//ldongAddrMgplSgguCd'),
-    addrCode3 = datagokR::find_xml(tmp_xml, '//ldongAddrMgplSgguEmdCd'),
+    addr = datagokR:::find_xml(item, './wkplRoadNmDtlAddr'),
+    addrCode1 = datagokR::find_xml(item, './ldongAddrMgplDgCd'),
+    addrCode2 = datagokR::find_xml(item, './ldongAddrMgplSgguCd'),
+    addrCode3 = datagokR::find_xml(item, './ldongAddrMgplSgguEmdCd'),
 
     stringsAsFactors = F
   )

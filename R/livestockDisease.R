@@ -26,7 +26,6 @@ livestockDisease <- function(key, fromDate = NULL, toDate = NULL, verbose = F){
   if(is.null(fromDate)|is.null(toDate)){ stop("Invalid date. \n Please insert right 'fromDate', 'toDate' params(ex: 2019-10-29).") }
   if(fromDate > toDate){ stop("Invalid date. \n toDate should bigger than fromDate.") }
 
-
   ### 2. REST url for get n of pages
   ## generate list of urls(fxxking so many limitations...).
   # 1st, (url + key)
@@ -43,30 +42,32 @@ livestockDisease <- function(key, fromDate = NULL, toDate = NULL, verbose = F){
   for(i in 1:length(urls)){
     # try access to url.
     tmp_xml <- datagokR:::try_read_xml(urls[i])
-    total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCnt'))
+    total <- as.numeric(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//totalCnt')))
 
     # if access fail, stop it.
     if(is.na(total)){
-      warning(datagokR:::find_xml(tmp_xml, '//message'))
+      warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//message')))
+      if(verbose == T){setTxtProgressBar(pb, value = i)}
       next()
     }else if(total == 0){
       if(verbose == T){setTxtProgressBar(pb, value = i)}
       print('There is no data.'); next()
     }
 
+    row <- xml2::xml_find_all(tmp_xml, '//row')
     all_data[[i]] <- data.frame(
-      occr_no = datagokR:::find_xml(tmp_xml, '//ICTSD_OCCRRNC_NO'),
-      dizz_name = datagokR:::find_xml(tmp_xml, '//LKNTS_NM'),
-      farm_name = datagokR:::find_xml(tmp_xml, '//FARM_NM'),
-      farm_code = datagokR:::find_xml(tmp_xml, '//FARM_LOCPLC_LEGALDONG_CODE'),
-      farm_addr = datagokR:::find_xml(tmp_xml, '//FARM_LOCPLC'),
-      occr_date = as.Date(datagokR:::find_xml(tmp_xml, '//OCCRRNC_DE'), '%Y%m%d'),
-      occr_n = as.numeric(datagokR:::find_xml(tmp_xml, '//OCCRRNC_LVSTCKCNT')),
-      lvst_code = datagokR:::find_xml(tmp_xml, '//LVSTCKSPC_CODE'),
-      lvst_type = datagokR:::find_xml(tmp_xml, '//LVSTCKSPC_NM'),
-      diag_code = datagokR:::find_xml(tmp_xml, '//DGNSS_ENGN_CODE'),
-      diag_name = datagokR:::find_xml(tmp_xml, '//DGNSS_ENGN_NM'),
-      clos_date = as.Date(datagokR:::find_xml(tmp_xml, '//CESSATION_DE'), '%Y%m%d'),
+      occr_no = datagokR:::find_xml(row, './ICTSD_OCCRRNC_NO'),
+      dizz_name = datagokR:::find_xml(row, './LKNTS_NM'),
+      farm_name = datagokR:::find_xml(row, './FARM_NM'),
+      farm_code = datagokR:::find_xml(row, './FARM_LOCPLC_LEGALDONG_CODE'),
+      farm_addr = datagokR:::find_xml(row, './FARM_LOCPLC'),
+      occr_date = as.Date(datagokR:::find_xml(row, './OCCRRNC_DE'), '%Y%m%d'),
+      occr_n = as.numeric(datagokR:::find_xml(row, './OCCRRNC_LVSTCKCNT')),
+      lvst_code = datagokR:::find_xml(row, './LVSTCKSPC_CODE'),
+      lvst_type = datagokR:::find_xml(row, './LVSTCKSPC_NM'),
+      diag_code = datagokR:::find_xml(row, './DGNSS_ENGN_CODE'),
+      diag_name = datagokR:::find_xml(row, './DGNSS_ENGN_NM'),
+      clos_date = as.Date(datagokR:::find_xml(row, './CESSATION_DE'), '%Y%m%d'),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

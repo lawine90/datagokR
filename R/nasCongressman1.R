@@ -27,22 +27,23 @@ nasCongressman1 <- function(key){
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.
   tmp_xml <- datagokR:::try_read_xml(url)
-  msg <- datagokR:::find_xml(tmp_xml, '//returnAuthMsg')
 
-  if(!is.na(msg)){
-    warning(msg, '\nThe function return NULL')
+  # if access fail, stop it.
+  if(length(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//errMsg'))) != 0){
+    warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//returnAuthMsg')))
     return(NULL)
   }
 
+  item <- xml2::xml_find_all(tmp_xml, '//item')
   data <- data.frame(
-    code_dept = datagokR:::find_xml(tmp_xml, '//deptCd'),
-    code_numb = datagokR:::find_xml(tmp_xml, '//num'),
-    name_kr = datagokR:::find_xml(tmp_xml, '//empNm'),
-    name_en = datagokR:::find_xml(tmp_xml, '//engNm'),
-    name_ch = datagokR:::find_xml(tmp_xml, '//hjNm'),
-    poto_link = datagokR:::find_xml(tmp_xml, '//jpgLink'),
-    numb_elec = datagokR:::find_xml(tmp_xml, '//reeleGbnNm'),
-    csty = datagokR:::find_xml(tmp_xml, '//origNm'),
+    code_dept = datagokR:::find_xml(item, './deptCd'),
+    code_numb = datagokR:::find_xml(item, './num'),
+    name_kr = datagokR:::find_xml(item, './empNm'),
+    name_en = datagokR:::find_xml(item, './engNm'),
+    name_ch = datagokR:::find_xml(item, './hjNm'),
+    poto_link = datagokR:::find_xml(item, './jpgLink'),
+    numb_elec = datagokR:::find_xml(item, './reeleGbnNm'),
+    csty = datagokR:::find_xml(item, './origNm'),
     stringsAsFactors = F
   )
 

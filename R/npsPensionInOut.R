@@ -32,17 +32,18 @@ npsPensionInOut <- function(key = NULL, id = NULL, month = NULL){
 
   ### 3. first urls's xml parsing.
   tmp_xml <- datagokR:::try_read_xml(url)
-  msg <- datagokR:::find_xml(tmp_xml, '//returnAuthMsg')
+  msg <- xml2::xml_text(xml2::xml_find_all(tmp_xml, '//returnAuthMsg'))
 
-  if(!is.na(msg)){
+  if(length(msg) != 0){
     warning(msg, '\nThe function return NULL')
     return(NULL)
   }
 
+  item <- xml2::xml_find_all(tmp_xml, '//item')
   data <- data.frame(
     month = month,
-    memberIn = as.numeric(datagokR:::find_xml(tmp_xml, '//nwAcqzrCnt')),
-    memberOut = as.numeric(datagokR:::find_xml(tmp_xml, '//lssJnngpCnt')),
+    memberIn = datagokR:::find_xml(item, './nwAcqzrCnt', 'num'),
+    memberOut = datagokR:::find_xml(item, './lssJnngpCnt', 'num'),
     stringsAsFactors = F
   )
   return(dplyr::as.tbl(data))

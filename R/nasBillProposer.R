@@ -36,19 +36,20 @@ nasBillProposer <- function(key, id = NULL, verbose = FALSE){
     tmp_xml <- datagokR:::try_read_xml(urls[i])
 
     # if access fail, stop it.
-    if(is.na(datagokR:::find_xml(tmp_xml, '//resultCode'))){
-      warning(datagokR:::find_xml(tmp_xml, '//returnAuthMsg'))
+    if(length(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//errMsg'))) != 0){
+      warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//returnAuthMsg')))
       next()
     }
 
+    item <- xml2::xml_find_all(tmp_xml, '//item')
     all_data[[i]] <- data.frame(
       id = id[i],
-      type1 = datagokR:::find_xml(tmp_xml, '//gbn1'),
-      type2 = datagokR:::find_xml(tmp_xml, '//gbn2'),
+      type1 = datagokR:::find_xml(item, './gbn1'),
+      type2 = datagokR:::find_xml(item, './gbn2'),
 
-      conType = datagokR:::find_xml(tmp_xml, '//gbnCd'),
-      name = datagokR:::find_xml(tmp_xml, '//memName'),
-      party = datagokR:::find_xml(tmp_xml, '//polyNm'),
+      conType = datagokR:::find_xml(item, './gbnCd'),
+      name = datagokR:::find_xml(item, './memName'),
+      party = datagokR:::find_xml(item, './polyNm'),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}
@@ -61,6 +62,5 @@ nasBillProposer <- function(key, id = NULL, verbose = FALSE){
       data[[col]][data[[col]] == ''] <- NA
     }
   }
-
   return(dplyr::as.tbl(data))
 }

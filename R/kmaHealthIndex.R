@@ -38,7 +38,6 @@
 #' @importFrom dplyr %>%
 #' @export
 
-# utils::globalVariables(c(".data", "code", "kma_locale_code", "kma_healthIndex_type_check", "locale"), add = F)
 kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow = T, viz = F, verbose = F){
   ### 1. parameter checking and processing.
   ## key
@@ -71,7 +70,6 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
   ## time
   time <- sprintf("%02d", c(6, 18))
 
-
   ### 2. REST url
   ## End Point.
   url <- paste("http://newsky2.kma.go.kr/iros/RetrieveWhoIndexService2/get", type, "WhoList?", sep = "")
@@ -102,7 +100,6 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
   urls <- outer(urls, datelst, paste, sep = "") %>% as.vector %>% paste("&areaNo=", sep = "")
   urls <- outer(urls, localeCode, paste, sep = "") %>% as.vector
 
-
   ### 3. urls's xml parsing.
   all.data <- list(); length(all.data) <- length(urls)
   all.error <- list(); length(all.error) <- length(urls)
@@ -115,34 +112,20 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
-    # parsing xml codes with repeat and trycatch.
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp.xml <- tryCatch(
-        {
-          XML::xmlToList(urls[[i]])
-        }, error = function(e){
-          NULL
-        }
-      )
-
-      if(slow){
-        Sys.sleep(stats::runif(1, 0, 2.5))
-      }
-      if(!is.null(tmp.xml) | ii >= 15) break
-    }
+    tmp.xml <- datagokR:::try_xmlToList(urls[i])
 
     # if tmp.xml is error, go next.
-    if(is.null(tmp.xml)) {
+    if(tmp.xml$Header$SuccessYN == 'N') {
       errors[[i]] <- urls[[i]]
+      all.error[[i]] <- tmp.xml$Header$ErrMsg
       meta[i,]$success <- "error"
+      warning(tmp.xml$Header$ErrMsg)
+      if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
       next
+    }else if(tmp.xml$Header$SuccessYN == 'Y'){
+      suc[i] <- tmp.xml$Header$SuccessYN
+      meta[i,]$success <- suc[i]
     }
-
-    suc[i] <- tmp.xml$Header$SuccessYN
-    meta[i,]$success <- ifelse(is.null(suc[i])|is.na(suc[i]),
-                               "error", suc[i])
 
     if(slow){
       Sys.sleep(stats::runif(1, 0, 1.5))
@@ -150,20 +133,15 @@ kmaHealthIndex <- function(key, localeCode = NULL, localeName = NULL, type, slow
 
     # if suc is "N", skip.
     if(suc[i] == "N"){
-      all.error[[i]] <- tmp.xml$Header$ErrMsg
-      errors[[i]] <- urls[[i]]
-
-      if(verbose == T){utils::setTxtProgressBar(pb, value = i)}
-
       next
     }else if(suc[i] =="Y"){
       location <- tmp.xml$Body$IndexModel
-
       all.data[[i]] <- data.frame(
           idxCode = location$code,
           type = gsub(".*get(.*)WhoList.*", "\\1", urls[i]),
           locale = as.character(location$areaNo),
           time = location$date,
+          #datagokR:::find_xmlList(location, 'today')
           d0 = ifelse(is.null(location$today), NA, location$today) %>% as.numeric,
           d1 = ifelse(is.null(location$tomorrow), NA, location$tomorrow) %>% as.numeric,
           d2 = ifelse(is.null(location$theDayAfterTomorrow), NA, location$theDayAfterTomorrow) %>% as.numeric,

@@ -44,21 +44,23 @@ quasiDrugs <- function(key, verbose = F){
   all_data <- list()
   for(i in 1:length(urls)){
     tmp_xml <- datagokR:::try_read_xml(urls[i])
+    total <- xml2::xml_text(xml2::xml_find_all(tmp_xml, '//totalCount'))
 
-    if(is.null(datagokR:::find_xml(tmp_xml, '//totalCount'))){
-      warning(datagokR:::find_xml(tmp_xml, '//returnAuthMsg'))
+    if(length(total) == 0){
+      warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//returnAuthMsg')))
       next()
     }
 
+    item <- xml2::xml_find_all(tmp_xml, '//item')
     all_data[[i]] <- data.frame(
-      item_code = datagokR:::find_xml(tmp_xml, '//ITEM_SEQ'),
-      item_name = datagokR:::find_xml(tmp_xml, '//ITEM_NAME'),
-      effect = datagokR:::find_xml(tmp_xml, '//EE_DOC_DATA'),
-      usage = datagokR:::find_xml(tmp_xml, '//UD_DOC_DATA'),
-      notice = datagokR:::find_xml(tmp_xml, '//NB_DOC_DATA'),
-      type_code = datagokR:::find_xml(tmp_xml, '//CLASS_NO'),
-      type_name = datagokR:::find_xml(tmp_xml, '//CLASS_NO_NAME'),
-      firm = datagokR:::find_xml(tmp_xml, '//ENTP_NAME'),
+      item_code = datagokR:::find_xml(item, './ITEM_SEQ'),
+      item_name = datagokR:::find_xml(item, './ITEM_NAME'),
+      effect = datagokR:::find_xml(item, './EE_DOC_DATA'),
+      usage = datagokR:::find_xml(item, './UD_DOC_DATA'),
+      notice = datagokR:::find_xml(item, './NB_DOC_DATA'),
+      type_code = datagokR:::find_xml(item, './CLASS_NO'),
+      type_name = datagokR:::find_xml(item, './CLASS_NO_NAME'),
+      firm = datagokR:::find_xml(item, './ENTP_NAME'),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

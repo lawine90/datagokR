@@ -35,10 +35,11 @@ episJoint <- function(key, date, verbose = F){
                   key, 'Grid_20160624000000000349_1', date)
 
   tmp_xml <- datagokR:::try_read_xml(url)
-  total <- as.numeric(datagokR:::find_xml(tmp_xml, '//totalCnt'))
+  total <- as.numeric(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//totalCnt')))
 
   if(is.na(total)){
-    warning(datagokR:::find_xml(tmp_xml, '//message'), '\nThe function return NULL')
+    warning(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//message')),
+            '\nThe function return NULL')
     return(NULL)
   }else if(total == 0){
     print('There is no data. Please check regist_numb')
@@ -64,36 +65,37 @@ episJoint <- function(key, date, verbose = F){
   for(i in 1:length(urls)){
     tmp_xml <- datagokR:::try_read_xml(urls[i])
 
-    if(is.na(as.numeric(datagokR:::find_xml(tmp_xml, '//totalCnt')))){
-      warning(datagokR:::find_xml(tmp_xml, '//message'))
+    if(is.na(as.numeric(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//totalCnt'))))){
+      xml2::xml_text(xml2::xml_find_all(tmp_xml, '//message'))
       next()
     }
 
+    row <- xml2::xml_find_all(tmp_xml, '//row')
     all_data[[i]] <- data.frame(
       date = date,
-      jmrkName = datagokR:::find_xml(tmp_xml, '//CPR_NM'),
-      jmrkCode = datagokR:::find_xml(tmp_xml, '//CPR_CD'),
-      jmrkType = datagokR:::find_xml(tmp_xml, '//CPR_TYPE_NM'),
-      orgName = datagokR:::find_xml(tmp_xml, '//SANNM'),
-      orgCode = datagokR:::find_xml(tmp_xml, '//SANCO'),
+      jmrkName = datagokR:::find_xml(row, './CPR_NM'),
+      jmrkCode = datagokR:::find_xml(row, './CPR_CD'),
+      jmrkType = datagokR:::find_xml(row, './CPR_TYPE_NM'),
+      orgName = datagokR:::find_xml(row, './SANNM'),
+      orgCode = datagokR:::find_xml(row, './SANCO'),
 
-      itmName = datagokR:::find_xml(tmp_xml, '//PRDLST_NM'),
-      itmCode = datagokR:::find_xml(tmp_xml, '//PRDLST_CD'),
-      spcName = datagokR:::find_xml(tmp_xml, '//SPCIES_NM'),
-      spcCode = datagokR:::find_xml(tmp_xml, '//SPCIES_CD'),
+      itmName = datagokR:::find_xml(row, './PRDLST_NM'),
+      itmCode = datagokR:::find_xml(row, './PRDLST_CD'),
+      spcName = datagokR:::find_xml(row, './SPCIES_NM'),
+      spcCode = datagokR:::find_xml(row, './SPCIES_CD'),
 
-      grdName = datagokR:::find_xml(tmp_xml, '//GRAD'),
-      grdCode = datagokR:::find_xml(tmp_xml, '//GRAD_CD'),
+      grdName = datagokR:::find_xml(row, './GRAD'),
+      grdCode = datagokR:::find_xml(row, './GRAD_CD'),
 
-      unit = datagokR:::find_xml(tmp_xml, '//DELNGBUNDLE_QY'),
-      stdd = datagokR:::find_xml(tmp_xml, '//STNDRD'),
+      unit = datagokR:::find_xml(row, './DELNGBUNDLE_QY', 'num'),
+      stdd = datagokR:::find_xml(row, './STNDRD'),
 
-      minPrice = datagokR:::find_xml(tmp_xml, '//MUMM_AMT'),
-      avgPrice = datagokR:::find_xml(tmp_xml, '//AVRG_AMT'),
-      maxPrice = datagokR:::find_xml(tmp_xml, '//MXMM_AMT'),
+      minPrice = datagokR:::find_xml(row, './MUMM_AMT', 'num'),
+      avgPrice = datagokR:::find_xml(row, './AVRG_AMT', 'num'),
+      maxPrice = datagokR:::find_xml(row, './MXMM_AMT', 'num'),
 
-      vol = datagokR:::find_xml(tmp_xml, '//DELNG_QY'),
-      cnt = datagokR:::find_xml(tmp_xml, '//AUC_CO'),
+      vol = datagokR:::find_xml(row, './DELNG_QY', 'num'),
+      cnt = datagokR:::find_xml(row, './AUC_CO', 'num'),
 
       stringsAsFactors = F
     )

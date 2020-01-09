@@ -26,17 +26,12 @@ seoulBusCount <- function(key, day = gsub('-', '', Sys.Date()-4), verbose = F){
   url <- sprintf("http://openapi.seoul.go.kr:8088/%s/%s/%s/%s/%s/%s/",
                  key, 'json', 'CardBusStatisticsServiceNew', 1, 2, day)
 
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({jsonlite::read_json(url)}, error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
-
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
+  tmp_json <- datagokR:::try_read_json(url)
+  if(any(class(tmp_json) %in% 'error')){
+    warning('Json parsing fail.\nPlease try again.\nIt maybe caused by api key.')
+    return(NULL)
   }else{
-    total <- tmp_xml$CardBusStatisticsServiceNew$list_total_count
+    total <- tmp_json$CardBusStatisticsServiceNew$list_total_count
   }
 
   all_data <- list()
@@ -45,30 +40,26 @@ seoulBusCount <- function(key, day = gsub('-', '', Sys.Date()-4), verbose = F){
                   seq(1, total, by = 1000), seq(1, total, by = 1000)+999, day)
   if(verbose == T){pb <- txtProgressBar(min = 1, length(urls), style = 3)}
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({jsonlite::read_json(urls[i])}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
+    tmp_json <- datagokR:::try_read_json(urls[i])
 
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
+    if(any(class(tmp_json) %in% 'error')){
+      warning('Json parsing fail.\nPlease try again.\nIt maybe caused by api key.')
+      next()
     }else{
-      loc <- tmp_xml$CardBusStatisticsServiceNew$row
+      loc <- tmp_json$CardBusStatisticsServiceNew$row
     }
 
     all_data[[i]] <- data.frame(
-      bus_id = unlist( lapply(loc, function(x) ifelse(is.null(x$"BUS_ROUTE_ID"), NA, x$"BUS_ROUTE_ID")) ),
-      bus_no = unlist( lapply(loc, function(x) ifelse(is.null(x$"BUS_ROUTE_NO"), NA, x$"BUS_ROUTE_NO")) ),
-      bus_name = unlist( lapply(loc, function(x) ifelse(is.null(x$"BUS_ROUTE_NM"), NA, x$"BUS_ROUTE_NM")) ),
-      stop_id = unlist( lapply(loc, function(x) ifelse(is.null(x$"STND_BSST_ID"), NA, x$"STND_BSST_ID")) ),
-      stop_ars = unlist( lapply(loc, function(x) ifelse(is.null(x$"BSST_ARS_NO"), NA, x$"BSST_ARS_NO")) ),
-      sta_id = unlist( lapply(loc, function(x) ifelse(is.null(x$"BUS_STA_ID"), NA, x$"BUS_STA_ID")) ),
-      sta_name = unlist( lapply(loc, function(x) ifelse(is.null(x$"BUS_STA_NM"), NA, x$"BUS_STA_NM")) ),
-      in_numb = as.numeric( lapply(loc, function(x) ifelse(is.null(x$"RIDE_PASGR_NUM"), NA, x$"RIDE_PASGR_NUM")) ),
-      out_numb = as.numeric( lapply(loc, function(x) ifelse(is.null(x$"ALIGHT_PASGR_NUM"), NA, x$"ALIGHT_PASGR_NUM")) ),
-      day = unlist( lapply(loc, function(x) ifelse(is.null(x$"USE_DT"), NA, x$"USE_DT")) ),
+      bus_id = datagokR:::find_xmlList(loc, 'BUS_ROUTE_ID'),
+      bus_no = datagokR:::find_xmlList(loc, 'BUS_ROUTE_NO'),
+      bus_name = datagokR:::find_xmlList(loc, 'BUS_ROUTE_NM'),
+      stop_id = datagokR:::find_xmlList(loc, 'STND_BSST_ID'),
+      stop_ars = datagokR:::find_xmlList(loc, 'BSST_ARS_NO'),
+      sta_id = datagokR:::find_xmlList(loc, 'BUS_STA_ID'),
+      sta_name = datagokR:::find_xmlList(loc, 'BUS_STA_NM'),
+      in_numb = datagokR:::find_xmlList(loc, 'RIDE_PASGR_NUM', 'num'),
+      out_numb = datagokR:::find_xmlList(loc, 'ALIGHT_PASGR_NUM', 'num'),
+      day = datagokR:::find_xmlList(loc, 'USE_DT'),
       stringsAsFactors = F
     )
     if(verbose == T){setTxtProgressBar(pb, value = i)}

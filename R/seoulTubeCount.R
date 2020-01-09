@@ -25,26 +25,21 @@ seoulTubeCount <- function(key, day = gsub('-', '', Sys.Date()-4)){
   url <- sprintf("http://openapi.seoul.go.kr:8088/%s/%s/%s/%s/%s/%s/",
                  key, 'json', 'CardSubwayStatsNew', 1, 1000, day)
 
-  ii <- 0
-  repeat{
-    ii <- ii + 1
-    tmp_xml <- tryCatch({jsonlite::read_json(url)}, error = function(e){NULL})
-    if(!is.null(tmp_xml) | ii == 15) break
-  }
-
-  if(is.null(tmp_xml)){
-    stop('XML parsing fail.Please try again.')
+  tmp_json <- datagokR:::try_read_json(url)
+  if(any(class(tmp_json) %in% 'error')){
+    warning('Json parsing fail.\nPlease try again.\nIt maybe caused by api key.')
+    return(NULL)
   }else{
-    total <- tmp_xml$CardSubwayStatsNew$list_total_count
-    loc <- tmp_xml$CardSubwayStatsNew$row
+    total <- tmp_json$CardSubwayStatsNew$list_total_count
+    loc <- tmp_json$CardSubwayStatsNew$row
   }
 
   data <- data.frame(
-    line = unlist( lapply(loc, function(x) ifelse(is.null(x$"LINE_NUM"), NA, x$"LINE_NUM")) ),
-    station = unlist( lapply(loc, function(x) ifelse(is.null(x$"SUB_STA_NM"), NA, x$"SUB_STA_NM")) ),
-    in_numb = as.numeric( lapply(loc, function(x) ifelse(is.null(x$"RIDE_PASGR_NUM"), NA, x$"RIDE_PASGR_NUM")) ),
-    out_numb = as.numeric( lapply(loc, function(x) ifelse(is.null(x$"ALIGHT_PASGR_NUM"), NA, x$"ALIGHT_PASGR_NUM")) ),
-    day = unlist( lapply(loc, function(x) ifelse(is.null(x$"USE_DT"), NA, x$"USE_DT")) ),
+    line = datagokR:::find_xmlList(loc, 'LINE_NUM'),
+    station = datagokR:::find_xmlList(loc, 'SUB_STA_NM'),
+    in_numb = datagokR:::find_xmlList(loc, 'RIDE_PASGR_NUM'),
+    out_numb = datagokR:::find_xmlList(loc, 'ALIGHT_PASGR_NUM'),
+    day = datagokR:::find_xmlList(loc, 'USE_DT'),
     stringsAsFactors = F
   )
 

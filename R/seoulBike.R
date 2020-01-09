@@ -23,27 +23,23 @@ seoulBike <- function(key){
 
   all_data <- list()
   for(i in 1:length(urls)){
-    ii <- 0
-    repeat{
-      ii <- ii + 1
-      tmp_xml <- tryCatch({jsonlite::read_json(urls[i])}, error = function(e){NULL})
-      if(!is.null(tmp_xml) | ii == 15) break
-    }
+    tmp_json <- datagokR:::try_read_json(urls[i])
 
-    if(is.null(tmp_xml)){
-      stop('XML parsing fail.Please try again.')
+    if(any(class(tmp_json) %in% 'error')){
+      warning('Json parsing fail.\nPlease try again.\nIt maybe caused by api key.')
+      return(NULL)
     }else{
-      loc <- tmp_xml$rentBikeStatus$row
+      loc <- tmp_json$rentBikeStatus$row
     }
 
     all_data[[i]] <- data.frame(
-      id = unlist( lapply(loc, function(x) ifelse(is.null(x$"stationId"), NA, x$"stationId")) ),
-      name = unlist( lapply(loc, function(x) ifelse(is.null(x$"stationName"), NA, x$"stationName")) ),
-      capa = as.numeric( lapply(loc, function(x) ifelse(is.null(x$"rackTotCnt"), NA, x$"rackTotCnt")) ),
-      count = as.numeric( lapply(loc, function(x) ifelse(is.null(x$"parkingBikeTotCnt"), NA, x$"parkingBikeTotCnt")) ),
-      share = as.numeric( lapply(loc, function(x) ifelse(is.null(x$"shared"), NA, x$"shared")) ),
-      lati = as.numeric( lapply(loc, function(x) ifelse(is.null(x$"stationLatitude"), NA, x$"stationLatitude")) ),
-      longi = as.numeric( lapply(loc, function(x) ifelse(is.null(x$"stationLongitude"), NA, x$"stationLongitude")) ),
+      id = datagokR:::find_xmlList(loc, 'stationId'),
+      name = datagokR:::find_xmlList(loc, 'stationName'),
+      capa = datagokR:::find_xmlList(loc, 'rackTotCnt', 'num'),
+      count = datagokR:::find_xmlList(loc, 'parkingBikeTotCnt', 'num'),
+      share = datagokR:::find_xmlList(loc, 'shared', 'num'),
+      lati = datagokR:::find_xmlList(loc, 'stationLatitude', 'num'),
+      longi = datagokR:::find_xmlList(loc, 'stationLongitude', 'num'),
       stringsAsFactors = F
     )
   }
@@ -54,6 +50,5 @@ seoulBike <- function(key){
       Encoding(merged[[col]]) <- 'UTF-8'
     }
   }
-
   return(dplyr::as.tbl(merged))
 }

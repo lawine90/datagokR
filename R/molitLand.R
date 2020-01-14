@@ -78,7 +78,7 @@ molitLand <- function(key, year, month = NULL, localeCode = NULL, localeName = N
     tmp.xml <- datagokR:::try_GET_content(urls[[i]])
 
     # if tmp.xml is error, go next.
-    if(tmp_xml$response$header$resultMsg != "NORMAL SERVICE."){
+    if(tmp.xml$response$header$resultMsg != "NORMAL SERVICE."){
       next
     }
 

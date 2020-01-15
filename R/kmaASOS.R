@@ -153,17 +153,17 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
       # rain
       "n9_9_rn" = datagokR:::find_xml(location, './N9_9_RN', 'num'),
       "mi10_max_rn" = datagokR:::find_xml(location, './MI10_MAX_RN', 'num'),
-      "mi10_max_rn_hrmt" = datagokR:::find_xml(location, './MI10_MAX_RN_HRMT', 'num'),
+      "mi10_max_rn_hrmt" = datagokR:::find_xml(location, './MI10_MAX_RN_HRMT'),
       "hr1_max_rn" = datagokR:::find_xml(location, './HR1_MAX_RN', 'num'),
-      "hr1_max_rn_hrmt" = datagokR:::find_xml(location, './HR1_MAX_RN_HRMT', 'num'),
+      "hr1_max_rn_hrmt" = datagokR:::find_xml(location, './HR1_MAX_RN_HRMT'),
       "sum_rn" = datagokR:::find_xml(location, './SUM_RN', 'num'),
       "sum_rn_dur" = datagokR:::find_xml(location, './SUM_RN_DUR', 'num'),
 
       # snow
       "dd_mefs" = datagokR:::find_xml(location, './DD_MEFS', 'num'),
-      "dd_mefs_hrmt" = datagokR:::find_xml(location, './DD_MEFS_HRMT', 'num'),
+      "dd_mefs_hrmt" = datagokR:::find_xml(location, './DD_MEFS_HRMT'),
       "dd_mes" = datagokR:::find_xml(location, './DD_MES', 'num'),
-      "dd_mes_hrmt" = datagokR:::find_xml(location, './DD_MES_HRMT', 'num'),
+      "dd_mes_hrmt" = datagokR:::find_xml(location, './DD_MES_HRMT'),
       "sum_dpth_fhsc" = datagokR:::find_xml(location, './SUM_DPTH_FHSC', 'num'),
 
       # relative humidity
@@ -173,7 +173,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
 
       # etc
       "hr1_max_icsr" = datagokR:::find_xml(location, './HR1_MAX_ICSR', 'num'),
-      "hr1_max_icsr_hrmt" = datagokR:::find_xml(location, './HR1_MAX_ICSR_HRMT', 'num'),
+      "hr1_max_icsr_hrmt" = datagokR:::find_xml(location, './HR1_MAX_ICSR_HRMT'),
       "ss_dur" = datagokR:::find_xml(location, './SS_DUR', 'num'),
 
       "min_tg" = datagokR:::find_xml(location, './MIN_TG', 'num'),
@@ -263,17 +263,17 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
           # rain
           "n9_9_rn" = datagokR:::find_xml(location, './N9_9_RN', 'num'),
           "mi10_max_rn" = datagokR:::find_xml(location, './MI10_MAX_RN', 'num'),
-          "mi10_max_rn_hrmt" = datagokR:::find_xml(location, './MI10_MAX_RN_HRMT', 'num'),
+          "mi10_max_rn_hrmt" = datagokR:::find_xml(location, './MI10_MAX_RN_HRMT'),
           "hr1_max_rn" = datagokR:::find_xml(location, './HR1_MAX_RN', 'num'),
-          "hr1_max_rn_hrmt" = datagokR:::find_xml(location, './HR1_MAX_RN_HRMT', 'num'),
+          "hr1_max_rn_hrmt" = datagokR:::find_xml(location, './HR1_MAX_RN_HRMT'),
           "sum_rn" = datagokR:::find_xml(location, './SUM_RN', 'num'),
           "sum_rn_dur" = datagokR:::find_xml(location, './SUM_RN_DUR', 'num'),
 
           # snow
           "dd_mefs" = datagokR:::find_xml(location, './DD_MEFS', 'num'),
-          "dd_mefs_hrmt" = datagokR:::find_xml(location, './DD_MEFS_HRMT', 'num'),
+          "dd_mefs_hrmt" = datagokR:::find_xml(location, './DD_MEFS_HRMT'),
           "dd_mes" = datagokR:::find_xml(location, './DD_MES', 'num'),
-          "dd_mes_hrmt" = datagokR:::find_xml(location, './DD_MES_HRMT', 'num'),
+          "dd_mes_hrmt" = datagokR:::find_xml(location, './DD_MES_HRMT'),
           "sum_dpth_fhsc" = datagokR:::find_xml(location, './SUM_DPTH_FHSC', 'num'),
 
           # relative humidity
@@ -283,7 +283,7 @@ kmaASOS <- function(key, branchCode = NULL, fromDate = NULL, toDate = NULL, slow
 
           # etc
           "hr1_max_icsr" = datagokR:::find_xml(location, './HR1_MAX_ICSR', 'num'),
-          "hr1_max_icsr_hrmt" = datagokR:::find_xml(location, './HR1_MAX_ICSR_HRMT', 'num'),
+          "hr1_max_icsr_hrmt" = datagokR:::find_xml(location, './HR1_MAX_ICSR_HRMT'),
           "ss_dur" = datagokR:::find_xml(location, './SS_DUR', 'num'),
 
           "min_tg" = datagokR:::find_xml(location, './MIN_TG', 'num'),

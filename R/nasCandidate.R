@@ -43,7 +43,14 @@ nasCandidate <- function(key, election_id = NULL, election_type = NULL){
     return(NULL)
   }else{
     total <- as.numeric(xml2::xml_text(xml2::xml_find_all(tmp_xml, '//totalCount')))
-    pageNo <- floor(total/100)
+    if(total == 0){
+      print('There is no candidate information.')
+      return(NULL)
+    }else if(total < 100){
+      pageNo <- floor(100/100)
+    }else{
+      pageNo <- floor(total/100)
+    }
   }
 
   data <- list()
@@ -74,6 +81,7 @@ nasCandidate <- function(key, election_id = NULL, election_type = NULL){
     )
   }
 
+  data <- dplyr::bind_rows(data)
   for(col in colnames(data)){
     if(class(data[[col]]) == 'character'){
       Encoding(data[[col]]) <- 'UTF-8'

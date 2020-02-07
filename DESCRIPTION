@@ -1,7 +1,7 @@
 Package: datagokR
 Type: Package
 Title: "Import Data from <www.data.go.kr> using API"
-Version: 0.1.0
+Version: 0.2.0
 Date: 2019-04-11
 Authors@R: c(person("Hansol", "Seo", email = "power1sky@gmail.com", role = c("aut", 'cre')))
 Description: This package is built for data importing from <www.data.go.kr>
@@ -15,6 +15,7 @@ RoxygenNote: 6.1.1
 Depends: R (>= 3.4.3)
 Imports: 
   bindrcpp (>= 0.2.2),
+  plyr (>= 1.8.4),
   dplyr (>= 0.8.0.1),
   magrittr (>= 1.5),
   httr (>= 1.4.0),

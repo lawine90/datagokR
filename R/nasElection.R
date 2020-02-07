@@ -48,6 +48,5 @@ nasElection <- function(key){
       data[[col]][data[[col]] == ''] <- NA
     }
   }
-
   return(dplyr::as.tbl(data))
 }

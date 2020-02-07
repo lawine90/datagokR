@@ -4,7 +4,8 @@
 \alias{nasCandidate}
 \title{National Assembly Secretariat, candidate data.}
 \usage{
-nasCandidate(key, election_id = NULL, election_type = NULL)
+nasCandidate(key, election_id = NULL, election_type = NULL,
+  is_pre = FALSE)
 }
 \arguments{
 \item{key}{character value. API key issued from <www.data.go.kr>. no default.}
@@ -12,6 +13,8 @@ nasCandidate(key, election_id = NULL, election_type = NULL)
 \item{election_id}{character value. the election id which means election date.}
 
 \item{election_type}{numeric value. the election type.}
+
+\item{is_pre}{boolean value. if TRUE, import pre-candidates data.}
 }
 \description{
 nasCandidate function import profile of election candidates.

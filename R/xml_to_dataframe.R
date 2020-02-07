@@ -12,6 +12,6 @@ xml_to_dataframe <- function(nodeset){
     return(as.list(tmp))
   })
   result <- do.call(plyr::rbind.fill, lapply(lst, function(x)
-    as.data.frame(x, stringsAsFactors = F))) %>% as.tbl
-  return(result)
+    as.data.frame(x, stringsAsFactors = F)))
+  return(dplyr::as.tbl(result))
 }

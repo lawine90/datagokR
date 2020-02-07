@@ -73,6 +73,5 @@ nasPolling <- function(key, election_id = NULL, localeName = enc2utf8('서울'),
       data[[col]][data[[col]] == ''] <- NA
     }
   }
-
   return(dplyr::as.tbl(data))
 }

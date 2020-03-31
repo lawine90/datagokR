@@ -34,14 +34,14 @@ nasElection <- function(key){
   }
 
   item <- xml2::xml_find_all(tmp_xml, '//item')
-  data <- data.frame(
-    sgId = datagokR:::find_xml(item, './sgId'),
-    sgName = datagokR:::find_xml(item, './sgName'),
-    sgTypecode = datagokR:::find_xml(item, './sgTypecode'),
-    sgVotedate = datagokR:::find_xml(item, './sgVotedate'),
-    stringsAsFactors = F
-  )
-
+  data <- xml_to_dataframe(item)
+  # data <- data.frame(
+  #   sgId = datagokR:::find_xml(item, './sgId'),
+  #   sgName = datagokR:::find_xml(item, './sgName'),
+  #   sgTypecode = datagokR:::find_xml(item, './sgTypecode'),
+  #   sgVotedate = datagokR:::find_xml(item, './sgVotedate'),
+  #   stringsAsFactors = F
+  # )
   for(col in colnames(data)){
     if(class(data[[col]]) == 'character'){
       Encoding(data[[col]]) <- 'UTF-8'

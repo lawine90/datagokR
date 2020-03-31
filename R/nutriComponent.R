@@ -32,7 +32,8 @@ nutriComponent <- function(key, verbose = F){
   }
 
   # the number of pages.
-  urls <- unlist(lapply(1:nofpage, function(x) sprintf("%sserviceKey=%s&numOfRows=100&pageNo=%s", base, key, x)))
+  urls <- unlist(lapply(1:nofpage, function(x) sprintf("http://apis.data.go.kr/1470000/%s/%s?serviceKey=%s&numOfRows=100&pageNo=%s",
+                                                       'FoodNtrIrdntInfoService', 'getFoodNtrItdntList', key, x)))
 
   ### 3. first urls's xml parsing.
   # parsing xml codes with repeat and trycatch.

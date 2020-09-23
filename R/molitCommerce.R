@@ -1,6 +1,6 @@
 #' Ministry of Land Infrastructure and Transport, real estate for Commerce transaction data.
 #'
-#' molitCommerce function import the actual transition data of house. The function also provide simple visualization using plotly.
+#' molitCommerce function import the actual transition data of house.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>
 #' @param year numeric value. the year of real trade
@@ -8,23 +8,19 @@
 #' @param localeCode numeric value. SiGunGu code which means legal area.
 #' @param localeName character value. SiGunGu name wich means legal area. It should be Korean.
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is FALSE
-#' @param viz logical value. if TRUE, provide simple 3d visualization result. x: date, y: price, z: the number of contract.
 #'
-#' @return two data.frame for meta-data and imported data.
-#' two vectors for error urls and all urls. visualization.
-#'
+#' @return list of two data.frame.
+#' 
 #' @details If month value is NULL, all data of the year will imported.\cr
 #'    Between localeCode and localeName, one of these parameters should be inserted. \cr
 #'    The localeCode parameter recommended five numeric value.
 #'
 #' @examples
 #'  # example 1 searching by localeCode.
-#'  data <- molitCommerce(key = "my_key", year = 2018, month = 1,
-#'                        localeCode = 11110, slow = T, viz = F)
+#'  data <- molitCommerce(key = "my_key", year = 2018, month = 1, localeCode = 11110, slow = T)
 #'
 #'  # example 2 searching by localeName
-#'  data <- molitCommerce(key = "my_key", year = 2018, month = 1:6,
-#'                        localeName = enc2utf8("서울"), slow = F, viz = T)
+#'  data <- molitCommerce(key = "my_key", year = 2018, month = 1:6, localeName = enc2utf8("서울"), slow = F)
 #'
 #' @importFrom dplyr %>%
 #' @importFrom stats runif
@@ -39,7 +35,7 @@ molitCommerce <- function(key, year, month = NULL, localeCode = NULL, localeName
   if(is.null(localeCode) & is.null(localeName)){ stop("Invalid locale. Please insert at least one params between \"localeCode\" and \"localeName\"") }
   if(!is.null(localeCode) & (mean(nchar(localeCode)) > 5)){
     warning("Five numeric value is recommended for \"localeCode\" param.")
-    localeCode <- substr(localeCode, 1, 5) %>% as.numeric
+    localeCode <- as.numeric(substr(localeCode, 1, 5))
   }
 
   ### 2. REST url.
@@ -60,43 +56,43 @@ molitCommerce <- function(key, year, month = NULL, localeCode = NULL, localeName
 
   ## locale
   if(is.null(localeCode) & !is.null(localeName)){
-    localeName <- gsub("시\\b|도\\b", "", localeName) %>% paste(collapse = "|")
+    localeName <- gsub("시\\b|도\\b", "", localeName); localeName <- paste(localeName, collapse = "|")
     localeCode <- datagokR::molit_locale_code[grepl(localeName, datagokR::molit_locale_code$name),]
-    localeCode <- localeCode[localeCode$exist == "존재",] %>% dplyr::select("code") %>% unlist %>% as.numeric
+    localeCode <- localeCode[localeCode$exist == "존재",]$code
   }
 
   ## generate list of urls.
-  urls <- lapply(datelst, function(x) paste(url, "serviceKey=", key, "&DEAL_YMD=", x, sep = "")) %>%
-    lapply(function(x) paste(x, "&LAWD_CD=", localeCode, sep = "")) %>% unlist
-
+  urls <- lapply(datelst, function(x) paste(url, "serviceKey=", key, "&DEAL_YMD=", x, sep = ""))
+  urls <- lapply(urls, function(x) paste(x, "&LAWD_CD=", localeCode, sep = "")); urls <- unlist(urls)
+  
   ### 3. urls's xml parsing.
-  all.data <- list(); length(all.data) <- length(urls)                 # define data.frame for importing.
-  pb <- utils::txtProgressBar(min = 0, length(urls), style = 3)
+  all.data <- list(); length(all.data) <- length(urls)
+  if(length(urls) > 1) pb <- utils::txtProgressBar(min = 0, length(urls), style = 3)
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
-    tmp.xml <- datagokR:::try_GET_content(urls[[i]])
+    tmp_xml <- datagokR:::try_GET_content(urls[[i]])
 
-    # if tmp.xml is error, go next.
-    if(tmp.xml$response$header$resultCode != '00') {
-      warning(tmp.xml$response$header$resultMsg)
+    # if tmp_xml is error, go next.
+    if(tmp_xml$response$header$resultCode != '00') {
+      warning(tmp_xml$response$header$resultMsg)
       next
     }
 
-    Count <- tmp.xml$response$body$totalCount
+    Count <- tmp_xml$response$body$totalCount
     if(slow){
       Sys.sleep(stats::runif(1, 0, 1.5))
     }
 
     # if the number of trade is 0, skip.
     # set location object differently according to the number of trade(1 or over.)
-    if(Count == 0){
+    if(Count == 0 & length(urls) > 1){
       utils::setTxtProgressBar(pb, value = i)
       next
     }else if(Count == 1){
-      location <- tmp.xml$response$body$items
+      location <- tmp_xml$response$body$items
     }else{
-      location <- tmp.xml$response$body$items$item
+      location <- tmp_xml$response$body$items$item
     } # end of if statement.
 
     all.data[[i]] <- data.frame(
@@ -120,11 +116,10 @@ molitCommerce <- function(key, year, month = NULL, localeCode = NULL, localeName
       stringsAsFactors = F
     )
 
-    utils::setTxtProgressBar(pb, value = i)
+    if(length(urls) > 1) utils::setTxtProgressBar(pb, value = i)
   } # end of loop i.
 
-  result <- dplyr::as.tbl(dplyr::bind_rows(all.data))
-
+  result <- dplyr::as_tibble(dplyr::bind_rows(all.data))
   return(result)
   cat("\nJobs Done.\n")
 } # end of function.

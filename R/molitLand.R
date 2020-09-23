@@ -1,6 +1,6 @@
 #' Ministry of Land Infrastructure and Transport, land transaction data.
 #'
-#' molitLand function import the actual transition data of house. The function also provide simple visualization using plotly.
+#' molitLand function import the actual transition data of house.
 #'
 #' @param key character value. API key issued from <www.data.go.kr>
 #' @param year numeric value. the year of real trade
@@ -8,10 +8,8 @@
 #' @param localeCode numeric value. SiGunGu code which means legal area.
 #' @param localeName character value. SiGunGu name wich means legal area. It should be Korean.
 #' @param slow logical value. if TRUE, give sleep inbetween importing. default is FALSE
-#' @param viz logical value. if TRUE, provide simple 3d visualization result. x: date, y: price, z: the number of contract.
 #'
-#' @return two data.frame for meta-data and imported data.
-#' two vectors for error urls and all urls. visualization.
+#' @return list of two data.frame.
 #'
 #' @details If month value is NULL, all data of the year will imported.\cr
 #'    Between localeCode and localeName, one of these parameters should be inserted. \cr
@@ -19,12 +17,10 @@
 #'
 #' @examples
 #'  # example 1 searching by localeCode.
-#'  data <- molitLand(key = "my_key", year = 2018, month = 1,
-#'                    localeCode = 11110, slow = T, viz = F)
+#'  data <- molitLand(key = "my_key", year = 2018, month = 1, localeCode = 11110, slow = T)
 #'
 #'  # example 2 searching by localeName
-#'  data <- molitLand(key = "my_key", year = 2018, month = 1:6,
-#'                    localeName = enc2utf8("서울"), slow = F, viz = T)
+#'  data <- molitLand(key = "my_key", year = 2018, month = 1:6, localeName = enc2utf8("서울"), slow = F)
 #'
 #' @importFrom dplyr %>%
 #' @importFrom stats runif
@@ -39,7 +35,7 @@ molitLand <- function(key, year, month = NULL, localeCode = NULL, localeName = N
   if(is.null(localeCode) & is.null(localeName)){ stop("Invalid locale. Please insert at least one params between \"localeCode\" and \"localeName\"") }
   if(!is.null(localeCode) & (mean(nchar(localeCode)) > 5)){
     warning("Five numeric value is recommended for \"localeCode\" param.")
-    localeCode <- substr(localeCode, 1, 5) %>% as.numeric
+    localeCode <- as.numeric(substr(localeCode, 1, 5))
   }
 
   ### 2. REST url.
@@ -60,18 +56,18 @@ molitLand <- function(key, year, month = NULL, localeCode = NULL, localeName = N
 
   ## locale
   if(is.null(localeCode) & !is.null(localeName)){
-    localeName <- gsub("시\\b|도\\b", "", localeName) %>% paste(collapse = "|")
+    localeName <- gsub("시\\b|도\\b", "", localeName); localeName <- paste(localeName, collapse = "|")
     localeCode <- datagokR::molit_locale_code[grepl(localeName, datagokR::molit_locale_code$name),]
-    localeCode <- localeCode[localeCode$exist == "존재",] %>% dplyr::select("code") %>% unlist %>% as.numeric
+    localeCode <- localeCode[localeCode$exist == "존재",]$code
   }
 
   ## generate list of urls.
-  urls <- lapply(datelst, function(x) paste(url, "serviceKey=", key, "&DEAL_YMD=", x, sep = "")) %>%
-    lapply(function(x) paste(x, "&LAWD_CD=", localeCode, sep = "")) %>% unlist
-
+  urls <- lapply(datelst, function(x) paste(url, "serviceKey=", key, "&DEAL_YMD=", x, sep = ""))
+  urls <- lapply(urls, function(x) paste(x, "&LAWD_CD=", localeCode, sep = "")); urls <- unlist(urls)
+  
   ### 3. urls's xml parsing.
   all.data <- list(); length(all.data) <- length(urls)                 # define data.frame for importing.
-  pb <- utils::txtProgressBar(min = 0, length(urls), style = 3)
+  if(length(urls) > 1) pb <- utils::txtProgressBar(min = 0, length(urls), style = 3)
 
   ## xml data parsing as list form.
   for(i in 1:length(urls)){
@@ -89,7 +85,7 @@ molitLand <- function(key, year, month = NULL, localeCode = NULL, localeName = N
 
     # if the number of trade is 0, skip.
     # set location object differently according to the number of trade(1 or over.)
-    if(Count == 0){
+    if(Count == 0 & length(urls) > 1){
       utils::setTxtProgressBar(pb, value = i)
       next
     }else if(Count == 1){
@@ -116,10 +112,10 @@ molitLand <- function(key, year, month = NULL, localeCode = NULL, localeName = N
       stringsAsFactors = F
     )
 
-    utils::setTxtProgressBar(pb, value = i)
+    if(length(urls) > 1) utils::setTxtProgressBar(pb, value = i)
   } # end of loop i.
 
-  result <- dplyr::as.tbl(dplyr::bind_rows(all.data))
+  result <- dplyr::as_tibble(dplyr::bind_rows(all.data))
 
   return(result)
   cat("\nJobs Done.\n")
